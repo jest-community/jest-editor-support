@@ -12,7 +12,7 @@
 
 import type {ProjectConfig} from '../types/Config';
 
-import traverse from 'babel-traverse';
+import traverse from '@babel/traverse';
 import {getASTfor} from './parsers/babylon_parser';
 import {buildSnapshotResolver, utils} from 'jest-snapshot';
 

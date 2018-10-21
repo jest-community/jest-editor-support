@@ -12,7 +12,7 @@ import path from 'path';
 import TestReconciler from '../test_reconciler';
 import type {TestFileAssertionStatus, TestAssertionStatus} from '../types';
 
-const fixtures = path.resolve(__dirname, '../../../../fixtures');
+const fixtures = path.resolve(__dirname, '../../fixtures');
 
 function reconcilerWithFile(
   parser: TestReconciler,

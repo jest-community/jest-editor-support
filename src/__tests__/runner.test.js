@@ -27,7 +27,7 @@ jest.mock('fs', () => {
 });
 
 const path = require('path');
-const fixtures = path.resolve(__dirname, '../../../../fixtures');
+const fixtures = path.resolve(__dirname, '../../fixtures');
 import ProjectWorkspace from '../project_workspace';
 import {messageTypes} from '../types';
 
