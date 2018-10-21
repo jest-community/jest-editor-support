@@ -11,6 +11,7 @@ import type {Options, SpawnOptions} from './types';
 
 import {ChildProcess} from 'child_process';
 import EventEmitter from 'events';
+import {defaults as jestConfigDefaults} from 'jest-config';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
@@ -56,11 +57,9 @@ export default class Settings extends EventEmitter {
       shell: options && options.shell,
     };
 
-    // Defaults for a Jest project
-    this.settings = {
-      testMatch: ['**/__tests__/**/*.js?(x)', '**/?(*.)+(spec|test).js?(x)'],
-      testRegex: ['(/__tests__/.*|\\.(test|spec))\\.jsx?$'],
-    };
+    const {testMatch, testRegex} = jestConfigDefaults;
+
+    this.settings = {testMatch, testRegex};
 
     this.configs = [this.settings];
     this._jsonPattern = new RegExp(/^[\s]*\{/gm);
