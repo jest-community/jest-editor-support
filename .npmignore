@@ -1,3 +1,7 @@
 **/__mocks__/**
 **/__tests__/**
 src
+fixtures
+.flowconfig
+babel.config.js
+yarn.lock

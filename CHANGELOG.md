@@ -8,7 +8,7 @@ in your head, consider this a 1.0 kinda thing.
   This is because the codebase was migrated with Jest, and now uses functions
   from the master builds that don't seem to be available on the latest production
   versions of jest-snapshot/. If someone wants to backport this to the prod builds 
-  look at the useage of the `buildSnapshotResolver`
+  look at the usage of the `buildSnapshotResolver`
 
 - Adds the ability to parse describe blocks - https://github.com/facebook/jest/pull/7215
 
