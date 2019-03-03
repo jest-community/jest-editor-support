@@ -103,7 +103,7 @@ export declare class ParsedNode {
   children?: ParsedNode[];
 
   constructor(type: ParsedNodeType, file: string);
-  filter(f: (ParsedNode) => boolean): Array<ParsedNode>;
+  filter(f: (parsedNode: ParsedNode) => boolean): Array<ParsedNode>;
   addChild(type: ParsedNodeType): ParsedNode;
 }
 
