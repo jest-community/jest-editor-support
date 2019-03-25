@@ -32,7 +32,8 @@
   "jest": {
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/build/"
+      "/build/",
+      "/fixtures/"
     ]
   },
   "typings": "index.d.ts"

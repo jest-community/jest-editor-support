@@ -131,7 +131,7 @@ function parserTests(parse: (file: string) => BabylonParserResult) {
 
       const firstExpect = data.expects[0];
       expect(firstExpect.start).toEqual({column: 5, line: 13});
-      expect(firstExpect.end).toEqual({column: 37, line: 13});
+      expect(firstExpect.end).toEqual({column: 36, line: 13});
     });
 
     it('finds Expects in a danger flow test file ', () => {
@@ -140,7 +140,7 @@ function parserTests(parse: (file: string) => BabylonParserResult) {
 
       const thirdExpect = data.expects[2];
       expect(thirdExpect.start).toEqual({column: 5, line: 33});
-      expect(thirdExpect.end).toEqual({column: 40, line: 33});
+      expect(thirdExpect.end).toEqual({column: 39, line: 33});
     });
 
     it('finds Expects in a metaphysics test file', () => {
