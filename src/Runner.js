@@ -40,7 +40,7 @@ export default class Runner extends EventEmitter {
     this._createProcess = (options && options.createProcess) || createProcess;
     this.options = options || {};
     this.workspace = workspace;
-    this.outputPath = tmpdir() + '/jest_runner.json';
+    this.outputPath = tmpdir() + `/jest_runner_${this.workspace.outputFileSuffix || ''}.json`;
     this.prevMessageTypes = [];
   }
 
@@ -56,7 +56,7 @@ export default class Runner extends EventEmitter {
     const belowEighteen = this.workspace.localJestMajorVersion < 18;
     const outputArg = belowEighteen ? '--jsonOutputFile' : '--outputFile';
 
-    const args = ['--json', '--useStderr', outputArg, this.outputPath];
+    const args = ['--testLocationInResults', '--json', '--useStderr', outputArg, this.outputPath];
     if (this.watchMode) {
       args.push(this.watchAll ? '--watchAll' : '--watch');
     }
@@ -175,20 +175,21 @@ export default class Runner extends EventEmitter {
     delete this.debugprocess;
   }
 
-  findMessageType(buf: Buffer): MessageType {
-    const str = buf.toString('utf8', 0, 58);
-    const lastCommitRegex = /No tests found related to files changed since ((last commit)|("[a-z0-9]+"))./;
-    if (lastCommitRegex.test(str)) {
-      return messageTypes.noTests;
-    }
-    if (/^\s*Watch Usage\b/.test(str)) {
-      return messageTypes.watchUsage;
-    }
 
-    if (str.trim().startsWith('Test results written to')) {
-      return messageTypes.testResults;
-    }
-    return messageTypes.unknown;
+  findMessageType(buf: Buffer): MessageType {
+    const noTestRegex = /No tests found related to files changed since ((last commit)|("[a-z0-9]+"))./;
+    const watchUsageRegex = /^\s*Watch Usage\b/;
+    const testResultsRegex = /Test results written to/;
+
+    const checks = [
+      [testResultsRegex, messageTypes.testResults],
+      [noTestRegex, messageTypes.noTests],
+      [watchUsageRegex, messageTypes.watchUsage],
+    ];
+
+    const str = buf.toString('utf8');
+    const check = checks.find(check => check[0].test(str));
+    return check ? check[1] : messageTypes.unknown; 
   }
 
   doResultsFollowNoTestsFoundMessage() {

@@ -63,6 +63,7 @@ export type TestAssertionStatus = {
   message: string,
   shortMessage: ?string,
   terseMessage: ?string,
+  location: ?Location,
   line: ?number,
 };
 

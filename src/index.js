@@ -24,7 +24,7 @@ import {
   ParsedRange,
 } from './parsers/parser_nodes';
 import type {ParsedNodeType} from './parsers/parser_nodes';
-import {parse} from './parsers/babylon_parser';
+import {parse} from './parsers';
 import TestReconciler from './test_reconciler';
 
 module.exports = {

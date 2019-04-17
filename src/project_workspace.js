@@ -60,11 +60,20 @@ export default class ProjectWorkspace {
    */
   debug: ?boolean;
 
+  /**
+   * suffix string used as part of the output file path, this is to support concurrent Runners.
+   *
+   * @type {string}
+   * @memberof ProjectWorkspace
+   */
+  outputFileSuffix: ?string;
+
   constructor(
     rootPath: string,
     pathToJest: string,
     pathToConfig: string,
     localJestMajorVersion: number,
+    outputFileSuffix?: string,
     collectCoverage: ?boolean,
     debug: ?boolean,
   ) {
@@ -72,6 +81,7 @@ export default class ProjectWorkspace {
     this.pathToJest = pathToJest;
     this.pathToConfig = pathToConfig;
     this.localJestMajorVersion = localJestMajorVersion;
+    this.outputFileSuffix = outputFileSuffix ? outputFileSuffix.replace(/[^a-z0-9]/gi, '_').toLowerCase() : undefined;
     this.collectCoverage = collectCoverage;
     this.debug = debug;
   }

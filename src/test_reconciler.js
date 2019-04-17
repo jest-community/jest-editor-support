@@ -11,6 +11,7 @@ import type {
   TestFileAssertionStatus,
   TestAssertionStatus,
   TestReconciliationState,
+  Location,
 } from './types';
 
 import type {
@@ -67,6 +68,13 @@ export default class TestReconciler {
     filename: string,
     assertions: Array<FormattedAssertionResult>,
   ): Array<TestAssertionStatus> {
+
+    //convert jest location (column is 0-based and line is 1-based) to all 0-based location used internally in this package
+    const convertJestLocation = (jestLocation: ?Location) => {
+      if (!jestLocation) return; 
+      jestLocation.line -= 1;
+      return jestLocation;
+    }
     // Is it jest < 17? e.g. Before I added this to the JSON
     if (!assertions) {
       return [];
@@ -79,6 +87,7 @@ export default class TestReconciler {
       let short = null;
       let terse = null;
       let line = null;
+      let location = convertJestLocation(assertion.location); //output from jest --testLocationInResults (https://jestjs.io/docs/en/cli#testlocationinresults) 
       if (message) {
         // Just the first line, with little whitespace
         short = message.split('   at', 1)[0].trim();
@@ -93,6 +102,7 @@ export default class TestReconciler {
         status: this.statusToReconcilationState(assertion.status),
         terseMessage: terse,
         title: assertion.title,
+        location,
       };
     });
   }

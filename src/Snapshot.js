@@ -110,8 +110,16 @@ export default class Snapshot {
     this._projectConfig = projectConfig;
   }
 
-  getMetadata(filePath: string): Array<SnapshotMetadata> {
-    const fileNode = this._parser(filePath);
+  getMetadata(filePath: string, verbose: boolean = false): Array<SnapshotMetadata> {
+    let fileNode;
+    try{
+      fileNode = this._parser(filePath);
+    } catch (error) {
+      if (verbose) {
+        console.warn(error)
+      }
+      return [];
+    }
     const state = {
       found: [],
     };

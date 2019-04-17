@@ -129,3 +129,23 @@ test('nested.example', () => {
   expect(results[1].node.loc.start).toEqual({column: 21, line: 6});
   expect(results[1].node.loc.end).toEqual({column: 36, line: 6});
 });
+
+describe('when metadata parse error', () => {
+  it("getMetadata returns empty array", () => {
+    const filePath = path.join(snapshotFixturePath, 'typescript-file');
+    const results = snapshotHelper.getMetadata(filePath);
+    expect(results).toEqual([])
+  });
+  it("support verbose mode for debugging", () => {
+    (console: any).warn = jest.fn();
+    const filePath = path.join(snapshotFixturePath, 'typescript-file');
+
+    let results = snapshotHelper.getMetadata(filePath);
+    expect(results).toEqual([])
+    expect(console.warn).not.toHaveBeenCalled();
+
+    results = snapshotHelper.getMetadata(filePath, true);
+    expect(results).toEqual([])
+    expect(console.warn).toHaveBeenCalled();
+  });
+});

@@ -56,12 +56,15 @@ describe('Runner', () => {
     });
 
     it('sets the output filepath', () => {
-      tmpdir.mockReturnValueOnce('tmpdir');
+      tmpdir.mockReturnValue('tmpdir');
 
-      const workspace: any = {};
-      const sut = new Runner(workspace);
+      const suffix = ['runner-test', undefined]
 
-      expect(sut.outputPath).toBe('tmpdir/jest_runner.json');
+      suffix.forEach(s => {
+        const workspace: any = {outputFileSuffix: s};
+        const sut = new Runner(workspace);
+        expect(sut.outputPath).toEqual(`tmpdir/jest_runner_${s || ''}.json`)
+      });
     });
 
     it('sets the default options', () => {
@@ -478,6 +481,7 @@ describe('events', () => {
 
       expect(runner.prevMessageTypes).toEqual([]);
     });
+    
   });
 
   describe('findMessageType()', () => {
@@ -506,6 +510,26 @@ describe('events', () => {
       const buf = Buffer.from('\n\nWatch Usage\n...');
       expect(runner.findMessageType(buf)).toBe(messageTypes.watchUsage);
     });
+    it('should prioritize message types accordingly.', () => {
+      // testResults > noTests > watchUsage > unknown 
+
+      const testResults = 'Test results written to file\n';
+      const noTests = 'No tests found related to files changed since "master".\n';
+      const watchUsage = 'Press `a` to run all tests, or run Jest with `--watchAll`\n';
+      const unknownMsg = 'whatever...\n';
+      
+      expect(runner.findMessageType(Buffer.from(noTests + testResults)))
+        .toBe(messageTypes.testResults);
+
+      expect(runner.findMessageType(Buffer.from(noTests + watchUsage)))
+        .toBe(messageTypes.noTests);
+
+      expect(runner.findMessageType(Buffer.from(noTests + watchUsage + testResults)))
+        .toBe(messageTypes.testResults);
+
+      expect(runner.findMessageType(Buffer.from(unknownMsg + testResults)))
+        .toBe(messageTypes.testResults);
+    })
   });
 
   describe('doResultsFollowNoTestsFoundMessage()', () => {

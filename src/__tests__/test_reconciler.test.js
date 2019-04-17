@@ -79,8 +79,27 @@ Expected value to be falsy, instead received
       expect(status.status).toEqual('KnownSkip');
       expect(status.line).toBeNull();
     });
+    
   });
 
+  describe('test result with --testLocationInResults', () => {
+    beforeEach(() => {
+      parser = new TestReconciler();
+      results = reconcilerWithFile(parser, 'with-location.json');
+    });
+    it('can parse and convert location', () => {
+      console.log(`results=`, results, 'assertions=', results[0].assertions);
+      expect(results.length).toEqual(1);
+      const assertions = results[0].assertions;
+      if (assertions) {
+        expect(assertions.length).toEqual(2);
+        expect(assertions[0].location).toEqual({ column: 2, line: 14 });
+        expect(assertions[1].location).toEqual({ column: 2, line: 24 });
+      } else {
+        expect(assertions).not.toBeNull();
+      }
+    });
+  });
   describe('in a monorepo project', () => {
     beforeEach(() => {
       parser = new TestReconciler();
