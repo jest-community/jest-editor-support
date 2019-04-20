@@ -88,7 +88,6 @@ Expected value to be falsy, instead received
       results = reconcilerWithFile(parser, 'with-location.json');
     });
     it('can parse and convert location', () => {
-      console.log(`results=`, results, 'assertions=', results[0].assertions);
       expect(results.length).toEqual(1);
       const assertions = results[0].assertions;
       if (assertions) {

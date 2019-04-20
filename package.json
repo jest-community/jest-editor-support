@@ -36,9 +36,9 @@
   },
   "jest": {
     "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/build/",
-      "/fixtures/"
+      "<rootDir>/node_modules/",
+      "<rootDir>/build/",
+      "<rootDir>/fixtures/"
     ]
   },
   "typings": "index.d.ts"
