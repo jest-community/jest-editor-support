@@ -1,5 +1,9 @@
 # jest-editor-support
 
+[![Build Status](https://travis-ci.com/jest-community/jest-editor-support.svg?branch=master)](https://travis-ci.com/jest-community/jest-editor-support) 
+[![Coverage Status](https://coveralls.io/repos/github/jest-community/jest-editor-support/badge.svg?branch=master)](https://coveralls.io/github/jest-community/jest-editor-support?branch=master)
+
+
 The engine that allows editors to build on top of Jest.
 
 ## Usage

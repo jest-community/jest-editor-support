@@ -6,6 +6,12 @@ const modified = danger.git.modified_files
 const bodyAndTitle = (pr.body + pr.title).toLowerCase()
 const trivialPR = bodyAndTitle.includes('#trivial')
 
+const codeOnly = (file ) => file.includes('.js')
+const filesOnly = (file) => fs.existsSync(file) && fs.lstatSync(file).isFile()
+
+// Custom subsets of known files
+const modifiedAppFiles = modified.filter(p => p.includes('src/')).filter(p => filesOnly(p) && codeOnly(p))
+
 // Rules
 
 // When there are app-changes and it's not a PR marked as trivial, expect
