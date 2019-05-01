@@ -7,8 +7,6 @@
  * @flow
  */
 
-'use strict';
-
 const {parse} = require('../../parsers/babylon_parser');
 const {parserTests} = require('../../../fixtures/parser_tests');
 

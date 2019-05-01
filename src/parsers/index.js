@@ -8,29 +8,25 @@
  */
 
 import {ParseResult} from './parser_nodes';
-import {parse as parse_js} from './babylon_parser';
-import {parse as parse_ts} from './typescript_parser';
+import {parse as parseJs} from './babylon_parser';
+import {parse as parseTs} from './typescript_parser';
 
 /**
- * parse the test file by selecting proper parser based on the file extension. 
- * 
+ * parse the test file by selecting proper parser based on the file extension.
+ *
  * exception will be throw should the underlying parse failed.
  */
-function parse(file: string, data?: string, strict: boolean = false): ParseResult {
+export default function parse(file: string, data?: string, strict: boolean = false): ParseResult {
   if (file.match(/\.tsx?$/)) {
-    return parse_ts(file, data);
-  } 
+    return parseTs(file, data);
+  }
   if (file.match(/\.jsx?$/)) {
-    return parse_js(file, data);
+    return parseJs(file, data);
   }
 
-  //unexpected file extension, for backward compatibility, will use js parser
+  // unexpected file extension, for backward compatibility, will use js parser
   if (strict) {
     throw new TypeError(`unable to find parser for unrecognized file extension: ${file}`);
   }
-  return parse_js(file, data);
+  return parseJs(file, data);
 }
-
-module.exports = {
-  parse,
-};

@@ -7,12 +7,10 @@
  * @flow
  */
 
-'use strict';
+import {spawn} from 'child_process';
+import {createProcess} from '../Process';
 
 jest.mock('child_process');
-
-import {createProcess} from '../Process';
-import {spawn} from 'child_process';
 
 describe('createProcess', () => {
   afterEach(() => {
@@ -47,16 +45,13 @@ describe('createProcess', () => {
 
   it('fails to spawn the first quoted arg from workspace.pathToJest', () => {
     const workspace: any = {
-      pathToJest:
-        '"../build scripts/test" --coverageDirectory="../code coverage"',
+      pathToJest: '"../build scripts/test" --coverageDirectory="../code coverage"',
     };
     const args = [];
     createProcess(workspace, args);
 
     expect(spawn.mock.calls[0][0]).not.toBe('"../build scripts/test"');
-    expect(spawn.mock.calls[0][1]).not.toEqual([
-      '--coverageDirectory="../code coverage"',
-    ]);
+    expect(spawn.mock.calls[0][1]).not.toEqual(['--coverageDirectory="../code coverage"']);
   });
 
   it('appends args', () => {
@@ -75,14 +70,7 @@ describe('createProcess', () => {
     const args = ['--option', 'value'];
     createProcess(workspace, args);
 
-    expect(spawn.mock.calls[0][1]).toEqual([
-      'test',
-      '--',
-      '--option',
-      'value',
-      '--config',
-      'non-standard.jest.js',
-    ]);
+    expect(spawn.mock.calls[0][1]).toEqual(['test', '--', '--option', 'value', '--config', 'non-standard.jest.js']);
   });
 
   it('defines the "CI" environment variable', () => {

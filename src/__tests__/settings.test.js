@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+/* eslint-disable no-use-before-define */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -7,20 +9,13 @@
  * @flow
  */
 
-'use strict';
-
 import EventEmitter from 'events';
 import ProjectWorkspace from '../project_workspace';
 import Settings from '../Settings';
 
 describe('Settings', () => {
   it('sets itself up fom the constructor', () => {
-    const workspace = new ProjectWorkspace(
-      'root_path',
-      'path_to_jest',
-      'test',
-      1000,
-    );
+    const workspace = new ProjectWorkspace('root_path', 'path_to_jest', 'test', 1000);
     const options = {
       shell: true,
     };
@@ -31,12 +26,7 @@ describe('Settings', () => {
   });
 
   it('[jest 20] reads and parses the config', () => {
-    const workspace = new ProjectWorkspace(
-      'root_path',
-      'path_to_jest',
-      'test',
-      1000,
-    );
+    const workspace = new ProjectWorkspace('root_path', 'path_to_jest', 'test', 1000);
     const completed = jest.fn();
     const config = {
       cacheDirectory: '/tmp/jest',
@@ -65,12 +55,7 @@ describe('Settings', () => {
   });
 
   it('[jest 21] reads and parses the config', () => {
-    const workspace = new ProjectWorkspace(
-      'root_path',
-      'path_to_jest',
-      'test',
-      1000,
-    );
+    const workspace = new ProjectWorkspace('root_path', 'path_to_jest', 'test', 1000);
     const completed = jest.fn();
     const configs = [
       {
@@ -101,12 +86,7 @@ describe('Settings', () => {
   });
 
   it('[jest 21] reads and parses the configs', () => {
-    const workspace = new ProjectWorkspace(
-      'root_path',
-      'path_to_jest',
-      'test',
-      1000,
-    );
+    const workspace = new ProjectWorkspace('root_path', 'path_to_jest', 'test', 1000);
     const completed = jest.fn();
     const configs = [
       {
@@ -137,12 +117,7 @@ describe('Settings', () => {
   });
 
   it('calls callback even if no data is sent', () => {
-    const workspace = new ProjectWorkspace(
-      'root_path',
-      'path_to_jest',
-      'test',
-      1000,
-    );
+    const workspace = new ProjectWorkspace('root_path', 'path_to_jest', 'test', 1000);
     const completed = jest.fn();
 
     const mockProcess: any = new EventEmitter();
@@ -164,12 +139,7 @@ describe('Settings', () => {
     const pathToJest = 'path_to_jest';
     const rootPath = 'root_path';
 
-    const workspace = new ProjectWorkspace(
-      rootPath,
-      pathToJest,
-      pathToConfig,
-      localJestMajorVersion,
-    );
+    const workspace = new ProjectWorkspace(rootPath, pathToJest, pathToConfig, localJestMajorVersion);
     const createProcess = jest.fn().mockReturnValue({
       on: () => {},
       stdout: new EventEmitter(),
@@ -192,17 +162,12 @@ describe('Settings', () => {
       ['--showConfig'],
       {
         shell: true,
-      },
+      }
     );
   });
 
   describe('parse config', () => {
-    const workspace = new ProjectWorkspace(
-      'root_path',
-      'path_to_jest',
-      'test',
-      1000,
-    );
+    const workspace = new ProjectWorkspace('root_path', 'path_to_jest', 'test', 1000);
     const createProcess = jest.fn();
 
     const json = `{ 
@@ -211,11 +176,7 @@ describe('Settings', () => {
         "testRegex": "some-regex"
       }]
     }`;
-    const run_test = (
-      text: string,
-      expected_version: number = 23,
-      expected_regex: string = 'some-regex',
-    ): void => {
+    const run_test = (text: string, expected_version: number = 23, expected_regex: string = 'some-regex'): void => {
       settings._parseConfig(text);
       const target = settings.configs[0];
       expect(settings.jestVersionMajor).toBe(expected_version);
@@ -267,5 +228,5 @@ const makeBuffer = (content: string) => {
     return Buffer.from(content);
   }
 
-  return new Buffer(content);
+  return Buffer.from(content);
 };

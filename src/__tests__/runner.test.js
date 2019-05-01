@@ -7,14 +7,25 @@
  * @flow
  */
 
-'use strict';
+import {tmpdir} from 'os';
+import {spawn} from 'child_process';
+import {readFileSync} from 'fs';
+import EventEmitter from 'events';
+import type {ChildProcess} from 'child_process';
+import Runner from '../Runner';
+import {createProcess} from '../Process';
+import {messageTypes} from '../types';
+import ProjectWorkspace from '../project_workspace';
+
+// ('use strict');
 
 jest.mock('../Process');
 jest.mock('child_process', () => ({spawn: jest.fn()}));
 jest.mock('os', () => ({tmpdir: jest.fn()}));
 jest.mock('fs', () => {
   // $FlowFixMe requireActual
-  const readFileSync = jest.requireActual('fs').readFileSync;
+  // eslint-disable-next-line no-shadow
+  const {readFileSync} = jest.requireActual('fs');
 
   // Replace `readFile` with `readFileSync` so we don't get multiple threads
   return {
@@ -27,17 +38,8 @@ jest.mock('fs', () => {
 });
 
 const path = require('path');
-const fixtures = path.resolve(__dirname, '../../fixtures');
-import ProjectWorkspace from '../project_workspace';
-import {messageTypes} from '../types';
 
-import {default as Runner} from '../Runner';
-import {createProcess} from '../Process';
-import {tmpdir} from 'os';
-import {spawn} from 'child_process';
-import {readFileSync} from 'fs';
-import EventEmitter from 'events';
-import type {ChildProcess} from 'child_process';
+const fixtures = path.resolve(__dirname, '../../fixtures');
 
 describe('Runner', () => {
   describe('constructor', () => {
@@ -58,12 +60,12 @@ describe('Runner', () => {
     it('sets the output filepath', () => {
       tmpdir.mockReturnValue('tmpdir');
 
-      const suffix = ['runner-test', undefined]
+      const suffix = ['runner-test', undefined];
 
       suffix.forEach(s => {
         const workspace: any = {outputFileSuffix: s};
         const sut = new Runner(workspace);
-        expect(sut.outputPath).toEqual(`tmpdir/jest_runner_${s || ''}.json`)
+        expect(sut.outputPath).toEqual(`tmpdir/jest_runner_${s || ''}.json`);
       });
     });
 
@@ -87,14 +89,12 @@ describe('Runner', () => {
     beforeEach(() => {
       jest.resetAllMocks();
 
-      (createProcess: any).mockImplementationOnce(
-        (workspace, args, options) => {
-          const process: any = new EventEmitter();
-          process.stdout = new EventEmitter();
-          process.stderr = new EventEmitter();
-          return process;
-        },
-      );
+      (createProcess: any).mockImplementationOnce(() => {
+        const process: any = new EventEmitter();
+        process.stdout = new EventEmitter();
+        process.stderr = new EventEmitter();
+        return process;
+      });
     });
 
     it('will not start when started', () => {
@@ -336,12 +336,7 @@ describe('events', () => {
 
     (createProcess: any).mockImplementation(() => fakeProcess);
 
-    const workspace = new ProjectWorkspace(
-      '.',
-      'node_modules/.bin/jest',
-      'test',
-      18,
-    );
+    const workspace = new ProjectWorkspace('.', 'node_modules/.bin/jest', 'test', 18);
     runner = new Runner(workspace);
 
     // Sets it up and registers for notifications
@@ -397,9 +392,7 @@ describe('events', () => {
       const listener = jest.fn();
       runner.on('executableJSON', listener);
       runner.outputPath = `${fixtures}/failing-jsons/failing_jest_json.json`;
-      (runner: any).doResultsFollowNoTestsFoundMessage = jest
-        .fn()
-        .mockReturnValueOnce(true);
+      (runner: any).doResultsFollowNoTestsFoundMessage = jest.fn().mockReturnValueOnce(true);
       fakeProcess.stdout.emit('data', 'Test results written to file');
 
       expect(listener.mock.calls[0].length).toBe(2);
@@ -425,18 +418,14 @@ describe('events', () => {
     });
 
     it('should add the type to the message type history when known', () => {
-      (runner: any).findMessageType = jest
-        .fn()
-        .mockReturnValueOnce(messageTypes.noTests);
+      (runner: any).findMessageType = jest.fn().mockReturnValueOnce(messageTypes.noTests);
       fakeProcess.stderr.emit('data', Buffer.from(''));
 
       expect(runner.prevMessageTypes).toEqual([messageTypes.noTests]);
     });
 
     it('should clear the message type history when the type is unknown', () => {
-      (runner: any).findMessageType = jest
-        .fn()
-        .mockReturnValueOnce(messageTypes.unknown);
+      (runner: any).findMessageType = jest.fn().mockReturnValueOnce(messageTypes.unknown);
       fakeProcess.stderr.emit('data', Buffer.from(''));
 
       expect(runner.prevMessageTypes).toEqual([]);
@@ -458,7 +447,7 @@ describe('events', () => {
     it('should track when "No tests found related to files changed since the last commit" is received', () => {
       const data = Buffer.from(
         'No tests found related to files changed since last commit.\n' +
-          'Press `a` to run all tests, or run Jest with `--watchAll`.',
+          'Press `a` to run all tests, or run Jest with `--watchAll`.'
       );
       fakeProcess.stderr.emit('data', data);
 
@@ -468,7 +457,7 @@ describe('events', () => {
     it('should track when "No tests found related to files changed since master" is received', () => {
       const data = Buffer.from(
         'No tests found related to files changed since "master".\n' +
-          'Press `a` to run all tests, or run Jest with `--watchAll`.',
+          'Press `a` to run all tests, or run Jest with `--watchAll`.'
       );
       fakeProcess.stderr.emit('data', data);
 
@@ -481,7 +470,6 @@ describe('events', () => {
 
       expect(runner.prevMessageTypes).toEqual([]);
     });
-    
   });
 
   describe('findMessageType()', () => {
@@ -493,7 +481,7 @@ describe('events', () => {
     it('should identify "No tests found related to files changed since last commit."', () => {
       const buf = Buffer.from(
         'No tests found related to files changed since last commit.\n' +
-          'Press `a` to run all tests, or run Jest with `--watchAll`.',
+          'Press `a` to run all tests, or run Jest with `--watchAll`.'
       );
       expect(runner.findMessageType(buf)).toBe(messageTypes.noTests);
     });
@@ -501,7 +489,7 @@ describe('events', () => {
     it('should identify "No tests found related to files changed since git ref."', () => {
       const buf = Buffer.from(
         'No tests found related to files changed since "master".\n' +
-          'Press `a` to run all tests, or run Jest with `--watchAll`.',
+          'Press `a` to run all tests, or run Jest with `--watchAll`.'
       );
       expect(runner.findMessageType(buf)).toBe(messageTypes.noTests);
     });
@@ -511,25 +499,21 @@ describe('events', () => {
       expect(runner.findMessageType(buf)).toBe(messageTypes.watchUsage);
     });
     it('should prioritize message types accordingly.', () => {
-      // testResults > noTests > watchUsage > unknown 
+      // testResults > noTests > watchUsage > unknown
 
       const testResults = 'Test results written to file\n';
       const noTests = 'No tests found related to files changed since "master".\n';
       const watchUsage = 'Press `a` to run all tests, or run Jest with `--watchAll`\n';
       const unknownMsg = 'whatever...\n';
-      
-      expect(runner.findMessageType(Buffer.from(noTests + testResults)))
-        .toBe(messageTypes.testResults);
 
-      expect(runner.findMessageType(Buffer.from(noTests + watchUsage)))
-        .toBe(messageTypes.noTests);
+      expect(runner.findMessageType(Buffer.from(noTests + testResults))).toBe(messageTypes.testResults);
 
-      expect(runner.findMessageType(Buffer.from(noTests + watchUsage + testResults)))
-        .toBe(messageTypes.testResults);
+      expect(runner.findMessageType(Buffer.from(noTests + watchUsage))).toBe(messageTypes.noTests);
 
-      expect(runner.findMessageType(Buffer.from(unknownMsg + testResults)))
-        .toBe(messageTypes.testResults);
-    })
+      expect(runner.findMessageType(Buffer.from(noTests + watchUsage + testResults))).toBe(messageTypes.testResults);
+
+      expect(runner.findMessageType(Buffer.from(unknownMsg + testResults))).toBe(messageTypes.testResults);
+    });
   });
 
   describe('doResultsFollowNoTestsFoundMessage()', () => {
@@ -539,10 +523,7 @@ describe('events', () => {
     });
 
     it('should return true when the last two messages on stderr were "No tests found..." and "Watch Usage"', () => {
-      runner.prevMessageTypes.push(
-        messageTypes.noTests,
-        messageTypes.watchUsage,
-      );
+      runner.prevMessageTypes.push(messageTypes.noTests, messageTypes.watchUsage);
       expect(runner.doResultsFollowNoTestsFoundMessage()).toBe(true);
     });
 

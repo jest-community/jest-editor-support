@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-'use strict';
-
 import {parse} from '../../parsers/typescript_parser';
 import {parserTests} from '../../../fixtures/parser_tests';
 

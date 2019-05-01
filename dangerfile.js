@@ -6,7 +6,7 @@ const modified = danger.git.modified_files
 const bodyAndTitle = (pr.body + pr.title).toLowerCase()
 const trivialPR = bodyAndTitle.includes('#trivial')
 
-const codeOnly = (file ) => file.includes('.js')
+const codeOnly = (file ) => file.endsWith('.js')
 const filesOnly = (file) => fs.existsSync(file) && fs.lstatSync(file).isFile()
 
 // Custom subsets of known files

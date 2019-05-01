@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -7,15 +8,7 @@
  * @flow
  */
 
-'use strict';
-
-import {
-  DescribeBlock,
-  Expect,
-  ItBlock,
-  ParseResult,
-  ParsedNode,
-} from '../../parsers/parser_nodes';
+import {DescribeBlock, Expect, ItBlock, ParseResult, ParsedNode} from '../../parsers/parser_nodes';
 
 describe('ParsedNode', () => {
   it('can filter children', () => {
@@ -30,20 +23,20 @@ describe('ParsedNode', () => {
     expect(filtered.length).toEqual(3);
     expect(filtered).toEqual(expect.arrayContaining([c2, c1_1, c1_2_1]));
 
-    filtered = root.filter(n => n.type == 'describe');
+    filtered = root.filter(n => n.type === 'describe');
     expect(filtered.length).toEqual(2);
     expect(filtered).toEqual(expect.arrayContaining([c1, c1_2]));
 
-    filtered = c1.filter(n => n.type == 'it');
+    filtered = c1.filter(n => n.type === 'it');
     expect(filtered.length).toEqual(2);
 
-    filtered = c1_2.filter(n => n.type == 'it');
+    filtered = c1_2.filter(n => n.type === 'it');
     expect(filtered.length).toEqual(1);
 
-    filtered = c1_1.filter(n => n.type == 'it');
+    filtered = c1_1.filter(n => n.type === 'it');
     expect(filtered.length).toEqual(0);
 
-    filtered = c1_1.filter(n => n.type == 'it', true);
+    filtered = c1_1.filter(n => n.type === 'it', true);
     expect(filtered.length).toEqual(1);
   });
 });
@@ -73,9 +66,11 @@ describe('ParseResult', () => {
 
     const start = {column: 11, line: 10};
     const allNodes = [d1, d2, e1, e2];
-    allNodes.forEach(n => (n.start = start));
+    allNodes.forEach(n => {
+      n.start = start;
+    });
 
-    //without dedup, anything goes
+    // without dedup, anything goes
     let result = new ParseResult('a/b/c');
     allNodes.forEach(n => result.addNode(n));
     expect(result.describeBlocks.length).toEqual(2);

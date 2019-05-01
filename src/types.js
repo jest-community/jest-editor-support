@@ -7,6 +7,9 @@
  * @flow
  */
 
+import type {ChildProcess} from 'child_process';
+import type ProjectWorkspace from './project_workspace';
+
 export type Location = {
   column: number,
   line: number,
@@ -16,15 +19,8 @@ export type SpawnOptions = {
   shell?: boolean,
 };
 
-import type {ChildProcess} from 'child_process';
-import type ProjectWorkspace from './project_workspace';
-
 export type Options = {
-  createProcess?: (
-    workspace: ProjectWorkspace,
-    args: Array<string>,
-    options?: SpawnOptions,
-  ) => ChildProcess,
+  createProcess?: (workspace: ProjectWorkspace, args: Array<string>, options?: SpawnOptions) => ChildProcess,
   noColor?: boolean,
   testNamePattern?: string,
   testFileNamePattern?: string,
@@ -42,18 +38,6 @@ export type TestReconciliationState =
 
 /**
  * The Jest Extension's version of a status for
- * whether the file passed or not
- *
- */
-export type TestFileAssertionStatus = {
-  file: string,
-  message: string,
-  status: TestReconciliationState,
-  assertions: Array<TestAssertionStatus> | null,
-};
-
-/**
- * The Jest Extension's version of a status for
  * individual assertion fails
  *
  */
@@ -67,10 +51,23 @@ export type TestAssertionStatus = {
   line: ?number,
 };
 
+/**
+ * The Jest Extension's version of a status for
+ * whether the file passed or not
+ *
+ */
+export type TestFileAssertionStatus = {
+  file: string,
+  message: string,
+  status: TestReconciliationState,
+  assertions: TestAssertionStatus[] | null,
+};
+
 export type JestTotalResultsMeta = {
   noTestsFound: boolean,
 };
 
+// eslint-disable-next-line import/prefer-default-export
 export const messageTypes = {
   noTests: 1,
   testResults: 3,

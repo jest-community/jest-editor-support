@@ -7,13 +7,12 @@
  * @flow
  */
 
-import type {Options, MessageType, SpawnOptions} from './types';
-import {messageTypes} from './types';
-
 import {ChildProcess, spawn} from 'child_process';
 import {readFile} from 'fs';
 import {tmpdir} from 'os';
 import EventEmitter from 'events';
+import {messageTypes} from './types';
+import type {Options, MessageType, SpawnOptions} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
@@ -22,16 +21,19 @@ import {createProcess} from './Process';
 // pass sent out of the process
 export default class Runner extends EventEmitter {
   debugprocess: ChildProcess;
+
   outputPath: string;
+
   workspace: ProjectWorkspace;
-  _createProcess: (
-    workspace: ProjectWorkspace,
-    args: Array<string>,
-    options?: SpawnOptions,
-  ) => ChildProcess;
+
+  _createProcess: (workspace: ProjectWorkspace, args: Array<string>, options?: SpawnOptions) => ChildProcess;
+
   watchMode: boolean;
+
   watchAll: boolean;
+
   options: Options;
+
   prevMessageTypes: MessageType[];
 
   constructor(workspace: ProjectWorkspace, options?: Options) {
@@ -40,7 +42,7 @@ export default class Runner extends EventEmitter {
     this._createProcess = (options && options.createProcess) || createProcess;
     this.options = options || {};
     this.workspace = workspace;
-    this.outputPath = tmpdir() + `/jest_runner_${this.workspace.outputFileSuffix || ''}.json`;
+    this.outputPath = `${tmpdir()}/jest_runner_${this.workspace.outputFileSuffix || ''}.json`;
     this.prevMessageTypes = [];
   }
 
@@ -96,7 +98,7 @@ export default class Runner extends EventEmitter {
     });
 
     this.debugprocess.on('error', (error: Error) => {
-      this.emit('terminalError', 'Process failed: ' + error.message);
+      this.emit('terminalError', `Process failed: ${error.message}`);
       this.prevMessageTypes.length = 0;
     });
 
@@ -106,17 +108,30 @@ export default class Runner extends EventEmitter {
     });
   }
 
+  /**
+   * parse the stdin/out stream buffer for recognized messages.
+   *
+   * note: if these messages coming in in separate chucks, we might not be able to
+   * resolve it properly. While there haven't been much evidence of such scenario,
+   * it's worth to note that it could and we might need to buffer them in that case.
+   * see https://github.com/jest-community/jest-editor-support/pull/9#pullrequestreview-231888752
+   *
+   * @param {Buffer} data
+   * @param {boolean} isStdErr
+   * @returns {MessageType}
+   * @memberof Runner
+   */
   _parseOutput(data: Buffer, isStdErr: boolean): MessageType {
     const msgType = this.findMessageType(data);
     switch (msgType) {
       case messageTypes.testResults:
-        readFile(this.outputPath, 'utf8', (err, data) => {
+        readFile(this.outputPath, 'utf8', (err, _data) => {
           if (err) {
             const message = `JSON report not found at ${this.outputPath}`;
             this.emit('terminalError', message);
           } else {
             const noTestsFound = this.doResultsFollowNoTestsFoundMessage();
-            this.emit('executableJSON', JSON.parse(data), {
+            this.emit('executableJSON', JSON.parse(_data), {
               noTestsFound,
             });
           }
@@ -152,11 +167,7 @@ export default class Runner extends EventEmitter {
     const options = {
       shell: this.options.shell,
     };
-    const updateProcess = this._createProcess(
-      this.workspace,
-      [...defaultArgs, ...(args ? args : [])],
-      options,
-    );
+    const updateProcess = this._createProcess(this.workspace, [...defaultArgs, ...(args || [])], options);
     updateProcess.on('close', () => {
       completion();
     });
@@ -168,14 +179,14 @@ export default class Runner extends EventEmitter {
     }
     if (process.platform === 'win32') {
       // Windows doesn't exit the process when it should.
-      spawn('taskkill', ['/pid', '' + this.debugprocess.pid, '/T', '/F']);
+      spawn('taskkill', ['/pid', `${this.debugprocess.pid}`, '/T', '/F']);
     } else {
       this.debugprocess.kill();
     }
     delete this.debugprocess;
   }
 
-
+  // eslint-disable-next-line class-methods-use-this
   findMessageType(buf: Buffer): MessageType {
     const noTestRegex = /No tests found related to files changed since ((last commit)|("[a-z0-9]+"))./;
     const watchUsageRegex = /^\s*Watch Usage\b/;
@@ -188,8 +199,8 @@ export default class Runner extends EventEmitter {
     ];
 
     const str = buf.toString('utf8');
-    const check = checks.find(check => check[0].test(str));
-    return check ? check[1] : messageTypes.unknown; 
+    const check = checks.find(_check => _check[0].test(str));
+    return check ? check[1] : messageTypes.unknown;
   }
 
   doResultsFollowNoTestsFoundMessage() {
@@ -198,10 +209,7 @@ export default class Runner extends EventEmitter {
     }
 
     if (this.prevMessageTypes.length === 2) {
-      return (
-        this.prevMessageTypes[0] === messageTypes.noTests &&
-        this.prevMessageTypes[1] === messageTypes.watchUsage
-      );
+      return this.prevMessageTypes[0] === messageTypes.noTests && this.prevMessageTypes[1] === messageTypes.watchUsage;
     }
 
     return false;

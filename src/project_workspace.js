@@ -75,7 +75,7 @@ export default class ProjectWorkspace {
     localJestMajorVersion: number,
     outputFileSuffix?: string,
     collectCoverage: ?boolean,
-    debug: ?boolean,
+    debug: ?boolean
   ) {
     this.rootPath = rootPath;
     this.pathToJest = pathToJest;

@@ -8,8 +8,6 @@
  * @flow
  */
 
-'use strict';
-
 import path from 'path';
 import Snapshot from '../Snapshot';
 
@@ -19,26 +17,16 @@ const snapshotFixturePath = path.resolve(__dirname, 'fixtures/snapshots');
 test('nodescribe.example', () => {
   const filePath = path.join(snapshotFixturePath, 'nodescribe.example');
   const results = snapshotHelper.getMetadata(filePath);
-  const allAssertion = [
-    'fit',
-    'it',
-    'it.only',
-    'it.skip',
-    'test',
-    'test.only',
-    'test.skip',
-    'xit',
-    'xtest',
-  ];
+  const allAssertion = ['fit', 'it', 'it.only', 'it.skip', 'test', 'test.only', 'test.skip', 'xit', 'xtest'];
 
   const expectations = Object.create(null);
   allAssertion.forEach(assertion => {
-    expectations[assertion + ' 1'] = {
+    expectations[`${assertion} 1`] = {
       assertion,
       checked: false,
       number: 1,
     };
-    expectations[assertion + ' 2'] = {
+    expectations[`${assertion} 2`] = {
       assertion,
       checked: false,
       number: 2,
@@ -53,44 +41,28 @@ test('nodescribe.example', () => {
   expect(
     Object.keys(expectations)
       .map(key => expectations[key])
-      .filter(expectation => !expectation.checked).length,
+      .filter(expectation => !expectation.checked).length
   ).toBe(0);
 });
 
 test('describe.example', () => {
   const filePath = path.join(snapshotFixturePath, 'describe.example');
   const results = snapshotHelper.getMetadata(filePath);
-  const allDescribe = [
-    'describe',
-    'describe.only',
-    'describe.skip',
-    'fdescribe',
-    'xdescribe',
-  ];
-  const allAssertion = [
-    'fit',
-    'it',
-    'it.only',
-    'it.skip',
-    'test',
-    'test.only',
-    'test.skip',
-    'xit',
-    'xtest',
-  ];
+  const allDescribe = ['describe', 'describe.only', 'describe.skip', 'fdescribe', 'xdescribe'];
+  const allAssertion = ['fit', 'it', 'it.only', 'it.skip', 'test', 'test.only', 'test.skip', 'xit', 'xtest'];
 
   const expectations = Object.create(null);
 
   allDescribe.forEach(describe => {
     allAssertion.forEach(assertion => {
-      expectations[describe.toUpperCase() + ' ' + assertion + ' 1'] = {
+      expectations[`${describe.toUpperCase()} ${assertion} 1`] = {
         assertion,
         checked: false,
         describe,
         number: 1,
       };
 
-      expectations[describe.toUpperCase() + ' ' + assertion + ' 2'] = {
+      expectations[`${describe.toUpperCase()} ${assertion} 2`] = {
         assertion,
         checked: false,
         describe,
@@ -101,13 +73,12 @@ test('describe.example', () => {
 
   results.forEach(result => {
     const check = expectations[result.name];
-    check.checked =
-      result.content === `${check.number} ${check.assertion} ${check.describe}`;
+    check.checked = result.content === `${check.number} ${check.assertion} ${check.describe}`;
   });
   expect(
     Object.keys(expectations)
       .map(key => expectations[key])
-      .filter(expectation => !expectation.checked).length,
+      .filter(expectation => !expectation.checked).length
   ).toBe(0);
 });
 
@@ -117,12 +88,8 @@ test('nested.example', () => {
   expect(results[0].content).toBe('first nested');
   expect(results[1].content).toBe('second nested');
 
-  expect(results[0].name).toBe(
-    'outer describe outer it inner describe inner it 1',
-  );
-  expect(results[1].name).toBe(
-    'outer describe outer it inner describe inner it 2',
-  );
+  expect(results[0].name).toBe('outer describe outer it inner describe inner it 1');
+  expect(results[1].name).toBe('outer describe outer it inner describe inner it 2');
 
   expect(results[0].node.loc.start).toEqual({column: 21, line: 5});
   expect(results[0].node.loc.end).toEqual({column: 36, line: 5});
@@ -131,21 +98,23 @@ test('nested.example', () => {
 });
 
 describe('when metadata parse error', () => {
-  it("getMetadata returns empty array", () => {
+  it('getMetadata returns empty array', () => {
     const filePath = path.join(snapshotFixturePath, 'typescript-file');
     const results = snapshotHelper.getMetadata(filePath);
-    expect(results).toEqual([])
+    expect(results).toEqual([]);
   });
-  it("support verbose mode for debugging", () => {
+  it('support verbose mode for debugging', () => {
     (console: any).warn = jest.fn();
     const filePath = path.join(snapshotFixturePath, 'typescript-file');
 
     let results = snapshotHelper.getMetadata(filePath);
-    expect(results).toEqual([])
+    expect(results).toEqual([]);
+    // eslint-disable-next-line no-console
     expect(console.warn).not.toHaveBeenCalled();
 
     results = snapshotHelper.getMetadata(filePath, true);
-    expect(results).toEqual([])
+    expect(results).toEqual([]);
+    // eslint-disable-next-line no-console
     expect(console.warn).toHaveBeenCalled();
   });
 });

@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-param-reassign */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -9,29 +11,45 @@
 
 import {readFileSync} from 'fs';
 
+import {File as BabylonFile, Node as BabylonNode, parse as babylonParse} from 'babylon';
 import type {ParsedNodeType} from './parser_nodes';
 import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
-import {
-  File as BabylonFile,
-  Node as BabylonNode,
-  parse as babylonParse,
-} from 'babylon';
+
+// eslint-disable no-underscore-dangle
+const _getASTfor = (file: string, data: ?string): [BabylonFile, string] => {
+  const _data = data || readFileSync(file).toString();
+  const config = {plugins: ['*'], sourceType: 'module'};
+  return [babylonParse(_data, config), _data];
+};
 
 export const getASTfor = (file: string, data: ?string): BabylonFile => {
   const [bFile] = _getASTfor(file, data);
   return bFile;
 };
 
-const _getASTfor = (file: string, data: ?string): [BabylonFile, string] => {
-  const _data = data ? data : readFileSync(file).toString();
-  const config = {plugins: ['*'], sourceType: 'module'};
-  return [babylonParse(_data, config), _data];
-};
-
 export const parse = (file: string, data: ?string): ParseResult => {
   const parseResult = new ParseResult(file);
   const [ast, _data] = _getASTfor(file, data);
 
+  const updateNameInfo = (nBlock: NamedBlock, bNode: BabylonNode) => {
+    const arg = bNode.expression.arguments[0];
+    let name = arg.value;
+
+    if (!name && arg.type === 'TemplateLiteral') {
+      name = _data.substring(arg.start + 1, arg.end - 1);
+    }
+
+    if (name == null) {
+      throw new TypeError(`failed to update namedBlock from: ${JSON.stringify(bNode)}`);
+    }
+    nBlock.name = name;
+    nBlock.nameRange = new ParsedRange(
+      arg.loc.start.line,
+      arg.loc.start.column + 2,
+      arg.loc.end.line,
+      arg.loc.end.column - 1
+    );
+  };
   const updateNode = (node: ParsedNode, babylonNode: BabylonNode) => {
     node.start = babylonNode.loc.start;
     node.end = babylonNode.loc.end;
@@ -44,55 +62,20 @@ export const parse = (file: string, data: ?string): ParseResult => {
   };
 
   const isFunctionCall = node =>
-    node.type === 'ExpressionStatement' &&
-    node.expression &&
-    node.expression.type === 'CallExpression';
+    node && node.type === 'ExpressionStatement' && node.expression && node.expression.type === 'CallExpression';
 
   const isFunctionDeclaration = (nodeType: string) =>
     nodeType === 'ArrowFunctionExpression' || nodeType === 'FunctionExpression';
 
-  const updateNameInfo = (nBlock: NamedBlock, bNode: BabylonNode) => {
-    const arg = bNode.expression.arguments[0];
-    let name = arg.value;
-
-    if (!name && arg.type === 'TemplateLiteral') {
-      name = _data.substring(arg.start + 1, arg.end - 1);
-    }
-
-    if (name == null) {
-      throw new TypeError(
-        `failed to update namedBlock from: ${JSON.stringify(bNode)}`,
-      );
-    }
-    nBlock.name = name;
-    nBlock.nameRange = new ParsedRange(
-      arg.loc.start.line,
-      arg.loc.start.column + 2,
-      arg.loc.end.line,
-      arg.loc.end.column - 1,
-    );
-  };
-
   // Pull out the name of a CallExpression (describe/it)
   // handle cases where it's a member expression (.only)
   const getNameForNode = node => {
-    if (!isFunctionCall(node)) {
-      return false;
+    if (isFunctionCall(node) && node && node.expression && node.expression.callee) {
+      return (
+        node.expression.callee.name || (node.expression.callee.object ? node.expression.callee.object.name : undefined)
+      );
     }
-    let name =
-      node && node.expression && node.expression.callee
-        ? node.expression.callee.name
-        : undefined;
-    if (
-      !name &&
-      node &&
-      node.expression &&
-      node.expression.callee &&
-      node.expression.callee.object
-    ) {
-      name = node.expression.callee.object.name;
-    }
-    return name;
+    return undefined;
   };
 
   // When given a node in the AST, does this represent
@@ -116,6 +99,7 @@ export const parse = (file: string, data: ?string): ParseResult => {
     let name = '';
     let element = node && node.expression ? node.expression.callee : undefined;
     while (!name && element) {
+      // eslint-disable-next-line prefer-destructuring
       name = element.name;
       // Because expect may have accessors tacked on (.to.be) or nothing
       // (expect()) we have to check multiple levels for the name
@@ -124,15 +108,12 @@ export const parse = (file: string, data: ?string): ParseResult => {
     return name === 'expect';
   };
 
-  const addNode = (
-    type: ParsedNodeType,
-    parent: ParsedNode,
-    babylonNode: BabylonNode,
-  ): ParsedNode => {
+  const addNode = (type: ParsedNodeType, parent: ParsedNode, babylonNode: BabylonNode): ParsedNode => {
     const child = parent.addChild(type);
     updateNode(child, babylonNode);
 
     if (child instanceof NamedBlock && child.name == null) {
+      // eslint-disable-next-line no-console
       console.warn(`block is missing name: ${JSON.stringify(babylonNode)}`);
     }
     return child;
@@ -143,14 +124,14 @@ export const parse = (file: string, data: ?string): ParseResult => {
     // Look through the node's children
     let child: ?ParsedNode;
 
-    for (const node in babylonParent.body) {
-      if (!babylonParent.body.hasOwnProperty(node)) {
-        return;
-      }
+    if (!babylonParent.body) {
+      return;
+    }
 
+    babylonParent.body.forEach(element => {
       child = undefined;
       // Pull out the node
-      const element = babylonParent.body[node];
+      // const element = babylonParent.body[node];
 
       if (isAnDescribe(element)) {
         child = addNode('describe', parent, element);
@@ -160,10 +141,7 @@ export const parse = (file: string, data: ?string): ParseResult => {
         child = addNode('expect', parent, element);
       } else if (element && element.type === 'VariableDeclaration') {
         element.declarations
-          .filter(
-            declaration =>
-              declaration.init && isFunctionDeclaration(declaration.init.type),
-          )
+          .filter(declaration => declaration.init && isFunctionDeclaration(declaration.init.type))
           .forEach(declaration => searchNodes(declaration.init.body, parent));
       } else if (
         element &&
@@ -174,10 +152,7 @@ export const parse = (file: string, data: ?string): ParseResult => {
         isFunctionDeclaration(element.expression.right.type)
       ) {
         searchNodes(element.expression.right.body, parent);
-      } else if (
-        element.type === 'ReturnStatement' &&
-        element.argument.arguments
-      ) {
+      } else if (element.type === 'ReturnStatement' && element.argument.arguments) {
         element.argument.arguments
           .filter(argument => isFunctionDeclaration(argument.type))
           .forEach(argument => searchNodes(argument.body, parent));
@@ -188,10 +163,10 @@ export const parse = (file: string, data: ?string): ParseResult => {
           .filter(argument => isFunctionDeclaration(argument.type))
           .forEach(argument => searchNodes(argument.body, child || parent));
       }
-    }
+    });
   };
 
-  const program: BabylonNode = ast['program'];
+  const {program} = ast;
   searchNodes(program, parseResult.root);
 
   return parseResult;
