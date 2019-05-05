@@ -28,6 +28,7 @@ describe('select parser', () => {
       parse(file, undefined, true);
       expect(js_parse).toHaveBeenCalled();
       expect(ts_parse).not.toHaveBeenCalled();
+      jest.clearAllMocks();
     });
   });
   it('for .ts or .tsx file', () => {
@@ -36,6 +37,7 @@ describe('select parser', () => {
       parse(file, undefined, true);
       expect(js_parse).not.toHaveBeenCalled();
       expect(ts_parse).toHaveBeenCalled();
+      jest.clearAllMocks();
     });
   });
   describe('when unrecognized file type', () => {
@@ -45,12 +47,14 @@ describe('select parser', () => {
         expect(() => parse(file, undefined, false)).not.toThrow();
         expect(js_parse).toHaveBeenCalled();
         expect(ts_parse).not.toHaveBeenCalled();
+        jest.clearAllMocks();
       });
     });
     it('throw exception in strict mode', () => {
       const files = ['abc', 'abc.ttsx'];
       files.forEach(file => {
         expect(() => parse(file, undefined, true)).toThrow();
+        jest.clearAllMocks();
       });
     });
   });
