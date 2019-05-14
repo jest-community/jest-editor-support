@@ -30,7 +30,7 @@ export class Runner extends EventEmitter {
   watchAll: boolean;
   start(watchMode?: boolean, watchAll?: boolean): void;
   closeProcess(): void;
-  runJestWithUpdateForSnapshots(completion: any): void;
+  runJestWithUpdateForSnapshots(completion: () => void, args?: string[]): void;
 }
 
 export class Settings extends EventEmitter {

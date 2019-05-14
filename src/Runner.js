@@ -161,7 +161,7 @@ export default class Runner extends EventEmitter {
     return msgType;
   }
 
-  runJestWithUpdateForSnapshots(completion: any, args: string[]) {
+  runJestWithUpdateForSnapshots(completion: () => void, args?: string[]) {
     const defaultArgs = ['--updateSnapshot'];
 
     const options = {
