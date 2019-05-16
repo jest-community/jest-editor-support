@@ -86,10 +86,11 @@ export function parse(file: string, data: ?string): ParseResult {
   };
 
   function searchNodes(parent: ParsedNode) {
+    const findText = (expression: any) => (expression && expression.text ? expression.text : undefined);
     return (node: ts.Node) => {
       let sNode: ?ParsedNode;
       if (node.kind === ts.SyntaxKind.CallExpression) {
-        const text = node.expression?.text || node.expression?.expression?.text;
+        const text = node.expression ? findText(node.expression) || findText(node.expression.expression) : undefined;
 
         if (text === 'describe') {
           sNode = addNode(node, parent, 'describe');

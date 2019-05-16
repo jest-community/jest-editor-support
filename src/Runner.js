@@ -10,6 +10,7 @@
 import {ChildProcess, spawn} from 'child_process';
 import {readFile} from 'fs';
 import {tmpdir} from 'os';
+import * as path from 'path';
 import EventEmitter from 'events';
 import {messageTypes} from './types';
 import type {Options, MessageType, SpawnOptions} from './types';
@@ -42,7 +43,7 @@ export default class Runner extends EventEmitter {
     this._createProcess = (options && options.createProcess) || createProcess;
     this.options = options || {};
     this.workspace = workspace;
-    this.outputPath = `${tmpdir()}/jest_runner_${this.workspace.outputFileSuffix || ''}.json`;
+    this.outputPath = path.join(tmpdir(), `jest_runner_${this.workspace.outputFileSuffix || ''}.json`);
     this.prevMessageTypes = [];
   }
 
@@ -193,14 +194,14 @@ export default class Runner extends EventEmitter {
     const testResultsRegex = /Test results written to/;
 
     const checks = [
-      [testResultsRegex, messageTypes.testResults],
-      [noTestRegex, messageTypes.noTests],
-      [watchUsageRegex, messageTypes.watchUsage],
+      {regex: testResultsRegex, messageType: messageTypes.testResults},
+      {regex: noTestRegex, messageType: messageTypes.noTests},
+      {regex: watchUsageRegex, messageType: messageTypes.watchUsage},
     ];
 
     const str = buf.toString('utf8');
-    const check = checks.find(_check => _check[0].test(str));
-    return check ? check[1] : messageTypes.unknown;
+    const match = checks.find(({regex}) => regex.test(str));
+    return match ? match.messageType : messageTypes.unknown;
   }
 
   doResultsFollowNoTestsFoundMessage() {

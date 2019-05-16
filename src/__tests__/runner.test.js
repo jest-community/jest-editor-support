@@ -8,6 +8,7 @@
  */
 
 import {tmpdir} from 'os';
+import * as path from 'path';
 import {spawn} from 'child_process';
 import {readFileSync} from 'fs';
 import EventEmitter from 'events';
@@ -22,6 +23,7 @@ import ProjectWorkspace from '../project_workspace';
 jest.mock('../Process');
 jest.mock('child_process', () => ({spawn: jest.fn()}));
 jest.mock('os', () => ({tmpdir: jest.fn()}));
+jest.mock('path', () => ({join: jest.fn()}));
 jest.mock('fs', () => {
   // $FlowFixMe requireActual
   // eslint-disable-next-line no-shadow
@@ -29,17 +31,17 @@ jest.mock('fs', () => {
 
   // Replace `readFile` with `readFileSync` so we don't get multiple threads
   return {
-    readFile: (path, type, closure) => {
-      const data = readFileSync(path);
+    readFile: (_path, type, closure) => {
+      const data = readFileSync(_path);
       closure(null, data);
     },
     readFileSync,
   };
 });
 
-const path = require('path');
-
-const fixtures = path.resolve(__dirname, '../../fixtures');
+// const _path = require('path');
+const _path = jest.requireActual('path');
+const fixtures = _path.resolve(__dirname, '../../fixtures');
 
 describe('Runner', () => {
   describe('constructor', () => {
@@ -64,6 +66,7 @@ describe('Runner', () => {
 
       suffix.forEach(s => {
         const workspace: any = {outputFileSuffix: s};
+        path.join.mockImplementation((...paths: string[]) => paths.join('/'));
         const sut = new Runner(workspace);
         expect(sut.outputPath).toEqual(`tmpdir/jest_runner_${s || ''}.json`);
       });
