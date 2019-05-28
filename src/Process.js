@@ -17,10 +17,11 @@ import type {SpawnOptions} from './types';
  * @param {string[]} args
  * @returns {ChildProcess}
  */
+// eslint-disable-next-line import/prefer-default-export
 export const createProcess = (
   workspace: ProjectWorkspace,
   args: Array<string>,
-  options?: SpawnOptions = {},
+  options?: SpawnOptions = {}
 ): ChildProcess => {
   // A command could look like `npm run test`, which we cannot use as a command
   // as they can only be the first command, so take out the command, and add
@@ -39,8 +40,8 @@ export const createProcess = (
 
   // To use our own commands in create-react, we need to tell the command that
   // we're in a CI environment, or it will always append --watch
-  const env = process.env;
-  env['CI'] = 'true';
+  const {env} = process;
+  env.CI = 'true';
 
   const spawnOptions = {
     cwd: workspace.rootPath,
@@ -49,9 +50,8 @@ export const createProcess = (
   };
 
   if (workspace.debug) {
-    console.log(
-      `spawning process with command=${command}, args=${runtimeArgs.toString()}`,
-    );
+    // eslint-disable-next-line no-console
+    console.log(`spawning process with command=${command}, args=${runtimeArgs.toString()}`);
   }
 
   return spawn(command, runtimeArgs, spawnOptions);

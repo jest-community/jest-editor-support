@@ -14,12 +14,10 @@ import type {TestFileAssertionStatus, TestAssertionStatus} from '../types';
 
 const fixtures = path.resolve(__dirname, '../../fixtures');
 
-function reconcilerWithFile(
-  parser: TestReconciler,
-  file: string,
-): TestFileAssertionStatus[] {
+function reconcilerWithFile(parser: TestReconciler, file: string): TestFileAssertionStatus[] {
   const exampleJSON = fs.readFileSync(`${fixtures}/failing-jsons/${file}`);
   const json = JSON.parse(exampleJSON.toString());
+  // eslint-disable-next-line no-console
   if (!parser) console.error('no parser for ', file);
   return parser.updateFileWithJestStatus(json);
 }
@@ -28,9 +26,7 @@ describe('Test Reconciler', () => {
   let parser: TestReconciler;
   let results: TestFileAssertionStatus[];
 
-  const dangerFilePath =
-    '/Users/orta/dev/projects/danger/' +
-    'danger-js/source/ci_source/_tests/_travis.test.js';
+  const dangerFilePath = '/Users/orta/dev/projects/danger/danger-js/source/ci_source/_tests/_travis.test.js';
 
   describe('for a simple project', () => {
     beforeAll(() => {
@@ -43,23 +39,15 @@ describe('Test Reconciler', () => {
     });
     it('passes a passing method', () => {
       const testName = 'does not validate without josh';
-      const status: any = parser.stateForTestAssertion(
-        dangerFilePath,
-        testName,
-      );
+      const status: any = parser.stateForTestAssertion(dangerFilePath, testName);
       expect(status.status).toEqual('KnownSuccess');
       expect(status.line).toBeNull();
     });
 
     it('fails a failing method in the same file', () => {
-      const testName =
-        'validates when all Travis environment' +
-        ' vars are set and Josh K says so';
+      const testName = 'validates when all Travis environment vars are set and Josh K says so';
 
-      const status: any = parser.stateForTestAssertion(
-        dangerFilePath,
-        testName,
-      );
+      const status: any = parser.stateForTestAssertion(dangerFilePath, testName);
       expect(status.status).toEqual('KnownFail');
       expect(status.line).toEqual(12);
       const errorMessage = 'Expected value to be falsy, instead received true';
@@ -72,15 +60,29 @@ Expected value to be falsy, instead received
 
     it('skips a skipped method', () => {
       const testName = 'does not pull it out of the env';
-      const status: any = parser.stateForTestAssertion(
-        dangerFilePath,
-        testName,
-      );
+      const status: any = parser.stateForTestAssertion(dangerFilePath, testName);
       expect(status.status).toEqual('KnownSkip');
       expect(status.line).toBeNull();
     });
   });
 
+  describe('test result with --testLocationInResults', () => {
+    beforeEach(() => {
+      parser = new TestReconciler();
+      results = reconcilerWithFile(parser, 'with-location.json');
+    });
+    it('can parse and convert location', () => {
+      expect(results.length).toEqual(1);
+      const {assertions} = results[0];
+      if (assertions) {
+        expect(assertions.length).toEqual(2);
+        expect(assertions[0].location).toEqual({column: 2, line: 14});
+        expect(assertions[1].location).toEqual({column: 2, line: 24});
+      } else {
+        expect(assertions).not.toBeNull();
+      }
+    });
+  });
   describe('in a monorepo project', () => {
     beforeEach(() => {
       parser = new TestReconciler();
@@ -91,10 +93,8 @@ Expected value to be falsy, instead received
       expect(results.length).toEqual(8);
       const failed = results.filter(r => r.status === 'KnownFail');
       expect(failed.length).toEqual(4);
-      //2 of them is failed suite, i.e. no assertions
-      expect(
-        failed.filter(r => !r.assertions || r.assertions.length === 0).length,
-      ).toEqual(2);
+      // 2 of them is failed suite, i.e. no assertions
+      expect(failed.filter(r => !r.assertions || r.assertions.length === 0).length).toEqual(2);
     });
     it('did catch the passed tests', () => {
       const succeededSuites = results.filter(r => r.status === 'KnownSuccess');
@@ -111,18 +111,9 @@ Expected value to be falsy, instead received
     });
     describe('when test updated', () => {
       const targetTests = {
-        failedThenRemoved: [
-          '/X/packages/Y-core/src/eth/__tests__/types.test.ts',
-          'should fail',
-        ],
-        missingThenFailed: [
-          '/X/packages/Y-app-vault/native/__tests__/index.ios.js',
-          'testing jest with react-native',
-        ],
-        missingThenFixed: [
-          '/X/packages/Y-app-vault/native/__tests__/index.ios.js',
-          'renders correctly',
-        ],
+        failedThenRemoved: ['/X/packages/Y-core/src/eth/__tests__/types.test.ts', 'should fail'],
+        missingThenFailed: ['/X/packages/Y-app-vault/native/__tests__/index.ios.js', 'testing jest with react-native'],
+        missingThenFixed: ['/X/packages/Y-app-vault/native/__tests__/index.ios.js', 'renders correctly'],
         passed: [
           '/X/packages/Y-keeper/src/redux/middlewares/__tests__/createGateMonitor.test.ts',
           'can log/profile doable async actions',
@@ -130,10 +121,7 @@ Expected value to be falsy, instead received
       };
 
       function verifyTest(key: string, expectedStatus?: string) {
-        const test = parser.stateForTestAssertion(
-          targetTests[key][0],
-          targetTests[key][1],
-        );
+        const test = parser.stateForTestAssertion(targetTests[key][0], targetTests[key][1]);
         if (!test && !expectedStatus) {
           return;
         }
@@ -141,7 +129,7 @@ Expected value to be falsy, instead received
           expect(test.status).toEqual(expectedStatus);
           return;
         }
-        expect(key + ': ' + JSON.stringify(test)).toEqual(expectedStatus); // failed!
+        expect(`${key}: ${JSON.stringify(test)}`).toEqual(expectedStatus); // failed!
       }
 
       it('verify before update occurred', () => {
@@ -152,9 +140,9 @@ Expected value to be falsy, instead received
       });
 
       it('new file can update existing result', () => {
-        //in file 2 we fixed 2 failed suites and removed 1 failed test
-        //let's check the failed tests are now passed, while the previously
-        //passed test should still be accessible
+        // in file 2 we fixed 2 failed suites and removed 1 failed test
+        // let's check the failed tests are now passed, while the previously
+        // passed test should still be accessible
         const results2 = reconcilerWithFile(parser, 'monorepo_root_2.json');
         expect(results2.length).toEqual(4);
 
@@ -172,13 +160,11 @@ describe('Terse Messages', () => {
 
   beforeEach(() => {
     parser = new TestReconciler();
-    const _ = reconcilerWithFile(parser, 'failing_expects.json');
+    reconcilerWithFile(parser, 'failing_expects.json');
   });
 
   it('handles shrinking a snapshot message', () => {
-    const file =
-      '/Users/orta/dev/projects/artsy/js/' +
-      'libs/jest-snapshots-svg/src/_tests/example.test.ts';
+    const file = '/Users/orta/dev/projects/artsy/js/libs/jest-snapshots-svg/src/_tests/example.test.ts';
 
     const terseForTest = name => parser.stateForTestAssertion(file, name);
 

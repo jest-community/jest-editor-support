@@ -1,3 +1,29 @@
+<!--
+
+Please add your own contribution below inside the Master section
+Bug-fixes within the same version aren't needed
+
+## Master
+
+
+* incorporate `jest-test-typescript-parser` into this package since it has been deprecated from the original `jest` reposition (#9) - connectdotz
+
+  projects that link with this package no longer need to add `jest-test-typescript-parser` package separately. The newly exposed `parse` function can select the proper parser based on file extension.
+
+* fix a few race condition errors in Runner (#9) - connectdotz
+  - concurrent Runner output to the same hard coded output file: added optional 'outputFileSuffix' parameter. 
+  - jest process output parser sometimes failed to identify testResults message.
+
+* `TestReconciler` will now report test locations from jest '--testLocationInResults' output
+
+* Snapshot parsing error will no longer throw but returns empty result. (#9) - connectdotz
+
+  Turning on the verbose will output caught exception for debugging purpose.
+
+* upgrade to the latest jest version (24.7.x) - connectdotz
+
+-->
+
 ### 25.0.0
 
 This is the first release that is de-coupled from the Jest release cycle. So,

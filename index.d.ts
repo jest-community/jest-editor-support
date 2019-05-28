@@ -30,7 +30,7 @@ export class Runner extends EventEmitter {
   watchAll: boolean;
   start(watchMode?: boolean, watchAll?: boolean): void;
   closeProcess(): void;
-  runJestWithUpdateForSnapshots(completion: any): void;
+  runJestWithUpdateForSnapshots(completion: () => void, args?: string[]): void;
 }
 
 export class Settings extends EventEmitter {
@@ -49,6 +49,7 @@ export class ProjectWorkspace {
     pathToJest: string,
     pathToConfig: string,
     localJestMajorVersin: number,
+    outputFileSuffix?: string,
     collectCoverage?: boolean,
     debug?: boolean,
   );
@@ -56,6 +57,7 @@ export class ProjectWorkspace {
   pathToConfig: string;
   rootPath: string;
   localJestMajorVersion: number;
+  outputFileSuffix?: string;
   collectCoverage?: boolean;
   debug?: boolean;
 }
@@ -68,7 +70,7 @@ export interface IParseResults {
   file: string;
 }
 
-export function parse(file: string, data?: string): IParseResults;
+export function parse(file: string, data?: string, strict?: boolean): IParseResults;
 
 export interface Location {
   column: number;
@@ -166,6 +168,7 @@ export interface TestAssertionStatus {
   message: string;
   shortMessage?: string;
   terseMessage?: string;
+  location?: Location;
   line?: number;
 }
 
@@ -224,7 +227,7 @@ export interface SnapshotMetadata {
 
 export class Snapshot {
   constructor(parser?: any, customMatchers?: string[]);
-  getMetadata(filepath: string): SnapshotMetadata[];
+  getMetadata(filepath: string, verbose?: boolean): SnapshotMetadata[];
 }
 
 type FormattedTestResults = {

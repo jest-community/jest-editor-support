@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -7,18 +8,10 @@
  * @flow
  */
 
-import type {
-  TestFileAssertionStatus,
-  TestAssertionStatus,
-  TestReconciliationState,
-} from './types';
-
-import type {
-  FormattedAssertionResult,
-  FormattedTestResults,
-} from '../types/TestResult';
-
 import path from 'path';
+import type {TestFileAssertionStatus, TestAssertionStatus, TestReconciliationState, Location} from './types';
+
+import type {FormattedAssertionResult, FormattedTestResults} from '../types/TestResult';
 
 /**
  *  You have a Jest test runner watching for changes, and you have
@@ -38,9 +31,7 @@ export default class TestReconciler {
   // instance properties. This is 1) to prevent race condition 2) the data is already
   // stored in the this.fileStatuses, no dup is better 3) client will most likely need to process
   // all the results anyway.
-  updateFileWithJestStatus(
-    results: FormattedTestResults,
-  ): TestFileAssertionStatus[] {
+  updateFileWithJestStatus(results: FormattedTestResults): TestFileAssertionStatus[] {
     // Loop through all files inside the report from Jest
     const statusList: TestFileAssertionStatus[] = [];
     results.testResults.forEach(file => {
@@ -63,10 +54,15 @@ export default class TestReconciler {
   // we don't get this as structured data, but what we get
   // is useful enough to make it for ourselves
 
-  mapAssertions(
-    filename: string,
-    assertions: Array<FormattedAssertionResult>,
-  ): Array<TestAssertionStatus> {
+  mapAssertions(filename: string, assertions: Array<FormattedAssertionResult>): Array<TestAssertionStatus> {
+    // convert jest location (column is 0-based and line is 1-based) to all 0-based location used internally in this package
+    /* eslint-disable no-param-reassign */
+    const convertJestLocation = (jestLocation: ?Location) => {
+      if (jestLocation) {
+        jestLocation.line -= 1;
+      }
+      return jestLocation;
+    };
     // Is it jest < 17? e.g. Before I added this to the JSON
     if (!assertions) {
       return [];
@@ -79,6 +75,7 @@ export default class TestReconciler {
       let short = null;
       let terse = null;
       let line = null;
+      const location = convertJestLocation(assertion.location); // output from jest --testLocationInResults (https://jestjs.io/docs/en/cli#testlocationinresults)
       if (message) {
         // Just the first line, with little whitespace
         short = message.split('   at', 1)[0].trim();
@@ -93,6 +90,7 @@ export default class TestReconciler {
         status: this.statusToReconcilationState(assertion.status),
         terseMessage: terse,
         title: assertion.title,
+        location,
       };
     });
   }
@@ -149,10 +147,7 @@ export default class TestReconciler {
     return results ? results.assertions : null;
   }
 
-  stateForTestAssertion(
-    file: string,
-    name: string,
-  ): TestAssertionStatus | null {
+  stateForTestAssertion(file: string, name: string): TestAssertionStatus | null {
     const results = this.fileStatuses[file];
     if (!results || !results.assertions) {
       return null;

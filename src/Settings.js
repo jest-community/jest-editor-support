@@ -7,11 +7,10 @@
  * @flow
  */
 
-import type {Options, SpawnOptions} from './types';
-
 import {ChildProcess} from 'child_process';
 import EventEmitter from 'events';
 import {defaults as jestConfigDefaults} from 'jest-config';
+import type {Options, SpawnOptions} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
@@ -37,16 +36,19 @@ type ConfigRepresentations = Array<ConfigRepresentation>;
 
 export default class Settings extends EventEmitter {
   getConfigProcess: ChildProcess;
+
   jestVersionMajor: number | null;
-  _createProcess: (
-    workspace: ProjectWorkspace,
-    args: Array<string>,
-    options: SpawnOptions,
-  ) => ChildProcess;
+
+  _createProcess: (workspace: ProjectWorkspace, args: Array<string>, options: SpawnOptions) => ChildProcess;
+
   configs: ConfigRepresentations;
+
   settings: ConfigRepresentation;
+
   workspace: ProjectWorkspace;
+
   spawnOptions: SpawnOptions;
+
   _jsonPattern: RegExp;
 
   constructor(workspace: ProjectWorkspace, options?: Options) {
@@ -75,29 +77,27 @@ export default class Settings extends EventEmitter {
       const idx = text.search(this._jsonPattern);
       if (idx > 0) {
         if (this.workspace.debug) {
+          // eslint-disable-next-line no-console
           console.log(`skip config output noise: ${text.substring(0, idx)}`);
         }
         this._parseConfig(text.substring(idx));
         return;
       }
+      // eslint-disable-next-line no-console
       console.warn(`failed to parse config: \n${text}\nerror: ${err}`);
       throw err;
     }
     this.jestVersionMajor = parseInt(settings.version.split('.').shift(), 10);
-    this.configs =
-      this.jestVersionMajor >= 21 ? settings.configs : [settings.config];
+    this.configs = this.jestVersionMajor >= 21 ? settings.configs : [settings.config];
 
     if (this.workspace.debug) {
+      // eslint-disable-next-line no-console
       console.log(`found config jestVersionMajor=${this.jestVersionMajor}`);
     }
   }
 
   getConfigs(completed: any) {
-    this.getConfigProcess = this._createProcess(
-      this.workspace,
-      ['--showConfig'],
-      this.spawnOptions,
-    );
+    this.getConfigProcess = this._createProcess(this.workspace, ['--showConfig'], this.spawnOptions);
 
     this.getConfigProcess.stdout.on('data', (data: Buffer) => {
       this._parseConfig(data.toString());

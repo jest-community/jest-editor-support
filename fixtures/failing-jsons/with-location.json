@@ -1,0 +1,69 @@
+{
+  "numFailedTestSuites": 0,
+  "numFailedTests": 0,
+  "numPassedTestSuites": 1,
+  "numPassedTests": 2,
+  "numPendingTestSuites": 0,
+  "numPendingTests": 0,
+  "numRuntimeErrorTestSuites": 0,
+  "numTodoTests": 0,
+  "numTotalTestSuites": 1,
+  "numTotalTests": 2,
+  "openHandles": [],
+  "snapshot": {
+    "added": 0,
+    "didUpdate": false,
+    "failure": false,
+    "filesAdded": 0,
+    "filesRemoved": 0,
+    "filesUnmatched": 0,
+    "filesUpdated": 0,
+    "matched": 0,
+    "total": 0,
+    "unchecked": 0,
+    "uncheckedKeysByFile": [],
+    "unmatched": 0,
+    "updated": 0
+  },
+  "startTime": 1555506155123,
+  "success": true,
+  "testResults": [
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "setup"
+          ],
+          "failureMessages": [],
+          "fullName": "setup sets itself up fom the constructor",
+          "location": {
+            "column": 2,
+            "line": 15
+          },
+          "status": "passed",
+          "title": "sets itself up fom the constructor"
+        },
+        {
+          "ancestorTitles": [
+            "setup"
+          ],
+          "failureMessages": [],
+          "fullName": "setup can safe guard outputFileSuffix",
+          "location": {
+            "column": 2,
+            "line": 25
+          },
+          "status": "passed",
+          "title": "can safe guard outputFileSuffix"
+        }
+      ],
+      "endTime": 1555506157421,
+      "message": "",
+      "name": "/Users/vsun/ConnectDotz/External/jest-editor-support/src/__tests__/project_workspace.test.js",
+      "startTime": 1555506155975,
+      "status": "passed",
+      "summary": ""
+    }
+  ],
+  "wasInterrupted": false
+}

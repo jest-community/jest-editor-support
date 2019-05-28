@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -14,13 +15,10 @@ import type {Location} from '../types';
  */
 export class ParsedRange {
   start: Location;
+
   end: Location;
-  constructor(
-    startLine: number,
-    startCol: number,
-    endLine: number,
-    endCol: number,
-  ) {
+
+  constructor(startLine: number, startCol: number, endLine: number, endCol: number) {
     this.start = {column: startCol, line: startLine};
     this.end = {column: endCol, line: endLine};
   }
@@ -39,15 +37,20 @@ export type ParsedNodeType = $Keys<typeof ParsedNodeTypes>;
 
 export class ParsedNode {
   type: ParsedNodeType;
+
   start: Location;
+
   end: Location;
+
   file: string;
+
   children: ?Array<ParsedNode>;
 
   constructor(type: ParsedNodeType, file: string) {
     this.type = type;
     this.file = file;
   }
+
   addChild(type: ParsedNodeType): ParsedNode {
     let child: ParsedNode;
 
@@ -72,10 +75,7 @@ export class ParsedNode {
     return child;
   }
 
-  filter(
-    f: (node: ParsedNode) => boolean,
-    filterSelf: boolean = false,
-  ): Array<ParsedNode> {
+  filter(f: (node: ParsedNode) => boolean, filterSelf: boolean = false): Array<ParsedNode> {
     const filtered: Array<ParsedNode> = [];
 
     const _filter = (node: ParsedNode, _filterSelf: boolean) => {
@@ -101,7 +101,9 @@ export class Expect extends ParsedNode {
 
 export class NamedBlock extends ParsedNode {
   name: string;
+
   nameRange: ParsedRange;
+
   constructor(type: ParsedNodeType, file: string, name?: string) {
     super(type, file);
     if (name) {
@@ -125,9 +127,13 @@ export class DescribeBlock extends NamedBlock {
 
 export class ParseResult {
   describeBlocks: Array<DescribeBlock>;
+
   expects: Array<Expect>;
+
   itBlocks: Array<ItBlock>;
+
   root: ParsedNode;
+
   file: string;
 
   constructor(file: string) {
@@ -138,29 +144,21 @@ export class ParseResult {
     this.expects = [];
     this.itBlocks = [];
   }
+
   addNode(node: ParsedNode, dedup: boolean = false) {
     if (node instanceof DescribeBlock) {
       this.describeBlocks.push(node);
     } else if (node instanceof ItBlock) {
       this.itBlocks.push(node);
     } else if (node instanceof Expect) {
-      if (
-        dedup &&
-        this.expects.some(
-          e =>
-            e.start.line === node.start.line &&
-            e.start.column === node.start.column,
-        )
-      ) {
-        //found dup, return
+      if (dedup && this.expects.some(e => e.start.line === node.start.line && e.start.column === node.start.column)) {
+        // found dup, return
         return;
       }
 
       this.expects.push(node);
     } else {
-      throw new TypeError(
-        `unexpected node class '${typeof node}': ${JSON.stringify(node)}`,
-      );
+      throw new TypeError(`unexpected node class '${typeof node}': ${JSON.stringify(node)}`);
     }
   }
 }

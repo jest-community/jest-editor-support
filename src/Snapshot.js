@@ -8,13 +8,11 @@
  * @flow
  */
 
-'use strict';
-
+import traverse from '@babel/traverse';
+import {buildSnapshotResolver, utils} from 'jest-snapshot';
 import type {ProjectConfig} from '../types/Config';
 
-import traverse from '@babel/traverse';
 import {getASTfor} from './parsers/babylon_parser';
-import {buildSnapshotResolver, utils} from 'jest-snapshot';
 
 type Node = any;
 
@@ -25,29 +23,20 @@ type SnapshotMetadata = {
   content?: string,
 };
 
-const describeVariants = Object.assign(
-  (Object.create(null): {[string]: boolean, __proto__: null}),
-  {
-    describe: true,
-    fdescribe: true,
-    xdescribe: true,
-  },
-);
-const base = Object.assign(
-  (Object.create(null): {[string]: boolean, __proto__: null}),
-  {
-    describe: true,
-    it: true,
-    test: true,
-  },
-);
-const decorators = Object.assign(
-  (Object.create(null): {[string]: boolean, __proto__: null}),
-  {
-    only: true,
-    skip: true,
-  },
-);
+const describeVariants = Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+  describe: true,
+  fdescribe: true,
+  xdescribe: true,
+});
+const base = Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+  describe: true,
+  it: true,
+  test: true,
+});
+const decorators = Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+  only: true,
+  skip: true,
+});
 
 const validParents = Object.assign(
   (Object.create(null): any),
@@ -57,22 +46,17 @@ const validParents = Object.assign(
     fit: true,
     xit: true,
     xtest: true,
-  }),
+  })
 );
 
 const isValidMemberExpression = node =>
-  node.object &&
-  base[node.object.name] &&
-  node.property &&
-  decorators[node.property.name];
+  node.object && base[node.object.name] && node.property && decorators[node.property.name];
 
 const isDescribe = node =>
-  describeVariants[node.name] ||
-  (isValidMemberExpression(node) && node.object.name === 'describe');
+  describeVariants[node.name] || (isValidMemberExpression(node) && node.object.name === 'describe');
 
 const isValidParent = parent =>
-  parent.callee &&
-  (validParents[parent.callee.name] || isValidMemberExpression(parent.callee));
+  parent.callee && (validParents[parent.callee.name] || isValidMemberExpression(parent.callee));
 
 const getArrayOfParents = path => {
   const result = [];
@@ -84,11 +68,11 @@ const getArrayOfParents = path => {
   return result;
 };
 
-const buildName: (
-  snapshotNode: Node,
-  parents: Array<Node>,
-  position: number,
-) => string = (snapshotNode, parents, position) => {
+const buildName: (snapshotNode: Node, parents: Array<Node>, position: number) => string = (
+  snapshotNode,
+  parents,
+  position
+) => {
   const fullName = parents.map(parent => parent.arguments[0].value).join(' ');
 
   return utils.testNameToKey(fullName, position);
@@ -96,29 +80,35 @@ const buildName: (
 
 export default class Snapshot {
   _parser: Function;
+
   _matchers: Array<string>;
+
   _projectConfig: ?ProjectConfig;
-  constructor(
-    parser: any,
-    customMatchers?: Array<string>,
-    projectConfig?: ProjectConfig,
-  ) {
+
+  constructor(parser: any, customMatchers?: Array<string>, projectConfig?: ProjectConfig) {
     this._parser = parser || getASTfor;
-    this._matchers = ['toMatchSnapshot', 'toThrowErrorMatchingSnapshot'].concat(
-      customMatchers || [],
-    );
+    this._matchers = ['toMatchSnapshot', 'toThrowErrorMatchingSnapshot'].concat(customMatchers || []);
     this._projectConfig = projectConfig;
   }
 
-  getMetadata(filePath: string): Array<SnapshotMetadata> {
-    const fileNode = this._parser(filePath);
+  getMetadata(filePath: string, verbose: boolean = false): Array<SnapshotMetadata> {
+    let fileNode;
+    try {
+      fileNode = this._parser(filePath);
+    } catch (error) {
+      if (verbose) {
+        // eslint-disable-next-line no-console
+        console.warn(error);
+      }
+      return [];
+    }
     const state = {
       found: [],
     };
     const Visitors = {
-      Identifier(path, state, matchers) {
+      Identifier(path, _state, matchers) {
         if (matchers.indexOf(path.node.name) >= 0) {
-          state.found.push({
+          _state.found.push({
             node: path.node,
             parents: getArrayOfParents(path),
           });
@@ -142,7 +132,7 @@ export default class Snapshot {
     let lastParent = null;
     let count = 1;
 
-    return state.found.map((snapshotNode, index) => {
+    return state.found.map(snapshotNode => {
       const parents = snapshotNode.parents.filter(isValidParent);
       const innerAssertion = parents[parents.length - 1];
 
@@ -153,11 +143,12 @@ export default class Snapshot {
 
       const result = {
         content: undefined,
-        count: count++,
+        count,
         exists: false,
         name: '',
         node: snapshotNode.node,
       };
+      count += 1;
 
       if (!innerAssertion || isDescribe(innerAssertion.callee)) {
         // An expectation inside describe never gets executed.
