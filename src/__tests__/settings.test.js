@@ -21,7 +21,6 @@ describe('Settings', () => {
     };
     const settings = new Settings(workspace, options);
     expect(settings.workspace).toEqual(workspace);
-    expect(settings.settings).toEqual(expect.any(Object));
     expect(settings.spawnOptions).toEqual(options);
   });
 

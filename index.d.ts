@@ -33,14 +33,18 @@ export class Runner extends EventEmitter {
   runJestWithUpdateForSnapshots(completion: () => void, args?: string[]): void;
 }
 
+export interface ConfigRepresentation {
+  testRegex: string | string[],
+  testMatch: string[],
+};
+
 export class Settings extends EventEmitter {
   constructor(workspace: ProjectWorkspace, options?: Options);
-  getConfig(completed: Function): void;
+  getConfigs(completed: Function): void;
+  getConfig(completed: Function, index?: number): void;
   jestVersionMajor: number | null;
-  settings: {
-    testRegex: string,
-    testMatch: string[],
-  };
+  configs: ConfigRepresentation[];
+  settings?: ConfigRepresentation;
 }
 
 export class ProjectWorkspace {

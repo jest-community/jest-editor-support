@@ -9,19 +9,13 @@
 
 import {ChildProcess} from 'child_process';
 import EventEmitter from 'events';
-import {defaults as jestConfigDefaults} from 'jest-config';
 import type {Options, SpawnOptions} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
 // This class represents the the configuration of Jest's process
-// we want to start with the defaults then override whatever they output
 // the interface below can be used to show what we use, as currently the whole
 // settings object will be in memory.
-
-// Ideally anything you care about adding should have a default in
-// the constructor see https://jestjs.io/docs/configuration.html
-// for full deets
 
 // For now, this is all we care about inside the config
 
@@ -43,7 +37,7 @@ export default class Settings extends EventEmitter {
 
   configs: ConfigRepresentations;
 
-  settings: ConfigRepresentation;
+  settings: ?ConfigRepresentation;
 
   workspace: ProjectWorkspace;
 
@@ -59,11 +53,7 @@ export default class Settings extends EventEmitter {
       shell: options && options.shell,
     };
 
-    const {testMatch, testRegex} = jestConfigDefaults;
-
-    this.settings = {testMatch, testRegex};
-
-    this.configs = [this.settings];
+    this.configs = [];
     this._jsonPattern = new RegExp(/^[\s]*\{/gm);
   }
 
