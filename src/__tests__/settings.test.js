@@ -11,7 +11,7 @@
 
 import EventEmitter from 'events';
 import ProjectWorkspace from '../project_workspace';
-import { getSettings } from '../Settings';
+import {getSettings} from '../Settings';
 
 function prepareProcess() {
   const mockProcess: any = new EventEmitter();
@@ -36,7 +36,7 @@ describe('getSettings', () => {
       version: '19.0.0',
     };
 
-    const { mockProcess, createProcess } = prepareProcess();
+    const {mockProcess, createProcess} = prepareProcess();
     const buffer = Buffer.from(JSON.stringify(json));
     const settingsPromise = getSettings(workspace, {
       createProcess,
@@ -64,7 +64,7 @@ describe('getSettings', () => {
       version: '21.0.0',
     };
 
-    const { mockProcess, createProcess } = prepareProcess();
+    const {mockProcess, createProcess} = prepareProcess();
     const buffer = Buffer.from(JSON.stringify(json));
     const settingsPromise = getSettings(workspace, {
       createProcess,
@@ -82,7 +82,7 @@ describe('getSettings', () => {
     expect.assertions(1);
     const workspace = new ProjectWorkspace('root_path', 'path_to_jest', 'test', 1000);
 
-    const { mockProcess, createProcess } = prepareProcess();
+    const {mockProcess, createProcess} = prepareProcess();
     const settingsPromise = getSettings(workspace, {
       createProcess,
     });
@@ -103,7 +103,7 @@ describe('getSettings', () => {
     const rootPath = 'root_path';
     const workspace = new ProjectWorkspace(rootPath, pathToJest, pathToConfig, localJestMajorVersion);
 
-    const { createProcess } = prepareProcess();
+    const {createProcess} = prepareProcess();
     const settingsPromise = getSettings(workspace, {
       createProcess,
       shell: true,
@@ -133,16 +133,20 @@ describe('getSettings', () => {
         "testRegex": "some-regex"
       }]
     }`;
-    const run_test = async (text: string, expected_version: number = 23, expected_regex: string = 'some-regex'): Promise<void> => {
+    const run_test = async (
+      text: string,
+      expected_version: number = 23,
+      expected_regex: string = 'some-regex'
+    ): Promise<void> => {
       expect.assertions(2);
-      const { mockProcess, createProcess } = prepareProcess();
+      const {mockProcess, createProcess} = prepareProcess();
       const buffer = Buffer.from(text);
       const settingsPromise = getSettings(workspace, {
         createProcess,
       });
       mockProcess.stdout.emit('data', buffer);
       mockProcess.emit('close');
-      
+
       const settings = await settingsPromise;
       expect(settings.jestVersionMajor).toBe(expected_version);
       expect(settings.configs[0].testRegex).toBe(expected_regex);
