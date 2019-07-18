@@ -22,9 +22,9 @@ Bug-fixes within the same version aren't needed
 
 * upgrade to the latest jest version (24.7.x) - connectdotz
 
-* `Settings.settings` no longer contains the default configuration but starts with `undefined` - stephtr
+* Replace the `Settings` class with a `getSettings` function - stephtr
 
-  Before accessing this property, one has to run `Settings.getConfig`.
+  `getSettings` now simply returns a promise resolving to jest's config.
 
 -->
 
