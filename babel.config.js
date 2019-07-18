@@ -1,3 +1,9 @@
 module.exports = {
-  presets: ['@babel/preset-env', '@babel/flow'],
+  presets: [
+    [
+      '@babel/preset-env',
+      { useBuiltIns: 'usage' }
+    ],
+    '@babel/flow',
+  ],
 };
