@@ -13,13 +13,11 @@ import type { Options, SpawnOptions } from './types';
 import ProjectWorkspace from './project_workspace';
 import { createProcess } from './Process';
 
-// This class represents the the configuration of Jest's process
-// the interface below can be used to show what we use, as currently the whole
-// settings object will be in memory.
-
-// For now, this is all we care about inside the config
-
 type Glob = string;
+
+// The interface below can be used to show what we use, as currently the whole
+// settings object will be in memory.
+// For now, this is all we care about inside the config
 
 type ProjectConfiguration = {
   testRegex: string | Array<string>,

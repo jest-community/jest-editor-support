@@ -22,7 +22,7 @@ Bug-fixes within the same version aren't needed
 
 * upgrade to the latest jest version (24.7.x) - connectdotz
 
-* Replace the `Settings` class with a `getSettings` function - stephtr
+* [breaking change] Replace the `Settings` class with a `getSettings` function - stephtr
 
   `getSettings` now simply returns a promise resolving to jest's config.
 
