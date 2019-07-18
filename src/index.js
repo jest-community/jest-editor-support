@@ -11,7 +11,7 @@ import * as Process from './Process';
 
 import ProjectWorkspace from './project_workspace';
 import Runner from './Runner';
-import {getSettings} from './Settings';
+import getSettings from './Settings';
 import Snapshot from './Snapshot';
 import {
   Expect,

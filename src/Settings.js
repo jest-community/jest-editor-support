@@ -7,9 +7,7 @@
  * @flow
  */
 
-import {ChildProcess} from 'child_process';
-import EventEmitter from 'events';
-import type {Options, SpawnOptions} from './types';
+import type {Options} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
@@ -64,7 +62,7 @@ function parseSettings(text: string, debug: ?boolean = false): JestSettings {
   };
 }
 
-export function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<JestSettings> {
+export default function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<JestSettings> {
   return new Promise((resolve, reject) => {
     const _createProcess = (options && options.createProcess) || createProcess;
     const spawnOptions = {

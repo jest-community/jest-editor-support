@@ -11,7 +11,7 @@
 
 import EventEmitter from 'events';
 import ProjectWorkspace from '../project_workspace';
-import {getSettings} from '../Settings';
+import getSettings from '../Settings';
 
 function prepareProcess() {
   const mockProcess: any = new EventEmitter();
@@ -104,7 +104,7 @@ describe('getSettings', () => {
     const workspace = new ProjectWorkspace(rootPath, pathToJest, pathToConfig, localJestMajorVersion);
 
     const {createProcess} = prepareProcess();
-    const settingsPromise = getSettings(workspace, {
+    getSettings(workspace, {
       createProcess,
       shell: true,
     });
@@ -125,7 +125,6 @@ describe('getSettings', () => {
 
   describe('parse config', () => {
     const workspace = new ProjectWorkspace('root_path', 'path_to_jest', 'test', 1000);
-    const createProcess = jest.fn();
 
     const json = `{ 
       "version": "23.2.0",
