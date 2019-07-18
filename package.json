@@ -51,6 +51,7 @@
   },
   "dependencies": {
     "@babel/traverse": "^7.1.2",
+    "@jest/types": "^24.8.0",
     "babylon": "^6.14.1",
     "jest-snapshot": "^24.7.0",
     "typescript": "^3.4.3"

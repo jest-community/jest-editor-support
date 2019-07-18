@@ -7,37 +7,29 @@
  * @flow
  */
 
-import { ChildProcess } from 'child_process';
+import {ChildProcess} from 'child_process';
 import EventEmitter from 'events';
-import type { Options, SpawnOptions } from './types';
+import type {Options, SpawnOptions} from './types';
+import type {Config as JestConfig} from '@jest/types';
 import ProjectWorkspace from './project_workspace';
-import { createProcess } from './Process';
+import {createProcess} from './Process';
 
 type Glob = string;
 
-// The interface below can be used to show what we use, as currently the whole
-// settings object will be in memory.
-// For now, this is all we care about inside the config
-
-type ProjectConfiguration = {
-  testRegex: string | Array<string>,
-  testMatch: Array<Glob>,
-};
-
 type JestSettings = {
   jestVersionMajor: number,
-  configs: ProjectConfiguration[],
+  configs: JestConfig.ProjectConfig[],
 };
 
-function parseSettings(text: string, debug: Boolean = false): JestSettings {
-  _jsonPattern = new RegExp(/^[\s]*\{/gm);
+function parseSettings(text: string, debug: ?boolean = false): JestSettings {
+  const jsonPattern = new RegExp(/^[\s]*\{/gm);
   let settings = null;
 
   try {
     settings = JSON.parse(text);
   } catch (err) {
     // skip the non-json content, if any
-    const idx = text.search(_jsonPattern);
+    const idx = text.search(jsonPattern);
     if (idx > 0) {
       if (debug) {
         // eslint-disable-next-line no-console
@@ -70,12 +62,12 @@ export function getSettings(workspace: ProjectWorkspace, options?: Options): Pro
     };
     const getConfigProcess = _createProcess(workspace, ['--showConfig'], spawnOptions);
 
-    const configString = '';
+    let configString = '';
     getConfigProcess.stdout.on('data', (data: Buffer) => {
       configString += data.toString();
     });
 
-    const rejected = false;
+    let rejected = false;
     getConfigProcess.stderr.on('data', (data: Buffer) => {
       rejected = true;
       reject(data.toString());

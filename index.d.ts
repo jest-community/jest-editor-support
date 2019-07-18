@@ -7,6 +7,7 @@
 
 import {EventEmitter} from 'events';
 import {ChildProcess} from 'child_process';
+import {Config as JestConfig} from '@jest/types';
 
 export interface SpawnOptions {
   shell?: boolean;
@@ -33,15 +34,9 @@ export class Runner extends EventEmitter {
   runJestWithUpdateForSnapshots(completion: () => void, args?: string[]): void;
 }
 
-
-export interface ProjectConfiguration {
-  testRegex: string | string[];
-  testMatch: string[];
-};
-
 export interface JestSettings {
   jestVersionMajor: number;
-  configs: ProjectConfiguration[];
+  configs: JestConfig.ProjectConfig[];
 };
 
 export function parseSettings(text: string, debug: boolean = false): JestSettings;
