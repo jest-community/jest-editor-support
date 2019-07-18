@@ -14,7 +14,7 @@ import ProjectWorkspace from '../project_workspace';
 import { getSettings } from '../Settings';
 
 function prepareProcess() {
-  const mockProcess = new EventEmitter();
+  const mockProcess: any = new EventEmitter();
   mockProcess.stdout = new EventEmitter();
   mockProcess.stderr = new EventEmitter();
   return {
@@ -133,7 +133,7 @@ describe('getSettings', () => {
         "testRegex": "some-regex"
       }]
     }`;
-    const run_test = async (text: string, expected_version: number = 23, expected_regex: string = 'some-regex'): void => {
+    const run_test = async (text: string, expected_version: number = 23, expected_regex: string = 'some-regex'): Promise<void> => {
       expect.assertions(2);
       const { mockProcess, createProcess } = prepareProcess();
       const buffer = Buffer.from(text);
