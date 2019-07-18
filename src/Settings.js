@@ -10,15 +10,19 @@
 import {ChildProcess} from 'child_process';
 import EventEmitter from 'events';
 import type {Options, SpawnOptions} from './types';
-import type {Config as JestConfig} from '@jest/types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
 type Glob = string;
 
+type ProjectConfiguration = {
+  testRegex: string | Array<string>,
+  testMatch: Array<Glob>,
+};
+
 type JestSettings = {
   jestVersionMajor: number,
-  configs: JestConfig.ProjectConfig[],
+  configs: ProjectConfiguration[],
 };
 
 function parseSettings(text: string, debug: ?boolean = false): JestSettings {
