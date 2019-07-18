@@ -39,7 +39,7 @@ export interface JestSettings {
   configs: JestConfig.ProjectConfig[];
 };
 
-export function parseSettings(text: string, debug: boolean = false): JestSettings;
+export function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<JestSettings>;
 
 export class ProjectWorkspace {
   constructor(
