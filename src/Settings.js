@@ -15,6 +15,12 @@ import {createProcess} from './Process';
 
 type Glob = string;
 
+// This class represents the configuration of Jest's process.
+// The interface below can be used to show what we use, as currently the whole
+// settings object will be in memory.
+// As soon as the code will be converted to TypeScript, this will be removed
+// in favor of `@jest/types`, which exports the full config interface.
+
 type ProjectConfiguration = {
   testRegex: string | Array<string>,
   testMatch: Array<Glob>,
