@@ -17,14 +17,23 @@ function prepareProcess() {
   const mockProcess: any = new EventEmitter();
   mockProcess.stdout = new EventEmitter();
   mockProcess.stderr = new EventEmitter();
+
   return {
-    mockProcess,
     createProcess: jest.fn(() => mockProcess),
+    mockProcessResult: (stdout: ?string, stderr: ?string) => {
+      if (stdout) {
+        mockProcess.stdout.emit('data', Buffer.from(stdout));
+      }
+      if (stderr) {
+        mockProcess.stderr.emit('data', Buffer.from(stderr));
+      }
+      mockProcess.emit('close');
+    },
   };
 }
 
 describe('getSettings', () => {
-  it('[jest 20] reads and parses the config', async () => {
+  it('[jest 19] reads and parses the config', async () => {
     expect.assertions(2);
     const workspace = new ProjectWorkspace('root_path', 'path_to_jest', 'test', 1000);
     const config = {
@@ -36,16 +45,13 @@ describe('getSettings', () => {
       version: '19.0.0',
     };
 
-    const {mockProcess, createProcess} = prepareProcess();
-    const buffer = Buffer.from(JSON.stringify(json));
+    const {createProcess, mockProcessResult} = prepareProcess();
     const settingsPromise = getSettings(workspace, {
       createProcess,
     });
-
-    mockProcess.stdout.emit('data', buffer);
-    mockProcess.emit('close');
-
+    mockProcessResult(JSON.stringify(json));
     const settings = await settingsPromise;
+
     expect(settings.jestVersionMajor).toBe(19);
     expect(settings.configs).toEqual([config]);
   });
@@ -64,16 +70,13 @@ describe('getSettings', () => {
       version: '21.0.0',
     };
 
-    const {mockProcess, createProcess} = prepareProcess();
-    const buffer = Buffer.from(JSON.stringify(json));
+    const {createProcess, mockProcessResult} = prepareProcess();
     const settingsPromise = getSettings(workspace, {
       createProcess,
     });
-
-    mockProcess.stdout.emit('data', buffer);
-    mockProcess.emit('close');
-
+    mockProcessResult(JSON.stringify(json));
     const settings = await settingsPromise;
+
     expect(settings.jestVersionMajor).toBe(21);
     expect(settings.configs).toEqual(configs);
   });
@@ -82,12 +85,38 @@ describe('getSettings', () => {
     expect.assertions(1);
     const workspace = new ProjectWorkspace('root_path', 'path_to_jest', 'test', 1000);
 
-    const {mockProcess, createProcess} = prepareProcess();
+    const {createProcess, mockProcessResult} = prepareProcess();
     const settingsPromise = getSettings(workspace, {
       createProcess,
     });
+    mockProcessResult();
 
-    mockProcess.emit('close');
+    try {
+      await settingsPromise;
+    } catch (err) {
+      expect(err).toBeTruthy();
+    }
+  });
+
+  it('rejects the promise if an error is logged', async () => {
+    expect.assertions(1);
+    const workspace = new ProjectWorkspace('root_path', 'path_to_jest', 'test', 1000);
+    const configs = [
+      {
+        cacheDirectory: '/tmp/jest',
+        name: '[md5 hash]',
+      },
+    ];
+    const json = {
+      configs,
+      version: '21.0.0',
+    };
+
+    const {createProcess, mockProcessResult} = prepareProcess();
+    const settingsPromise = getSettings(workspace, {
+      createProcess,
+    });
+    mockProcessResult(JSON.stringify(json), 'The expected error occured.');
 
     try {
       await settingsPromise;
@@ -138,15 +167,13 @@ describe('getSettings', () => {
       expected_regex: string = 'some-regex'
     ): Promise<void> => {
       expect.assertions(2);
-      const {mockProcess, createProcess} = prepareProcess();
-      const buffer = Buffer.from(text);
+      const {createProcess, mockProcessResult} = prepareProcess();
       const settingsPromise = getSettings(workspace, {
         createProcess,
       });
-      mockProcess.stdout.emit('data', buffer);
-      mockProcess.emit('close');
-
+      mockProcessResult(text);
       const settings = await settingsPromise;
+
       expect(settings.jestVersionMajor).toBe(expected_version);
       expect(settings.configs[0].testRegex).toBe(expected_regex);
     };
