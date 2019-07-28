@@ -7,113 +7,88 @@
  * @flow
  */
 
-import {ChildProcess} from 'child_process';
-import EventEmitter from 'events';
-import {defaults as jestConfigDefaults} from 'jest-config';
-import type {Options, SpawnOptions} from './types';
+import type {Options} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
-// This class represents the the configuration of Jest's process
-// we want to start with the defaults then override whatever they output
-// the interface below can be used to show what we use, as currently the whole
-// settings object will be in memory.
-
-// Ideally anything you care about adding should have a default in
-// the constructor see https://jestjs.io/docs/configuration.html
-// for full deets
-
-// For now, this is all we care about inside the config
-
 type Glob = string;
 
-type ConfigRepresentation = {
+// This class represents the configuration of Jest's process.
+// The interface below can be used to show what we use, as currently the whole
+// settings object will be in memory.
+// As soon as the code will be converted to TypeScript, this will be removed
+// in favor of `@jest/types`, which exports the full config interface.
+
+type ProjectConfiguration = {
   testRegex: string | Array<string>,
   testMatch: Array<Glob>,
 };
 
-type ConfigRepresentations = Array<ConfigRepresentation>;
+type JestSettings = {
+  jestVersionMajor: number,
+  configs: ProjectConfiguration[],
+};
 
-export default class Settings extends EventEmitter {
-  getConfigProcess: ChildProcess;
+function parseSettings(text: string, debug: ?boolean = false): JestSettings {
+  const jsonPattern = new RegExp(/^[\s]*\{/gm);
+  let settings = null;
 
-  jestVersionMajor: number | null;
+  try {
+    settings = JSON.parse(text);
+  } catch (err) {
+    // skip the non-json content, if any
+    const idx = text.search(jsonPattern);
+    if (idx > 0) {
+      if (debug) {
+        // eslint-disable-next-line no-console
+        console.log(`skip config output noise: ${text.substring(0, idx)}`);
+      }
+      return parseSettings(text.substring(idx));
+    }
+    // eslint-disable-next-line no-console
+    console.warn(`failed to parse config: \n${text}\nerror: ${err}`);
+    throw err;
+  }
 
-  _createProcess: (workspace: ProjectWorkspace, args: Array<string>, options: SpawnOptions) => ChildProcess;
+  const jestVersionMajor = parseInt(settings.version.split('.').shift(), 10);
+  if (debug) {
+    // eslint-disable-next-line no-console
+    console.log(`found config jestVersionMajor=${jestVersionMajor}`);
+  }
 
-  configs: ConfigRepresentations;
+  return {
+    jestVersionMajor,
+    configs: Array.isArray(settings.configs) ? settings.configs : [settings.config],
+  };
+}
 
-  settings: ConfigRepresentation;
-
-  workspace: ProjectWorkspace;
-
-  spawnOptions: SpawnOptions;
-
-  _jsonPattern: RegExp;
-
-  constructor(workspace: ProjectWorkspace, options?: Options) {
-    super();
-    this.workspace = workspace;
-    this._createProcess = (options && options.createProcess) || createProcess;
-    this.spawnOptions = {
+export default function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<JestSettings> {
+  return new Promise((resolve, reject) => {
+    const _createProcess = (options && options.createProcess) || createProcess;
+    const spawnOptions = {
       shell: options && options.shell,
     };
+    const getConfigProcess = _createProcess(workspace, ['--showConfig'], spawnOptions);
 
-    const {testMatch, testRegex} = jestConfigDefaults;
+    let configString = '';
+    getConfigProcess.stdout.on('data', (data: Buffer) => {
+      configString += data.toString();
+    });
 
-    this.settings = {testMatch, testRegex};
+    let rejected = false;
+    getConfigProcess.stderr.on('data', (data: Buffer) => {
+      rejected = true;
+      reject(data.toString());
+    });
 
-    this.configs = [this.settings];
-    this._jsonPattern = new RegExp(/^[\s]*\{/gm);
-  }
-
-  _parseConfig(text: string): void {
-    let settings = null;
-
-    try {
-      settings = JSON.parse(text);
-    } catch (err) {
-      // skip the non-json content, if any
-      const idx = text.search(this._jsonPattern);
-      if (idx > 0) {
-        if (this.workspace.debug) {
-          // eslint-disable-next-line no-console
-          console.log(`skip config output noise: ${text.substring(0, idx)}`);
+    getConfigProcess.on('close', () => {
+      if (!rejected) {
+        try {
+          resolve(parseSettings(configString, workspace.debug));
+        } catch (err) {
+          reject(err);
         }
-        this._parseConfig(text.substring(idx));
-        return;
       }
-      // eslint-disable-next-line no-console
-      console.warn(`failed to parse config: \n${text}\nerror: ${err}`);
-      throw err;
-    }
-    this.jestVersionMajor = parseInt(settings.version.split('.').shift(), 10);
-    this.configs = this.jestVersionMajor >= 21 ? settings.configs : [settings.config];
-
-    if (this.workspace.debug) {
-      // eslint-disable-next-line no-console
-      console.log(`found config jestVersionMajor=${this.jestVersionMajor}`);
-    }
-  }
-
-  getConfigs(completed: any) {
-    this.getConfigProcess = this._createProcess(this.workspace, ['--showConfig'], this.spawnOptions);
-
-    this.getConfigProcess.stdout.on('data', (data: Buffer) => {
-      this._parseConfig(data.toString());
     });
-
-    // They could have an older build of Jest which
-    // would error with `--showConfig`
-    this.getConfigProcess.on('close', () => {
-      completed();
-    });
-  }
-
-  getConfig(completed: any, index: number = 0) {
-    this.getConfigs(() => {
-      this.settings = this.configs[index];
-      completed();
-    });
-  }
+  });
 }
