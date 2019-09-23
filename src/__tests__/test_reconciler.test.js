@@ -158,12 +158,10 @@ Expected value to be falsy, instead received
 describe('Terse Messages', () => {
   let parser: TestReconciler;
 
-  beforeEach(() => {
+  it('handles shrinking a snapshot message', () => {
     parser = new TestReconciler();
     reconcilerWithFile(parser, 'failing_expects.json');
-  });
 
-  it('handles shrinking a snapshot message', () => {
     const file = '/Users/orta/dev/projects/artsy/js/libs/jest-snapshots-svg/src/_tests/example.test.ts';
 
     const terseForTest = name => parser.stateForTestAssertion(file, name);
@@ -194,6 +192,19 @@ describe('Terse Messages', () => {
 
     message = 'Expected value to be truthy, instead received null';
     testName = 'truthy';
+    expect(terseForTest(testName)).toHaveProperty('terseMessage', message);
+  });
+
+  it('handles shrinking a @testing-library/react message', () => {
+    parser = new TestReconciler();
+    reconcilerWithFile(parser, 'failing_testing-library-react.json');
+
+    const file = '/Users/jmarceli/work/rnd/cra-base-2019-09-21/src/pages/Home.test.tsx';
+
+    const terseForTest = name => parser.stateForTestAssertion(file, name);
+
+    const message = `Error: Unable to find an element with the text: Learn React123. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.\n\n\u001b[36m<body>\u001b[39m\n  \u001b[36m<div>\u001b[39m\n    \u001b[36m<div\u001b[39m\n      \u001b[33mclass\u001b[39m=\u001b[32m\"root\"\u001b[39m\n    \u001b[36m>\u001b[39m\n      \u001b[0mLearn React\u001b[0m\n    \u001b[36m</div>\u001b[39m\n  \u001b[36m</div>\u001b[39m\n\u001b[36m</body>\u001b[39m`;
+    const testName = 'renders without crashing';
     expect(terseForTest(testName)).toHaveProperty('terseMessage', message);
   });
 });

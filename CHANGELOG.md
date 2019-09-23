@@ -11,7 +11,7 @@ Bug-fixes within the same version aren't needed
   projects that link with this package no longer need to add `jest-test-typescript-parser` package separately. The newly exposed `parse` function can select the proper parser based on file extension.
 
 * fix a few race condition errors in Runner (#9) - connectdotz
-  - concurrent Runner output to the same hard coded output file: added optional 'outputFileSuffix' parameter. 
+  - concurrent Runner output to the same hard coded output file: added optional 'outputFileSuffix' parameter.
   - jest process output parser sometimes failed to identify testResults message.
 
 * `TestReconciler` will now report test locations from jest '--testLocationInResults' output
@@ -26,6 +26,8 @@ Bug-fixes within the same version aren't needed
 
   `getSettings` now simply returns a promise resolving to jest's config.
 
+* custom short message for @testing-library/react - jmarceli
+
 -->
 
 ### 25.0.0
@@ -37,8 +39,7 @@ in your head, consider this a 1.0 kinda thing.
 
   This is because the codebase was migrated with Jest, and now uses functions
   from the master builds that don't seem to be available on the latest production
-  versions of jest-snapshot/. If someone wants to backport this to the prod builds 
+  versions of jest-snapshot/. If someone wants to backport this to the prod builds
   look at the usage of the `buildSnapshotResolver`
 
 - Adds the ability to parse describe blocks - https://github.com/facebook/jest/pull/7215
-

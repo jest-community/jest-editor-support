@@ -1,0 +1,54 @@
+{
+  "numFailedTestSuites": 1,
+  "numFailedTests": 1,
+  "numPassedTestSuites": 0,
+  "numPassedTests": 0,
+  "numPendingTestSuites": 0,
+  "numPendingTests": 0,
+  "numRuntimeErrorTestSuites": 0,
+  "numTodoTests": 0,
+  "numTotalTestSuites": 1,
+  "numTotalTests": 1,
+  "openHandles": [],
+  "snapshot": {
+    "added": 0,
+    "didUpdate": false,
+    "failure": false,
+    "filesAdded": 0,
+    "filesRemoved": 0,
+    "filesRemovedList": [],
+    "filesUnmatched": 0,
+    "filesUpdated": 0,
+    "matched": 0,
+    "total": 0,
+    "unchecked": 0,
+    "uncheckedKeysByFile": [],
+    "unmatched": 0,
+    "updated": 0
+  },
+  "startTime": 1569272945008,
+  "success": false,
+  "testResults": [
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [],
+          "failureMessages": [
+            "Error: Unable to find an element with the text: Learn React123. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.\n\n\u001b[36m<body>\u001b[39m\n  \u001b[36m<div>\u001b[39m\n    \u001b[36m<div\u001b[39m\n      \u001b[33mclass\u001b[39m=\u001b[32m\"root\"\u001b[39m\n    \u001b[36m>\u001b[39m\n      \u001b[0mLearn React\u001b[0m\n    \u001b[36m</div>\u001b[39m\n  \u001b[36m</div>\u001b[39m\n\u001b[36m</body>\u001b[39m\n    at getElementError (/Users/jmarceli/work/rnd/cra-base-2019-09-21/node_modules/@testing-library/dom/dist/query-helpers.js:22:10)\n    at args (/Users/jmarceli/work/rnd/cra-base-2019-09-21/node_modules/@testing-library/dom/dist/query-helpers.js:76:13)\n    at args (/Users/jmarceli/work/rnd/cra-base-2019-09-21/node_modules/@testing-library/dom/dist/query-helpers.js:59:17)\n    at Object.getByText (/Users/jmarceli/work/rnd/cra-base-2019-09-21/src/pages/Home.test.tsx:8:10)\n    at Object.asyncJestTest (/Users/jmarceli/work/rnd/cra-base-2019-09-21/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:102:37)\n    at resolve (/Users/jmarceli/work/rnd/cra-base-2019-09-21/node_modules/jest-jasmine2/build/queueRunner.js:43:12)\n    at new Promise (<anonymous>)\n    at mapper (/Users/jmarceli/work/rnd/cra-base-2019-09-21/node_modules/jest-jasmine2/build/queueRunner.js:26:19)\n    at promise.then (/Users/jmarceli/work/rnd/cra-base-2019-09-21/node_modules/jest-jasmine2/build/queueRunner.js:73:41)\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
+          ],
+          "fullName": "renders without crashing",
+          "location": {"column": 1, "line": 5},
+          "status": "failed",
+          "title": "renders without crashing"
+        }
+      ],
+      "endTime": 1569272947046,
+      "message": "  ● renders without crashing\n\n    Unable to find an element with the text: Learn React123. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.\n\n    \u001b[36m<body>\u001b[39m\n      \u001b[36m<div>\u001b[39m\n        \u001b[36m<div\u001b[39m\n          \u001b[33mclass\u001b[39m=\u001b[32m\"root\"\u001b[39m\n        \u001b[36m>\u001b[39m\n          \u001b[0mLearn React\u001b[0m\n        \u001b[36m</div>\u001b[39m\n      \u001b[36m</div>\u001b[39m\n    \u001b[36m</body>\u001b[39m\n\n       6 |   const { getByText } = render(<Home />);\n       7 | \n    >  8 |   expect(getByText('Learn React123')).toBeInTheDocument();\n         |          ^\n       9 | });\n      10 | \n\n      at getElementError (node_modules/@testing-library/dom/dist/query-helpers.js:22:10)\n      at args (node_modules/@testing-library/dom/dist/query-helpers.js:76:13)\n      at args (node_modules/@testing-library/dom/dist/query-helpers.js:59:17)\n      at Object.getByText (src/pages/Home.test.tsx:8:10)\n",
+      "name": "/Users/jmarceli/work/rnd/cra-base-2019-09-21/src/pages/Home.test.tsx",
+      "startTime": 1569272946033,
+      "status": "failed",
+      "summary": ""
+    }
+  ],
+  "wasInterrupted": false
+}

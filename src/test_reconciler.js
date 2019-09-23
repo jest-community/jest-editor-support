@@ -105,6 +105,11 @@ export default class TestReconciler {
       return 'New snapshot is ready to write';
     }
 
+    // Improve @testing-library/react error messages handling
+    if (string.startsWith('Error: Unable to find an element with the text')) {
+      return string;
+    }
+
     return string
       .split('\n')
       .splice(2)
