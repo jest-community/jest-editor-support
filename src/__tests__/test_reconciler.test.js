@@ -203,7 +203,8 @@ describe('Terse Messages', () => {
 
     const terseForTest = name => parser.stateForTestAssertion(file, name);
 
-    const message = `Error: Unable to find an element with the text: Learn React123. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.\n\n\u001b[36m<body>\u001b[39m\n  \u001b[36m<div>\u001b[39m\n    \u001b[36m<div\u001b[39m\n      \u001b[33mclass\u001b[39m=\u001b[32m\"root\"\u001b[39m\n    \u001b[36m>\u001b[39m\n      \u001b[0mLearn React\u001b[0m\n    \u001b[36m</div>\u001b[39m\n  \u001b[36m</div>\u001b[39m\n\u001b[36m</body>\u001b[39m`;
+    const message =
+      'Error: Unable to find an element with the text: Learn React123. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.\n\n\u001b[36m<body>\u001b[39m\n  \u001b[36m<div>\u001b[39m\n    \u001b[36m<div\u001b[39m\n      \u001b[33mclass\u001b[39m=\u001b[32m"root"\u001b[39m\n    \u001b[36m>\u001b[39m\n      \u001b[0mLearn React\u001b[0m\n    \u001b[36m</div>\u001b[39m\n  \u001b[36m</div>\u001b[39m\n\u001b[36m</body>\u001b[39m';
     const testName = 'renders without crashing';
     expect(terseForTest(testName)).toHaveProperty('terseMessage', message);
   });
