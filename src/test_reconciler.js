@@ -105,18 +105,19 @@ export default class TestReconciler {
       return 'New snapshot is ready to write';
     }
 
-    // Improve @testing-library/react error messages handling
-    if (string.startsWith('Error: Unable to find an element with the text')) {
-      return string;
+    // Standard Jest error message
+    if (string.startsWith('Error: expect')) {
+      return string
+        .split('\n')
+        .splice(2)
+        .join('')
+        .replace(/\s\s+/g, ' ')
+        .replace('Received:', ', Received:')
+        .split('Difference:')[0];
     }
 
-    return string
-      .split('\n')
-      .splice(2)
-      .join('')
-      .replace(/\s\s+/g, ' ')
-      .replace('Received:', ', Received:')
-      .split('Difference:')[0];
+    // Non standard message
+    return string;
   }
 
   // Pull the line out from the stack trace
