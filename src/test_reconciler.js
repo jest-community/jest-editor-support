@@ -13,6 +13,10 @@ import type {TestFileAssertionStatus, TestAssertionStatus, TestReconciliationSta
 
 import type {FormattedAssertionResult, FormattedTestResults} from '../types/TestResult';
 
+// Regex which defines which short messages are considered to be valid
+// \s\S - stands for any character including new line https://stackoverflow.com/questions/1068280/javascript-regex-multiline-flag-doesnt-work
+const validShortMessage = /expected[\s\S]*received/i;
+
 /**
  *  You have a Jest test runner watching for changes, and you have
  *  an extension that wants to know where to show errors after file parsing.
@@ -105,8 +109,7 @@ export default class TestReconciler {
       return 'New snapshot is ready to write';
     }
 
-    // Standard Jest error message
-    if (string.startsWith('Error: expect')) {
+    if (validShortMessage.test(string)) {
       return string
         .split('\n')
         .splice(2)
