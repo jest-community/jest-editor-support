@@ -6,4 +6,5 @@ module.exports = {
     ],
     '@babel/flow',
   ],
+  plugins: ['@babel/plugin-transform-dotall-regex']
 };

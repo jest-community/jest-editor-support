@@ -14,8 +14,7 @@ import type {TestFileAssertionStatus, TestAssertionStatus, TestReconciliationSta
 import type {FormattedAssertionResult, FormattedTestResults} from '../types/TestResult';
 
 // Regex which defines which short messages are considered to be valid
-// \s\S - stands for any character including new line https://stackoverflow.com/questions/1068280/javascript-regex-multiline-flag-doesnt-work
-const validShortMessage = /expected[\s\S]*received/i;
+const validShortMessage = /Expected.*[R|r]eceived/s;
 
 /**
  *  You have a Jest test runner watching for changes, and you have
