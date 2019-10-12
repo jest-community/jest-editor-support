@@ -27,7 +27,9 @@ export const createProcess = (
   // as they can only be the first command, so take out the command, and add
   // any other bits into the args
   const runtimeExecutable = workspace.pathToJest;
-  const parameters = runtimeExecutable.split(' ');
+  const parameters = runtimeExecutable.match(
+    /(?:"[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*'|(?:\\\s|\S))+/g
+  ) || [''];
   const command = parameters[0];
   const initialArgs = parameters.slice(1);
   const runtimeArgs = [].concat(initialArgs, args);

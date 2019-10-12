@@ -43,15 +43,15 @@ describe('createProcess', () => {
     expect(spawn.mock.calls[0][1]).toEqual(['test', '--']);
   });
 
-  it('fails to spawn the first quoted arg from workspace.pathToJest', () => {
+  it('spawns the first quoted arg from workspace.pathToJest', () => {
     const workspace: any = {
       pathToJest: '"../build scripts/test" --coverageDirectory="../code coverage"',
     };
     const args = [];
     createProcess(workspace, args);
 
-    expect(spawn.mock.calls[0][0]).not.toBe('"../build scripts/test"');
-    expect(spawn.mock.calls[0][1]).not.toEqual(['--coverageDirectory="../code coverage"']);
+    expect(spawn.mock.calls[0][0]).toBe('"../build scripts/test"');
+    expect(spawn.mock.calls[0][1]).toEqual(['--coverageDirectory="../code coverage"']);
   });
 
   it('appends args', () => {
