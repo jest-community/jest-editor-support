@@ -27,8 +27,19 @@ export const createProcess = (
   // as they can only be the first command, so take out the command, and add
   // any other bits into the args
   const runtimeExecutable = workspace.pathToJest;
+
+  // "[^"\\]*                 Matches a quote followed by zero or more
+  //                          characters that are not quotes or backslashes
+  // (?:\\[\S\s][^"\\]*)*"    Matches a backslash followed by any character,
+  //                          followed by zero or more characters that are not
+  //                          quotes or backslashes ('[\S\s]' is used instead of
+  //                          '.' so that newlines are also matched). This
+  //                          ensures that escaped quotes are handled correctly
+  // (?:\\\s(?!\s+)|\S)       Matches a backslash followed by a single
+  //                          whitespace character, or a non-whitespace
+  //                          character
   const parameters = runtimeExecutable.match(
-    /(?:"[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*'|(?:\\\s|\S))+/g
+    /(?:"[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*'|(?:\\\s(?!\s)|\S))+/g
   ) || [''];
   const command = parameters[0];
   const initialArgs = parameters.slice(1);
