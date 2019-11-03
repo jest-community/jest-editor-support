@@ -34,24 +34,12 @@ describe('createProcess', () => {
     expect(spawn.mock.calls[0][1]).toEqual([]);
   });
 
-  it('spawns the first arg from workspace.pathToJest split on " "', () => {
+  it('spawns a command with spaces from workspace.pathToJest', () => {
     const workspace: any = {pathToJest: 'npm test --'};
     const args = [];
     createProcess(workspace, args);
 
-    expect(spawn.mock.calls[0][0]).toBe('npm');
-    expect(spawn.mock.calls[0][1]).toEqual(['test', '--']);
-  });
-
-  it('spawns the first quoted arg from workspace.pathToJest', () => {
-    const workspace: any = {
-      pathToJest: '"../build scripts/test" --coverageDirectory="../code coverage"',
-    };
-    const args = [];
-    createProcess(workspace, args);
-
-    expect(spawn.mock.calls[0][0]).toBe('"../build scripts/test"');
-    expect(spawn.mock.calls[0][1]).toEqual(['--coverageDirectory="../code coverage"']);
+    expect(spawn.mock.calls[0][0]).toBe('npm test --');
   });
 
   it('appends args', () => {
@@ -59,7 +47,7 @@ describe('createProcess', () => {
     const args = ['--option', 'value', '--another'];
     createProcess(workspace, args);
 
-    expect(spawn.mock.calls[0][1]).toEqual(['test', '--', ...args]);
+    expect(spawn.mock.calls[0][0]).toEqual(['npm', 'test', '--', ...args].join(' '));
   });
 
   it('sets the --config arg to workspace.pathToConfig', () => {
@@ -70,7 +58,7 @@ describe('createProcess', () => {
     const args = ['--option', 'value'];
     createProcess(workspace, args);
 
-    expect(spawn.mock.calls[0][1]).toEqual(['test', '--', '--option', 'value', '--config', 'non-standard.jest.js']);
+    expect(spawn.mock.calls[0][0]).toEqual('npm test -- --option value --config non-standard.jest.js');
   });
 
   it('defines the "CI" environment variable', () => {
@@ -94,20 +82,11 @@ describe('createProcess', () => {
     expect(spawn.mock.calls[0][2].cwd).toBe(workspace.rootPath);
   });
 
-  it('should not set the "shell" property when "options" are not provided', () => {
+  it('should set the "shell" property', () => {
+    const expected = true;
     const workspace: any = {pathToJest: ''};
     const args = [];
     createProcess(workspace, args);
-
-    expect(spawn.mock.calls[0][2].shell).not.toBeDefined();
-  });
-
-  it('should set the "shell" property when "options" are provided', () => {
-    const expected = {};
-    const workspace: any = {pathToJest: ''};
-    const args = [];
-    const options: any = {shell: expected};
-    createProcess(workspace, args, options);
 
     expect(spawn.mock.calls[0][2].shell).toBe(expected);
   });

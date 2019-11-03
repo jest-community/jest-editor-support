@@ -23,32 +23,16 @@ export const createProcess = (
   args: Array<string>,
   options?: SpawnOptions = {}
 ): ChildProcess => {
-  // A command could look like `npm run test`, which we cannot use as a command
-  // as they can only be the first command, so take out the command, and add
-  // any other bits into the args
-  const runtimeExecutable = workspace.pathToJest;
+  let runtimeExecutable = workspace.pathToJest;
 
-  // "[^"\\]*                 Matches a quote followed by zero or more
-  //                          characters that are not quotes or backslashes
-  // (?:\\[\S\s][^"\\]*)*"    Matches a backslash followed by any character,
-  //                          followed by zero or more characters that are not
-  //                          quotes or backslashes ('[\S\s]' is used instead of
-  //                          '.' so that newlines are also matched). This
-  //                          ensures that escaped quotes are handled correctly
-  // (?:\\\s(?!\s+)|\S)       Matches a backslash followed by a single
-  //                          whitespace character, or a non-whitespace
-  //                          character
-  const parameters = runtimeExecutable.match(
-    /(?:"[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*'|(?:\\\s(?!\s)|\S))+/g
-  ) || [''];
-  const command = parameters[0];
-  const initialArgs = parameters.slice(1);
-  const runtimeArgs = [].concat(initialArgs, args);
+  if (args.length) {
+    runtimeExecutable += ` ${args.join(' ')}`;
+  }
 
   // If a path to configuration file was defined, push it to runtimeArgs
   if (workspace.pathToConfig) {
-    runtimeArgs.push('--config');
-    runtimeArgs.push(workspace.pathToConfig);
+    runtimeExecutable += ' --config ';
+    runtimeExecutable += workspace.pathToConfig;
   }
 
   // To use our own commands in create-react, we need to tell the command that
@@ -59,13 +43,13 @@ export const createProcess = (
   const spawnOptions = {
     cwd: workspace.rootPath,
     env,
-    shell: options.shell,
+    shell: true,
   };
 
   if (workspace.debug) {
     // eslint-disable-next-line no-console
-    console.log(`spawning process with command=${command}, args=${runtimeArgs.toString()}`);
+    console.log(`spawning process with command=${runtimeExecutable}`);
   }
 
-  return spawn(command, runtimeArgs, spawnOptions);
+  return spawn(runtimeExecutable, [], spawnOptions);
 };
