@@ -9,20 +9,14 @@ import {EventEmitter} from 'events';
 import {ChildProcess} from 'child_process';
 import {Config as JestConfig} from '@jest/types';
 
-export interface SpawnOptions {
-  shell?: boolean;
-}
-
 export interface Options {
   createProcess?(
     workspace: ProjectWorkspace,
-    args: string[],
-    options?: SpawnOptions,
+    args: string[]
   ): ChildProcess;
   noColor?: boolean;
   testNamePattern?: string;
   testFileNamePattern?: string;
-  shell?: boolean;
 }
 
 export class Runner extends EventEmitter {

@@ -9,7 +9,6 @@
 
 import {ChildProcess, spawn} from 'child_process';
 import ProjectWorkspace from './project_workspace';
-import type {SpawnOptions} from './types';
 
 /**
  * Spawns and returns a Jest process with specific args
@@ -18,11 +17,7 @@ import type {SpawnOptions} from './types';
  * @returns {ChildProcess}
  */
 // eslint-disable-next-line import/prefer-default-export
-export const createProcess = (
-  workspace: ProjectWorkspace,
-  args: Array<string>,
-  options?: SpawnOptions = {}
-): ChildProcess => {
+export const createProcess = (workspace: ProjectWorkspace, args: Array<string>): ChildProcess => {
   let runtimeExecutable = workspace.pathToJest;
 
   if (args.length) {

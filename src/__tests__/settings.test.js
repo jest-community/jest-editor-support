@@ -125,7 +125,7 @@ describe('getSettings', () => {
     }
   });
 
-  it('passes command, args, and options to createProcess', () => {
+  it('passes command and args to createProcess', () => {
     const localJestMajorVersion = 1000;
     const pathToConfig = 'test';
     const pathToJest = 'path_to_jest';
@@ -135,7 +135,6 @@ describe('getSettings', () => {
     const {createProcess} = prepareProcess();
     getSettings(workspace, {
       createProcess,
-      shell: true,
     });
 
     expect(createProcess).toBeCalledWith(
@@ -145,10 +144,7 @@ describe('getSettings', () => {
         pathToJest,
         rootPath,
       },
-      ['--showConfig'],
-      {
-        shell: true,
-      }
+      ['--showConfig']
     );
   });
 
