@@ -18,16 +18,12 @@ import ProjectWorkspace from './project_workspace';
  */
 // eslint-disable-next-line import/prefer-default-export
 export const createProcess = (workspace: ProjectWorkspace, args: Array<string>): ChildProcess => {
-  let runtimeExecutable = workspace.pathToJest;
-
-  if (args.length) {
-    runtimeExecutable += ` ${args.join(' ')}`;
-  }
+  const runtimeExecutable = [workspace.pathToJest, ...args];
 
   // If a path to configuration file was defined, push it to runtimeArgs
   if (workspace.pathToConfig) {
-    runtimeExecutable += ' --config ';
-    runtimeExecutable += workspace.pathToConfig;
+    runtimeExecutable.push('--config');
+    runtimeExecutable.push(workspace.pathToConfig);
   }
 
   // To use our own commands in create-react, we need to tell the command that
@@ -43,8 +39,8 @@ export const createProcess = (workspace: ProjectWorkspace, args: Array<string>):
 
   if (workspace.debug) {
     // eslint-disable-next-line no-console
-    console.log(`spawning process with command=${runtimeExecutable}`);
+    console.log(`spawning process with command=${runtimeExecutable.join(' ')}`);
   }
 
-  return spawn(runtimeExecutable, [], spawnOptions);
+  return spawn(runtimeExecutable.join(' '), [], spawnOptions);
 };

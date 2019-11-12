@@ -12,7 +12,7 @@ import {Config as JestConfig} from '@jest/types';
 export interface Options {
   createProcess?(
     workspace: ProjectWorkspace,
-    args: string[]
+    args: string[],
   ): ChildProcess;
   noColor?: boolean;
   testNamePattern?: string;
