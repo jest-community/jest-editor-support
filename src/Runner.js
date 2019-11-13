@@ -13,7 +13,7 @@ import {tmpdir} from 'os';
 import * as path from 'path';
 import EventEmitter from 'events';
 import {messageTypes} from './types';
-import type {Options, MessageType, SpawnOptions} from './types';
+import type {Options, MessageType} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
@@ -27,7 +27,7 @@ export default class Runner extends EventEmitter {
 
   workspace: ProjectWorkspace;
 
-  _createProcess: (workspace: ProjectWorkspace, args: Array<string>, options?: SpawnOptions) => ChildProcess;
+  _createProcess: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess;
 
   watchMode: boolean;
 
@@ -79,11 +79,7 @@ export default class Runner extends EventEmitter {
       args.push('--no-color');
     }
 
-    const options = {
-      shell: this.options.shell,
-    };
-
-    this.debugprocess = this._createProcess(this.workspace, args, options);
+    this.debugprocess = this._createProcess(this.workspace, args);
     this.debugprocess.stdout.on('data', (data: Buffer) => {
       this._parseOutput(data, false);
     });
@@ -165,10 +161,7 @@ export default class Runner extends EventEmitter {
   runJestWithUpdateForSnapshots(completion: () => void, args?: string[]) {
     const defaultArgs = ['--updateSnapshot'];
 
-    const options = {
-      shell: this.options.shell,
-    };
-    const updateProcess = this._createProcess(this.workspace, [...defaultArgs, ...(args || [])], options);
+    const updateProcess = this._createProcess(this.workspace, [...defaultArgs, ...(args || [])]);
     updateProcess.on('close', () => {
       completion();
     });

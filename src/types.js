@@ -15,16 +15,11 @@ export type Location = {
   line: number,
 };
 
-export type SpawnOptions = {
-  shell?: boolean,
-};
-
 export type Options = {
-  createProcess?: (workspace: ProjectWorkspace, args: Array<string>, options?: SpawnOptions) => ChildProcess,
+  createProcess?: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess,
   noColor?: boolean,
   testNamePattern?: string,
   testFileNamePattern?: string,
-  shell?: boolean,
 };
 
 /**

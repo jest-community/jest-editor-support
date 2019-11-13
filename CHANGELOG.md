@@ -26,6 +26,8 @@ Bug-fixes within the same version aren't needed
 
   `getSettings` now simply returns a promise resolving to jest's config.
 
+* Improved handling of quoted commands, arguments and escaped spaces - omjadas
+
 -->
 
 ### 25.0.0
