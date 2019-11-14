@@ -5,7 +5,16 @@ Bug-fixes within the same version aren't needed
 
 ## Master
 
+-->
 
+### 27.0.0
+* [breaking change] Replace the `Settings` class with a `getSettings` function - stephtr
+
+  `getSettings` now simply returns a promise resolving to jest's config.
+
+* Improved handling of quoted commands, arguments and escaped spaces - omjadas
+
+### 26.0.0
 * incorporate `jest-test-typescript-parser` into this package since it has been deprecated from the original `jest` reposition (#9) - connectdotz
 
   projects that link with this package no longer need to add `jest-test-typescript-parser` package separately. The newly exposed `parse` function can select the proper parser based on file extension.
@@ -21,14 +30,6 @@ Bug-fixes within the same version aren't needed
   Turning on the verbose will output caught exception for debugging purpose.
 
 * upgrade to the latest jest version (24.7.x) - connectdotz
-
-* [breaking change] Replace the `Settings` class with a `getSettings` function - stephtr
-
-  `getSettings` now simply returns a promise resolving to jest's config.
-
-* Improved handling of quoted commands, arguments and escaped spaces - omjadas
-
--->
 
 ### 25.0.0
 
