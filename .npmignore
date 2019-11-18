@@ -1,7 +1,13 @@
 **/__mocks__/**
 **/__tests__/**
+**/coverage/**
 src
 fixtures
 .flowconfig
+.travis.yml
+.vscode
+.eslintrc.js
 babel.config.js
+prettier.config.js
+dangerfile.js
 yarn.lock
