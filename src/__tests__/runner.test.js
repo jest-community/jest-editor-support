@@ -259,6 +259,20 @@ describe('Runner', () => {
 
       expect((createProcess: any).mock.calls[0][1]).toContain(expected);
     });
+
+    it('calls createProcess with the --reporters arg when provided', () => {
+      const expected = 'reporters';
+
+      const workspace: any = {};
+      const options = {reporters: expected};
+      const sut = new Runner(workspace, options);
+      sut.start(false);
+
+      const args = (createProcess: any).mock.calls[0][1];
+      const index = args.indexOf('--reporters');
+      expect(index).not.toBe(-1);
+      expect(args[index + 1]).toBe(expected);
+    });
   });
 
   describe('closeProcess', () => {

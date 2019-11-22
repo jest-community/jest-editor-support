@@ -78,6 +78,9 @@ export default class Runner extends EventEmitter {
     if (this.options.noColor === true) {
       args.push('--no-color');
     }
+    if (this.options.reporters) {
+      args.push('--reporters', this.options.reporters);
+    }
 
     this.debugprocess = this._createProcess(this.workspace, args);
     this.debugprocess.stdout.on('data', (data: Buffer) => {
