@@ -261,7 +261,7 @@ describe('Runner', () => {
     });
 
     it('calls createProcess with the --reporters arg when provided', () => {
-      const expected = 'reporters';
+      const expected = ['reporter'];
 
       const workspace: any = {};
       const options = {reporters: expected};
@@ -271,7 +271,22 @@ describe('Runner', () => {
       const args = (createProcess: any).mock.calls[0][1];
       const index = args.indexOf('--reporters');
       expect(index).not.toBe(-1);
-      expect(args[index + 1]).toBe(expected);
+      expect(args[index + 1]).toBe(expected[0]);
+    });
+
+    it('calls createProcess with multiple --reporters arg when provided', () => {
+      const expected = ['reporter1', 'reporter2'];
+
+      const workspace: any = {};
+      const options = {reporters: expected};
+      const sut = new Runner(workspace, options);
+      sut.start(false);
+
+      const args = (createProcess: any).mock.calls[0][1];
+      const index = args.indexOf('--reporters');
+      expect(args[index + 1]).toBe(expected[0]);
+      const lastIndex = args.lastIndexOf('--reporters');
+      expect(args[lastIndex + 1]).toBe(expected[1]);
     });
   });
 

@@ -20,7 +20,7 @@ export type Options = {
   noColor?: boolean,
   testNamePattern?: string,
   testFileNamePattern?: string,
-  reporters?: string,
+  reporters?: string[],
 };
 
 /**
