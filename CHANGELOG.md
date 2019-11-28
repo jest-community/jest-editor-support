@@ -4,9 +4,11 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
-* Add --reporters option support - [@jmarceli](https://github.com/jmarceli)
 
 -->
+
+### 27.1.0
+* Add `--reporters` option support - [@jmarceli](https://github.com/jmarceli)
 
 ### 27.0.0
 * [breaking change] Replace the `Settings` class with a `getSettings` function - stephtr
