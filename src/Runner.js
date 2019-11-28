@@ -83,6 +83,12 @@ export default class Runner extends EventEmitter {
         args.push('--reporters', reporter);
       });
     }
+    if (this.options.runInBand === true) {
+      args.push('--runInBand');
+    }
+    if (this.options.bail === true) {
+      args.push('--bail');
+    }
 
     this.debugprocess = this._createProcess(this.workspace, args);
     this.debugprocess.stdout.on('data', (data: Buffer) => {

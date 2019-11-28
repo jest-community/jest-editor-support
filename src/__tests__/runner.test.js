@@ -288,6 +288,32 @@ describe('Runner', () => {
       const lastIndex = args.lastIndexOf('--reporters');
       expect(args[lastIndex + 1]).toBe(expected[1]);
     });
+
+    it('calls createProcess with --runInBand arg when provided', () => {
+      const expected = '--runInBand';
+
+      const workspace: any = {};
+      const options = {runInBand: true};
+      const sut = new Runner(workspace, options);
+      sut.start(false);
+
+      const args = (createProcess: any).mock.calls[0][1];
+      const index = args.indexOf(expected);
+      expect(index).not.toBe(-1);
+    });
+
+    it('calls createProcess with --bail arg when provided', () => {
+      const expected = '--bail';
+
+      const workspace: any = {};
+      const options = {bail: true};
+      const sut = new Runner(workspace, options);
+      sut.start(false);
+
+      const args = (createProcess: any).mock.calls[0][1];
+      const index = args.indexOf(expected);
+      expect(index).not.toBe(-1);
+    });
   });
 
   describe('closeProcess', () => {

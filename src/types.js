@@ -21,6 +21,8 @@ export type Options = {
   testNamePattern?: string,
   testFileNamePattern?: string,
   reporters?: string[],
+  runInBand?: boolean,
+  bail?: boolean,
 };
 
 /**

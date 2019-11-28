@@ -18,6 +18,8 @@ export interface Options {
   testNamePattern?: string;
   testFileNamePattern?: string;
   reporters?: string[];
+  runInBand?: boolean;
+  bail?: boolean;
 }
 
 export class Runner extends EventEmitter {
