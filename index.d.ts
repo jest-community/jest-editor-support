@@ -17,6 +17,7 @@ export interface Options {
   noColor?: boolean;
   testNamePattern?: string;
   testFileNamePattern?: string;
+  reporters?: string[];
 }
 
 export class Runner extends EventEmitter {

@@ -4,6 +4,7 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
+* Add --reporters option support - [@jmarceli](https://github.com/jmarceli)
 
 -->
 
