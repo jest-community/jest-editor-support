@@ -403,6 +403,13 @@ describe('events', () => {
     expect(close).toBeCalled();
   });
 
+  it('emits debuggerProcessExit when process close', () => {
+    const close = jest.fn();
+    runner.on('debuggerProcessExit', close);
+    fakeProcess.emit('close');
+    expect(close).toBeCalled();
+  });
+
   it('should start jest process after killing the old process', () => {
     runner.closeProcess();
     runner.start();
