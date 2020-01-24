@@ -7,8 +7,7 @@
  */
 
 import {ParseResult} from './parser_nodes';
-import {parse as parseJs} from './babylon_parser';
-import {parse as parseTs} from './typescript_parser';
+import {parseJs, parseTs} from './babel_parser';
 
 /**
  * parse the test file by selecting proper parser based on the file extension.

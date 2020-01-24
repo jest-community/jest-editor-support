@@ -3,19 +3,14 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ * @flow
  */
 
 const fixtures = __dirname;
 
 function parserTests(parse: (file: string) => ParserResult) {
-  const assertBlock2 = (
-    block,
-    sl: number,
-    sc: number,
-    el: number,
-    ec: number,
-    name: ?string = null,
-  ) => assertBlock(block, {column: sc, line: sl}, {column: ec, line: el}, name);
+  const assertBlock2 = (block, sl: number, sc: number, el: number, ec: number, name: ?string = null) =>
+    assertBlock(block, {column: sc, line: sl}, {column: ec, line: el}, name);
   const assertBlock = (block, start, end, name: ?string = null) => {
     expect(block.start).toEqual(start);
     expect(block.end).toEqual(end);
@@ -174,12 +169,7 @@ function parserTests(parse: (file: string) => ParserResult) {
       expect(data.describeBlocks.length).toEqual(4);
 
       const firstDescribe = data.describeBlocks[0];
-      assertBlock(
-        firstDescribe,
-        {column: 1, line: 10},
-        {column: 2, line: 20},
-        '.isCI',
-      );
+      assertBlock(firstDescribe, {column: 1, line: 10}, {column: 2, line: 20}, '.isCI');
     });
     it('finds test blocks within describe blocks', () => {
       const data = parse(`${fixtures}/dangerjs/travis-ci.example`);
@@ -191,7 +181,7 @@ function parserTests(parse: (file: string) => ParserResult) {
         b =>
           b.name === 'needs to have a PR number' ||
           b.name === 'does not validate without josh' ||
-          b.name === 'does not validate when ${key} is missing',
+          b.name === 'does not validate when ${key} is missing'
       );
       expect(found.length).toBe(3);
     });
@@ -200,9 +190,7 @@ function parserTests(parse: (file: string) => ParserResult) {
     let nested;
     beforeEach(() => {
       const data = parse(`${fixtures}/nested_elements.example`);
-      nested = data.root.children.filter(
-        e => e.type === 'describe' && e.name === 'describe 1.0',
-      )[0];
+      nested = data.root.children.filter(e => e.type === 'describe' && e.name === 'describe 1.0')[0];
     });
     it('can find nested describe or test blocks', () => {
       expect(nested.children.length).toBe(2);
@@ -233,58 +221,32 @@ function parserTests(parse: (file: string) => ParserResult) {
       expect(parseResult.expects.length).toEqual(4);
     });
     test(`no expression template`, () => {
-      const dBlock = parseResult.describeBlocks.filter(
-        b => b.name === 'no expression template',
-      )[0];
+      const dBlock = parseResult.describeBlocks.filter(b => b.name === 'no expression template')[0];
       const t1 = dBlock.children[0];
       const e1 = t1.children[0];
 
       expect(dBlock.children.length).toBe(1);
       expect(t1.children.length).toBe(1);
 
-      assertBlock(
-        t1,
-        {column: 3, line: 2},
-        {column: 5, line: 4},
-        'test has no expression either',
-      );
+      assertBlock(t1, {column: 3, line: 2}, {column: 5, line: 4}, 'test has no expression either');
       assertBlock(e1, {column: 5, line: 3}, {column: 25, line: 3});
     });
 
     test(`simple template literal`, () => {
-      const dBlock = parseResult.describeBlocks.filter(
-        b => b.name === 'simple template literal',
-      )[0];
+      const dBlock = parseResult.describeBlocks.filter(b => b.name === 'simple template literal')[0];
       expect(dBlock.children.length).toBe(3);
 
       const t1 = dBlock.children[0];
       const t2 = dBlock.children[1];
       const t3 = dBlock.children[2];
 
-      assertBlock(
-        t1,
-        {column: 3, line: 8},
-        {column: 46, line: 8},
-        '${expression} up front',
-      );
-      assertBlock(
-        t2,
-        {column: 3, line: 9},
-        {column: 4, line: 10},
-        'at the end ${expression}',
-      );
-      assertBlock(
-        t3,
-        {column: 3, line: 11},
-        {column: 5, line: 12},
-        'mixed ${expression1} and ${expression2}',
-      );
+      assertBlock(t1, {column: 3, line: 8}, {column: 46, line: 8}, '${expression} up front');
+      assertBlock(t2, {column: 3, line: 9}, {column: 4, line: 10}, 'at the end ${expression}');
+      assertBlock(t3, {column: 3, line: 11}, {column: 5, line: 12}, 'mixed ${expression1} and ${expression2}');
     });
 
     test(`template literal with functions`, () => {
-      const dBlock = parseResult.describeBlocks.filter(
-        b => b.name === 'template literal with functions',
-      )[0];
+      const dBlock = parseResult.describeBlocks.filter(b => b.name === 'template literal with functions')[0];
       const t1 = dBlock.children[0];
       const e1 = t1.children[0];
 
@@ -295,15 +257,13 @@ function parserTests(parse: (file: string) => ParserResult) {
         t1,
         {column: 3, line: 16},
         {column: 5, line: 18},
-        'this ${test} calls ${JSON.stringfy(expression)} should still work',
+        'this ${test} calls ${JSON.stringfy(expression)} should still work'
       );
       assertBlock(e1, {column: 5, line: 17}, {column: 31, line: 17});
     });
 
     test(`multiline template literal`, () => {
-      const dBlock = parseResult.describeBlocks.filter(
-        b => b.name === 'multiline template literal',
-      )[0];
+      const dBlock = parseResult.describeBlocks.filter(b => b.name === 'multiline template literal')[0];
       const t1 = dBlock.children[0];
       const e1 = t1.children[0];
 
@@ -315,15 +275,13 @@ function parserTests(parse: (file: string) => ParserResult) {
         {column: 3, line: 22},
         {column: 5, line: 25},
         `this \${test} will span in
-    multiple lines`,
+    multiple lines`
       );
       assertBlock(e1, {column: 5, line: 24}, {column: 32, line: 24});
     });
 
     test(`edge case: should not fail`, () => {
-      const dBlock = parseResult.describeBlocks.filter(
-        b => b.name === 'edge case: should not fail',
-      )[0];
+      const dBlock = parseResult.describeBlocks.filter(b => b.name === 'edge case: should not fail')[0];
       const t1 = dBlock.children[0];
       const e1 = t1.children[0];
 
@@ -341,7 +299,7 @@ function parserTests(parse: (file: string) => ParserResult) {
     startLine: number,
     startCol: number,
     endLine: number,
-    endCol: number,
+    endCol: number
   ) => {
     expect(nBlock.name).toEqual(name);
     expect(nBlock.nameRange.start.line).toEqual(startLine);
@@ -372,7 +330,7 @@ function parserTests(parse: (file: string) => ParserResult) {
         22,
         7,
         23,
-        18,
+        18
       );
     });
   });

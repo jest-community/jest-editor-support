@@ -6,16 +6,10 @@
  */
 
 import parse from '../../parsers';
-import {parse as js_parse} from '../../parsers/babylon_parser';
-import {parse as ts_parse} from '../../parsers/typescript_parser';
+import {parseJs, parseTs} from '../../parsers/babel_parser';
 
-jest.mock('../../parsers/babylon_parser', () => {
-  const mock_js_parse = jest.fn();
-  return {parse: mock_js_parse};
-});
-jest.mock('../../parsers/typescript_parser', () => {
-  const mock_ts_parse = jest.fn();
-  return {parse: mock_ts_parse};
+jest.mock('../../parsers/babel_parser', () => {
+  return {parseJs: jest.fn(), parseTs: jest.fn()};
 });
 
 describe('select parser', () => {
@@ -26,8 +20,8 @@ describe('select parser', () => {
     const files = ['abc.js', 'abc.jsx'];
     files.forEach(file => {
       parse(file, undefined, true);
-      expect(js_parse).toHaveBeenCalled();
-      expect(ts_parse).not.toHaveBeenCalled();
+      expect(parseJs).toHaveBeenCalled();
+      expect(parseTs).not.toHaveBeenCalled();
       jest.clearAllMocks();
     });
   });
@@ -35,8 +29,8 @@ describe('select parser', () => {
     const files = ['abc.ts', 'abc.tsx'];
     files.forEach(file => {
       parse(file, undefined, true);
-      expect(js_parse).not.toHaveBeenCalled();
-      expect(ts_parse).toHaveBeenCalled();
+      expect(parseJs).not.toHaveBeenCalled();
+      expect(parseTs).toHaveBeenCalled();
       jest.clearAllMocks();
     });
   });
@@ -45,8 +39,8 @@ describe('select parser', () => {
       const files = ['abc', 'abc.ttsx'];
       files.forEach(file => {
         expect(() => parse(file, undefined, false)).not.toThrow();
-        expect(js_parse).toHaveBeenCalled();
-        expect(ts_parse).not.toHaveBeenCalled();
+        expect(parseJs).toHaveBeenCalled();
+        expect(parseTs).not.toHaveBeenCalled();
         jest.clearAllMocks();
       });
     });
