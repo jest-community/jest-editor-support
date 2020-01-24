@@ -64,8 +64,7 @@
     "@babel/parser": "^7.8.3",
     "@babel/types": "^7.8.3",
     "core-js": "^3.2.1",
-    "jest-snapshot": "^24.7.0",
-    "typescript": "^3.4.3"
+    "jest-snapshot": "^24.7.0"
   },
   "jest": {
     "testPathIgnorePatterns": [
