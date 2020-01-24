@@ -5,12 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  * @flow
  */
+import {NamedBlock, ParseResult} from '../src/parsers/parser_nodes';
 
 const fixtures = __dirname;
 
-function parserTests(parse: (file: string) => ParserResult) {
-  const assertBlock2 = (block, sl: number, sc: number, el: number, ec: number, name: ?string = null) =>
-    assertBlock(block, {column: sc, line: sl}, {column: ec, line: el}, name);
+function parserTests(parse: (file: string) => ParseResult) {
   const assertBlock = (block, start, end, name: ?string = null) => {
     expect(block.start).toEqual(start);
     expect(block.end).toEqual(end);
@@ -18,6 +17,8 @@ function parserTests(parse: (file: string) => ParserResult) {
       expect(block.name).toEqual(name);
     }
   };
+  const assertBlock2 = (block, sl: number, sc: number, el: number, ec: number, name: ?string = null) =>
+    assertBlock(block, {column: sc, line: sl}, {column: ec, line: el}, name);
   describe('File parsing without throwing', () => {
     it('Should not throw', () => {
       expect(() => {

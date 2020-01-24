@@ -15,15 +15,20 @@ import * as parser from '@babel/parser';
 import type {ParsedNodeType} from './parser_nodes';
 import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
 
-const getASTfor = (file: string, data: ?string, options: parser.ParserOptions): [BabelFile, string] => {
+const _getASTfor = (file: string, data: ?string, options: parser.ParserOptions): [BabelFile, string] => {
   const _data = data || readFileSync(file).toString();
   const config = {...options, sourceType: 'module'};
   return [parser.parse(_data, config), _data];
 };
 
+export const getASTfor = (file: string, data: ?string): BabelFile => {
+  const [bFile] = _getASTfor(file, data);
+  return bFile;
+};
+
 export const parse = (file: string, data: ?string, options: parser.ParserOptions): ParseResult => {
   const parseResult = new ParseResult(file);
-  const [ast, _data] = getASTfor(file, data, options);
+  const [ast, _data] = _getASTfor(file, data, options);
 
   const updateNameInfo = (nBlock: NamedBlock, bNode: BabelNode) => {
     const arg = bNode.expression.arguments[0];
