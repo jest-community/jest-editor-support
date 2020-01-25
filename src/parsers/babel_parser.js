@@ -15,7 +15,7 @@ import * as parser from '@babel/parser';
 import type {ParsedNodeType} from './parser_nodes';
 import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
 
-const _getASTfor = (file: string, data: ?string, options: parser.ParserOptions): [BabelFile, string] => {
+const _getASTfor = (file: string, data: ?string, options: ?parser.ParserOptions): [BabelFile, string] => {
   const _data = data || readFileSync(file).toString();
   const config = {...options, sourceType: 'module'};
   return [parser.parse(_data, config), _data];
@@ -26,7 +26,7 @@ export const getASTfor = (file: string, data: ?string): BabelFile => {
   return bFile;
 };
 
-export const parse = (file: string, data: ?string, options: parser.ParserOptions): ParseResult => {
+export const parse = (file: string, data: ?string, options: ?parser.ParserOptions): ParseResult => {
   const parseResult = new ParseResult(file);
   const [ast, _data] = _getASTfor(file, data, options);
 
@@ -171,7 +171,7 @@ export const parse = (file: string, data: ?string, options: parser.ParserOptions
   return parseResult;
 };
 
-// Note: its not possible to use the parse with flow and typescript at the same time
+// Its not possible to use the parser with flow and typescript active at the same time
 export const parseJs = (file: string, data: ?string): ParseResult =>
   parse(file, data, {plugins: ['jsx', 'classProperties', 'flow']});
 export const parseTs = (file: string, data: ?string): ParseResult =>
