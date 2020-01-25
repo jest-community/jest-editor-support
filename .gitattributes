@@ -1,0 +1,4 @@
+* text=auto
+
+*.example text eol=lf
+*.js text eol=lf

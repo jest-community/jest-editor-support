@@ -1,4 +1,4 @@
-// @flow
+
 it('works with old functions', function() {
 
 });

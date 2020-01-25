@@ -18,21 +18,26 @@
     ]
   },
   "scripts": {
-    "build": "babel src/ -d build/",
+    "build": "babel src/ -d build/ --extensions \".ts\" --source-maps inline",
     "prepublish": "yarn run build",
     "test": "jest",
-    "flow": "flow",
-    "lint": "eslint '?(__mocks__|src|tests)/**/*.js'",
-    "ci": "yarn flow && yarn lint && yarn test --coverage",
-    "prettier": "prettier --check '?(__mocks__|src|tests)/**/*.js'",
+    "lint": "eslint '?(__mocks__|src|tests)/**/*.ts'",
+    "ci": "yarn lint && yarn test --coverage",
+    "prettier": "prettier --check '?(__mocks__|src|tests)/**/*.ts'",
     "prettier-write": "prettier --write",
-    "prettier-project": "yarn prettier-write '?(__mocks__|src|tests)/**/*.js'"
+    "prettier-project": "yarn prettier-write '?(__mocks__|src|tests)/**/*.ts'"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.2",
     "@babel/core": "^7.6.2",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-optional-chaining": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.8.3",
     "@babel/preset-env": "^7.6.2",
-    "@babel/preset-flow": "^7.0.0",
+    "@babel/preset-typescript": "^7.8.3",
+    "@types/babylon": "^6.16.5",
+    "@types/jest": "^24.0.25",
+    "@types/node": "^13.1.1",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^24.7.0",
@@ -41,28 +46,30 @@
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-prettier": "^4.2.0",
-    "eslint-plugin-flowtype": "^3.6.1",
     "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-prettier": "^3.0.1",
-    "flow-bin": "^0.97.0",
     "jest": "^24.7.0",
     "lint-staged": "^8.1.5",
     "prettier": "^1.17.0"
   },
   "dependencies": {
+    "@babel/runtime": "^7.8.3",
     "@babel/traverse": "^7.6.2",
     "@jest/types": "^24.8.0",
     "babylon": "^6.14.1",
     "core-js": "^3.2.1",
     "jest-snapshot": "^24.7.0",
-    "typescript": "^3.4.3"
+    "typescript": "^3.7.5"
   },
   "jest": {
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules/",
       "<rootDir>/build/",
       "<rootDir>/fixtures/"
-    ]
+    ],
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    }
   },
   "typings": "index.d.ts"
 }

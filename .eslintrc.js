@@ -5,7 +5,7 @@ module.exports = {
     browser: true,
     jest: true,
   },
-  extends: ['airbnb-base', 'plugin:flowtype/recommended', 'prettier', 'plugin:prettier/recommended'],
+  extends: ['airbnb-base', 'prettier', 'plugin:prettier/recommended'],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
@@ -14,7 +14,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
-  plugins: ['flowtype', 'prettier'],
+  plugins: ['prettier'],
   rules: {
     'prettier/prettier': 'error',
     'no-underscore-dangle': 'off',
