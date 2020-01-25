@@ -6,7 +6,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import EventEmitter from 'events';
@@ -20,7 +19,7 @@ function prepareProcess() {
 
   return {
     createProcess: jest.fn(() => mockProcess),
-    mockProcessResult: (stdout: ?string, stderr: ?string) => {
+    mockProcessResult: (stdout?: string, stderr?: string) => {
       if (stdout) {
         mockProcess.stdout.emit('data', Buffer.from(stdout));
       }

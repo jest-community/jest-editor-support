@@ -5,18 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { ParseResult, NamedBlock } from "../src/parsers/parser_nodes";
+
 const fixtures = __dirname;
 
-function parserTests(parse: (file: string) => ParserResult) {
+function parserTests(parse: (file: string, data?: string | undefined) => ParseResult) {
   const assertBlock2 = (
     block,
     sl: number,
     sc: number,
     el: number,
     ec: number,
-    name: ?string = null,
+    name: string | null = null,
   ) => assertBlock(block, {column: sc, line: sl}, {column: ec, line: el}, name);
-  const assertBlock = (block, start, end, name: ?string = null) => {
+  const assertBlock = (block, start, end, name: string | null = null) => {
     expect(block.start).toEqual(start);
     expect(block.end).toEqual(end);
     if (name) {
@@ -414,6 +416,6 @@ function parserTests(parse: (file: string) => ParserResult) {
   });
 }
 
-module.exports = {
+export {
   parserTests,
-};
+}

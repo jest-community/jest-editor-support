@@ -4,13 +4,12 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import fs from 'fs';
 import path from 'path';
 import TestReconciler from '../test_reconciler';
-import type {TestFileAssertionStatus, TestAssertionStatus} from '../types';
+import {TestFileAssertionStatus, TestAssertionStatus} from '../types';
 
 const fixtures = path.resolve(__dirname, '../../fixtures');
 
@@ -41,7 +40,7 @@ describe('Test Reconciler', () => {
       const testName = 'does not validate without josh';
       const status: any = parser.stateForTestAssertion(dangerFilePath, testName);
       expect(status.status).toEqual('KnownSuccess');
-      expect(status.line).toBeNull();
+      expect(status.line).toBeUndefined();
     });
 
     it('fails a failing method in the same file', () => {
@@ -62,7 +61,7 @@ Expected value to be falsy, instead received
       const testName = 'does not pull it out of the env';
       const status: any = parser.stateForTestAssertion(dangerFilePath, testName);
       expect(status.status).toEqual('KnownSkip');
-      expect(status.line).toBeNull();
+      expect(status.line).toBeUndefined();
     });
   });
 
@@ -102,7 +101,6 @@ Expected value to be falsy, instead received
 
       const succeededTests = results
         .map(r => r.assertions || [])
-        // $FlowFixMe: Flow thinks the type is array from above, not the number passed as initial value
         .reduce((sum: number, assertions: TestAssertionStatus[]) => {
           const success = assertions.filter(a => a.status === 'KnownSuccess');
           return sum + success.length;
