@@ -18,14 +18,18 @@
     ]
   },
   "scripts": {
-    "build": "babel src/ -d build/ --extensions \".ts\" --source-maps inline",
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "babel src/ -d build/ --extensions \".ts\" --source-maps inline",
     "prepublish": "yarn run build",
     "test": "jest",
     "lint": "eslint '?(__mocks__|src|tests)/**/*.ts'",
     "ci": "yarn lint && yarn test --coverage",
     "prettier": "prettier --check '?(__mocks__|src|tests)/**/*.ts'",
     "prettier-write": "prettier --write",
-    "prettier-project": "yarn prettier-write '?(__mocks__|src|tests)/**/*.ts'"
+    "prettier-project": "yarn prettier-write '?(__mocks__|src|tests)/**/*.ts'",    
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "npm run type-check -- --watch"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.2",
