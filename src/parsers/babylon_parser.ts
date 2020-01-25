@@ -6,28 +6,27 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import {readFileSync} from 'fs';
 
 import {File as BabylonFile, Node as BabylonNode, parse as babylonParse} from 'babylon';
-import type {ParsedNodeType} from './parser_nodes';
+import {ParsedNodeType} from './parser_nodes';
 import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
 
 // eslint-disable no-underscore-dangle
-const _getASTfor = (file: string, data: ?string): [BabylonFile, string] => {
+const _getASTfor = (file: string, data?: string): [BabylonFile, string] => {
   const _data = data || readFileSync(file).toString();
   const config = {plugins: ['*'], sourceType: 'module'};
   return [babylonParse(_data, config), _data];
 };
 
-export const getASTfor = (file: string, data: ?string): BabylonFile => {
+export const getASTfor = (file: string, data?: string): BabylonFile => {
   const [bFile] = _getASTfor(file, data);
   return bFile;
 };
 
-export const parse = (file: string, data: ?string): ParseResult => {
+export const parse = (file: string, data?: string): ParseResult => {
   const parseResult = new ParseResult(file);
   const [ast, _data] = _getASTfor(file, data);
 
@@ -122,7 +121,7 @@ export const parse = (file: string, data: ?string): ParseResult => {
   // A recursive AST parser
   const searchNodes = (babylonParent: BabylonNode, parent: ParsedNode) => {
     // Look through the node's children
-    let child: ?ParsedNode;
+    let child: ParsedNode | undefined = undefined;
 
     if (!babylonParent.body) {
       return;

@@ -4,37 +4,42 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
-import type {Options} from './types';
+import {Options} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
-
-type Glob = string;
-
-// This class represents the configuration of Jest's process.
-// The interface below can be used to show what we use, as currently the whole
-// settings object will be in memory.
-// As soon as the code will be converted to TypeScript, this will be removed
-// in favor of `@jest/types`, which exports the full config interface.
-
-type ProjectConfiguration = {
-  testRegex: string | Array<string>,
-  testMatch: Array<Glob>,
-};
+import { Config as JestConfig } from "@jest/types";
 
 type JestSettings = {
-  jestVersionMajor: number,
-  configs: ProjectConfiguration[],
+  configs: JestConfig.ProjectConfig[],
+  globalConfig: JestConfig.GlobalConfig,
+  version: string
 };
 
-function parseSettings(text: string, debug: ?boolean = false): JestSettings {
+type Settings = {
+  jestVersionMajor: number,
+  configs: JestConfig.ProjectConfig[]
+}
+
+function parseSettings(text: string, debug: boolean = false): Settings {
   const jsonPattern = new RegExp(/^[\s]*\{/gm);
-  let settings = null;
+  let settings: JestSettings | null = null;
 
   try {
-    settings = JSON.parse(text);
+    settings = JSON.parse(text) as JestSettings;
+
+    const jestVersionMajor = parseInt(settings.version.split('.').shift() || "", 10);
+    if (debug) {
+      // eslint-disable-next-line no-console
+      console.log(`found config jestVersionMajor=${jestVersionMajor}`);
+    }
+  
+    return {
+      jestVersionMajor,
+      configs: Array.isArray(settings.configs) ? settings.configs : [(settings as any).config],
+    };
+
   } catch (err) {
     // skip the non-json content, if any
     const idx = text.search(jsonPattern);
@@ -49,23 +54,16 @@ function parseSettings(text: string, debug: ?boolean = false): JestSettings {
     console.warn(`failed to parse config: \n${text}\nerror: ${err}`);
     throw err;
   }
-
-  const jestVersionMajor = parseInt(settings.version.split('.').shift(), 10);
-  if (debug) {
-    // eslint-disable-next-line no-console
-    console.log(`found config jestVersionMajor=${jestVersionMajor}`);
-  }
-
-  return {
-    jestVersionMajor,
-    configs: Array.isArray(settings.configs) ? settings.configs : [settings.config],
-  };
 }
 
-export default function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<JestSettings> {
+export default function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<Settings> {
   return new Promise((resolve, reject) => {
     const _createProcess = (options && options.createProcess) || createProcess;
     const getConfigProcess = _createProcess(workspace, ['--showConfig']);
+
+    if (!(getConfigProcess.stdout && getConfigProcess.stderr)) {
+      throw Error("stdout or stderr not available.")
+    }
 
     let configString = '';
     getConfigProcess.stdout.on('data', (data: Buffer) => {

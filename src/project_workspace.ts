@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 /**
@@ -51,14 +50,14 @@ export default class ProjectWorkspace {
    *
    * @type {boolean}
    */
-  collectCoverage: ?boolean;
+  collectCoverage?: boolean
 
   /**
    * if to output more information for debugging purpose. Default is false.
    *
    * @type {boolean}
    */
-  debug: ?boolean;
+  debug?: boolean
 
   /**
    * suffix string used as part of the output file path, this is to support concurrent Runners.
@@ -66,7 +65,7 @@ export default class ProjectWorkspace {
    * @type {string}
    * @memberof ProjectWorkspace
    */
-  outputFileSuffix: ?string;
+  outputFileSuffix?: string
 
   constructor(
     rootPath: string,
@@ -74,8 +73,8 @@ export default class ProjectWorkspace {
     pathToConfig: string,
     localJestMajorVersion: number,
     outputFileSuffix?: string,
-    collectCoverage: ?boolean,
-    debug: ?boolean
+    collectCoverage?: boolean,
+    debug?: boolean
   ) {
     this.rootPath = rootPath;
     this.pathToJest = pathToJest;

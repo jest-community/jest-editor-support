@@ -14,17 +14,16 @@
  * proper parser for the given file. Therefore tools that adopt the new "jest-editor-support" package should remove
  * "jest-test-typescript-parser".
  *
- * @flow
  */
 
 import {readFileSync} from 'fs';
 
 import ts from 'typescript';
 import {NamedBlock, ParsedRange, ParsedNode, ParseResult} from './parser_nodes';
-import type {ParsedNodeType} from './parser_nodes';
+import {ParsedNodeType} from './parser_nodes';
 
 /* eslint-disable no-param-reassign */
-function getNode<T: ParsedNode>(file: ts.SourceFile, expression: ts.CallExpression, node: T): T {
+function getNode<T extends ParsedNode>(file: ts.SourceFile, expression: ts.CallExpression, node: T): T {
   const start = file.getLineAndCharacterOfPosition(expression.getStart(file));
   node.start = {
     column: start.character + 1,
@@ -51,11 +50,11 @@ function getNode<T: ParsedNode>(file: ts.SourceFile, expression: ts.CallExpressi
 }
 
 // eslint-disable-next-line import/prefer-default-export
-export function parse(file: string, data: ?string): ParseResult {
+export function parse(file: string, data?: string): ParseResult {
   const sourceFile = ts.createSourceFile(file, data || readFileSync(file).toString(), ts.ScriptTarget.ES3);
   const parseResult = new ParseResult(file);
 
-  const addNode = (tsNode: ts.Node, parent: ParsedNode, type: ParsedNodeType): ParsedNode => {
+  const addNode = (tsNode: ts.CallExpression, parent: ParsedNode, type: ParsedNodeType): ParsedNode => {
     const child = parent.addChild(type);
     getNode(sourceFile, tsNode, child);
 
@@ -88,23 +87,24 @@ export function parse(file: string, data: ?string): ParseResult {
   function searchNodes(parent: ParsedNode) {
     const findText = (expression: any) => (expression && expression.text ? expression.text : undefined);
     return (node: ts.Node) => {
-      let sNode: ?ParsedNode;
+      let sNode: ParsedNode | undefined;
       if (node.kind === ts.SyntaxKind.CallExpression) {
-        const text = node.expression ? findText(node.expression) || findText(node.expression.expression) : undefined;
+        const call = node as ts.CallExpression;
+        const text = call.expression ? findText(call.expression) || findText(call.expression.expression) : undefined;
 
         if (text === 'describe') {
-          sNode = addNode(node, parent, 'describe');
+          sNode = addNode(call, parent, 'describe');
         } else if (text === 'it' || text === 'test' || text === 'fit') {
-          sNode = addNode(node, parent, 'it');
+          sNode = addNode(node as ts.CallExpression, parent, 'it');
         } else {
-          let element = node.expression;
+          let element = call.expression;
           let expectText = '';
           while (element && !expectText) {
             expectText = element.text;
             element = element.expression;
           }
           if (expectText === 'expect') {
-            sNode = addNode(node, parent, 'expect');
+            sNode = addNode(node as ts.CallExpression, parent, 'expect');
           }
         }
       }

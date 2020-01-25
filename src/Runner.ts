@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import {ChildProcess, spawn} from 'child_process';
@@ -13,7 +12,7 @@ import {tmpdir} from 'os';
 import * as path from 'path';
 import EventEmitter from 'events';
 import {messageTypes} from './types';
-import type {Options, MessageType} from './types';
+import {Options, MessageType} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
@@ -21,7 +20,7 @@ import {createProcess} from './Process';
 // passes out events when it understands what data is being
 // pass sent out of the process
 export default class Runner extends EventEmitter {
-  debugprocess: ChildProcess;
+  debugprocess: ChildProcess | null = null;
 
   outputPath: string;
 
@@ -29,9 +28,9 @@ export default class Runner extends EventEmitter {
 
   _createProcess: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess;
 
-  watchMode: boolean;
+  watchMode: boolean = false;
 
-  watchAll: boolean;
+  watchAll: boolean = false;
 
   options: Options;
 
@@ -85,6 +84,11 @@ export default class Runner extends EventEmitter {
     }
 
     this.debugprocess = this._createProcess(this.workspace, args);
+
+    if (!(this.debugprocess.stdout && this.debugprocess.stderr)){
+      throw Error("stdout or stderr not available.")
+    }
+
     this.debugprocess.stdout.on('data', (data: Buffer) => {
       this._parseOutput(data, false);
     });

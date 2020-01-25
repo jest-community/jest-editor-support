@@ -5,12 +5,11 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @flow
  */
 
 import traverse from '@babel/traverse';
 import {buildSnapshotResolver, utils} from 'jest-snapshot';
-import type {ProjectConfig} from '../types/Config';
+import { Config as JestConfig } from "@jest/types";
 
 import {getASTfor} from './parsers/babylon_parser';
 
@@ -23,26 +22,26 @@ type SnapshotMetadata = {
   content?: string,
 };
 
-const describeVariants = Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+const describeVariants = Object.assign((Object.create(null)), {
   describe: true,
   fdescribe: true,
   xdescribe: true,
 });
-const base = Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+const base = Object.assign((Object.create(null)), {
   describe: true,
   it: true,
   test: true,
 });
-const decorators = Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+const decorators = Object.assign((Object.create(null)), {
   only: true,
   skip: true,
 });
 
 const validParents = Object.assign(
-  (Object.create(null): any),
+  (Object.create(null) as any),
   base,
   describeVariants,
-  Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+  Object.assign((Object.create(null)), {
     fit: true,
     xit: true,
     xtest: true,
@@ -59,7 +58,7 @@ const isValidParent = parent =>
   parent.callee && (validParents[parent.callee.name] || isValidMemberExpression(parent.callee));
 
 const getArrayOfParents = path => {
-  const result = [];
+  const result = [] as any[];
   let parent = path.parentPath;
   while (parent) {
     result.unshift(parent.node);
@@ -83,9 +82,9 @@ export default class Snapshot {
 
   _matchers: Array<string>;
 
-  _projectConfig: ?ProjectConfig;
+  _projectConfig?: JestConfig.ProjectConfig;
 
-  constructor(parser: any, customMatchers?: Array<string>, projectConfig?: ProjectConfig) {
+  constructor(parser?: Function, customMatchers?: Array<string>, projectConfig?: JestConfig.ProjectConfig) {
     this._parser = parser || getASTfor;
     this._matchers = ['toMatchSnapshot', 'toThrowErrorMatchingSnapshot'].concat(customMatchers || []);
     this._projectConfig = projectConfig;
@@ -103,7 +102,7 @@ export default class Snapshot {
       return [];
     }
     const state = {
-      found: [],
+      found: [] as {node: any, parents: any[]}[],
     };
     const Visitors = {
       Identifier(path, _state, matchers) {
@@ -126,7 +125,7 @@ export default class Snapshot {
     });
 
     // NOTE if no projectConfig is given the default resolver will be used
-    const snapshotResolver = buildSnapshotResolver(this._projectConfig || {});
+    const snapshotResolver = buildSnapshotResolver(this._projectConfig || {} as JestConfig.ProjectConfig);
     const snapshotPath = snapshotResolver.resolveSnapshotPath(filePath);
     const snapshots = utils.getSnapshotData(snapshotPath, 'none').data;
     let lastParent = null;
@@ -141,7 +140,13 @@ export default class Snapshot {
         count = 1;
       }
 
-      const result = {
+      const result:{
+        content: string | undefined,
+        count: number,
+        exists: boolean,
+        name: string,
+        node: any,
+      } = {
         content: undefined,
         count,
         exists: false,

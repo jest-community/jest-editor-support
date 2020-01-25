@@ -5,10 +5,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
-import type {Location} from '../types';
+import {Location} from '../types';
 
 /**
  * range and location here are 1-based position.
@@ -26,25 +25,30 @@ export class ParsedRange {
 
 // export type ParsedNodeType = 'expect' | 'describe' | 'it' | 'ROOT';
 
-export const ParsedNodeTypes = {
+export const ParsedNodeTypes:{
+  describe: 'describe',
+  expect: 'expect',
+  it: 'it',
+  root: 'root',
+} = {
   describe: 'describe',
   expect: 'expect',
   it: 'it',
   root: 'root',
 };
 
-export type ParsedNodeType = $Keys<typeof ParsedNodeTypes>;
+export type ParsedNodeType = keyof typeof ParsedNodeTypes;
 
 export class ParsedNode {
   type: ParsedNodeType;
 
-  start: Location;
+  start: Location | undefined = undefined;
 
-  end: Location;
+  end: Location | undefined = undefined;
 
   file: string;
 
-  children: ?Array<ParsedNode>;
+  children?: Array<ParsedNode>;
 
   constructor(type: ParsedNodeType, file: string) {
     this.type = type;
@@ -100,9 +104,9 @@ export class Expect extends ParsedNode {
 }
 
 export class NamedBlock extends ParsedNode {
-  name: string;
+  name: string | undefined = undefined;
 
-  nameRange: ParsedRange;
+  nameRange: ParsedRange | undefined = undefined;
 
   constructor(type: ParsedNodeType, file: string, name?: string) {
     super(type, file);
@@ -151,7 +155,7 @@ export class ParseResult {
     } else if (node instanceof ItBlock) {
       this.itBlocks.push(node);
     } else if (node instanceof Expect) {
-      if (dedup && this.expects.some(e => e.start.line === node.start.line && e.start.column === node.start.column)) {
+      if (dedup && this.expects.some(e => e?.start?.line === node?.start?.line && e?.start?.column === node?.start?.column)) {
         // found dup, return
         return;
       }

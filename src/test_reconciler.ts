@@ -5,13 +5,12 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import path from 'path';
-import type {TestFileAssertionStatus, TestAssertionStatus, TestReconciliationState, Location} from './types';
+import {TestFileAssertionStatus, TestAssertionStatus, TestReconciliationState, Location} from './types';
 
-import type {FormattedAssertionResult, FormattedTestResults} from '../types/TestResult';
+import {FormattedAssertionResult, FormattedTestResults} from '../types/TestResult';
 
 /**
  *  You have a Jest test runner watching for changes, and you have
@@ -57,7 +56,7 @@ export default class TestReconciler {
   mapAssertions(filename: string, assertions: Array<FormattedAssertionResult>): Array<TestAssertionStatus> {
     // convert jest location (column is 0-based and line is 1-based) to all 0-based location used internally in this package
     /* eslint-disable no-param-reassign */
-    const convertJestLocation = (jestLocation: ?Location) => {
+    const convertJestLocation = (jestLocation?: Location) => {
       if (jestLocation) {
         jestLocation.line -= 1;
       }
@@ -72,20 +71,20 @@ export default class TestReconciler {
     return assertions.map(assertion => {
       // Failure messages seems to always be an array of one item
       const message = assertion.failureMessages && assertion.failureMessages[0];
-      let short = null;
-      let terse = null;
-      let line = null;
+      let short: string | undefined = undefined;
+      let terse: string | undefined = undefined;
+      let line: number | undefined = undefined;
       const location = convertJestLocation(assertion.location); // output from jest --testLocationInResults (https://jestjs.io/docs/en/cli#testlocationinresults)
       if (message) {
         // Just the first line, with little whitespace
         short = message.split('   at', 1)[0].trim();
         // this will show inline, so we want to show very little
         terse = this.sanitizeShortErrorMessage(short);
-        line = this.lineOfError(message, filename);
+        line = this.lineOfError(message, filename) || undefined;
       }
       return {
-        line,
-        message: message || '',
+        line: line,
+        message: message || "",
         shortMessage: short,
         status: this.statusToReconcilationState(assertion.status),
         terseMessage: terse,
@@ -115,7 +114,7 @@ export default class TestReconciler {
   }
 
   // Pull the line out from the stack trace
-  lineOfError(message: string, filePath: string): ?number {
+  lineOfError(message: string, filePath: string): number | null {
     const filename = path.basename(filePath);
     const restOfTrace = message.split(filename, 2)[1];
     return restOfTrace ? parseInt(restOfTrace.split(':')[1], 10) : null;

@@ -4,11 +4,10 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
-import type {ChildProcess} from 'child_process';
-import type ProjectWorkspace from './project_workspace';
+import {ChildProcess} from 'child_process';
+import ProjectWorkspace from './project_workspace';
 
 export type Location = {
   column: number,
@@ -41,10 +40,10 @@ export type TestAssertionStatus = {
   title: string,
   status: TestReconciliationState,
   message: string,
-  shortMessage: ?string,
-  terseMessage: ?string,
-  location: ?Location,
-  line: ?number,
+  shortMessage?: string,
+  terseMessage?: string,
+  location?: Location,
+  line?: number,
 };
 
 /**

@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import * as Process from './Process';
@@ -23,11 +22,12 @@ import {
   ParsedNodeTypes,
   ParsedRange,
 } from './parsers/parser_nodes';
-import type {ParsedNodeType} from './parsers/parser_nodes';
+import {ParsedNodeType} from './parsers/parser_nodes';
 import parse from './parsers';
 import TestReconciler from './test_reconciler';
 
-module.exports = {
+export {
+  ParsedNodeType,
   DescribeBlock,
   Expect,
   ItBlock,
@@ -44,6 +44,3 @@ module.exports = {
   TestReconciler,
   parse,
 };
-
-// eslint-disable-next-line import/prefer-default-export
-export type {ParsedNodeType};
