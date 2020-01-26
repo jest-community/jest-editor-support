@@ -60,7 +60,7 @@ export function parse(file: string, data?: string): ParseResult {
 
     if (child instanceof NamedBlock) {
       const arg = tsNode.arguments[0];
-      child.name = arg.text;
+      child.name = (arg as any).text;
       if (!child.name) {
         if (ts.isTemplateExpression(arg)) {
           child.name = sourceFile.text.substring(arg.pos + 1, arg.end - 1);
@@ -90,7 +90,9 @@ export function parse(file: string, data?: string): ParseResult {
       let sNode: ParsedNode | undefined;
       if (node.kind === ts.SyntaxKind.CallExpression) {
         const call = node as ts.CallExpression;
-        const text = call.expression ? findText(call.expression) || findText(call.expression.expression) : undefined;
+        const text = call.expression
+          ? findText(call.expression) || findText((call.expression as any).expression)
+          : undefined;
 
         if (text === 'describe') {
           sNode = addNode(call, parent, 'describe');
@@ -100,8 +102,8 @@ export function parse(file: string, data?: string): ParseResult {
           let element = call.expression;
           let expectText = '';
           while (element && !expectText) {
-            expectText = element.text;
-            element = element.expression;
+            expectText = (element as any).text;
+            element = (element as any).expression;
           }
           if (expectText === 'expect') {
             sNode = addNode(node as ts.CallExpression, parent, 'expect');

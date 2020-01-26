@@ -10,14 +10,15 @@
 
 import {readFileSync} from 'fs';
 
-import {File as BabylonFile, Node as BabylonNode, parse as babylonParse} from 'babylon';
+import { File as BabylonFile, Node as BabylonNode, ExpressionStatement as BabylonExpressionStatement, CallExpression as BabylonCallExpression } from 'babel-types';
+import { parse as babylonParse, BabylonOptions} from 'babylon';
 import {ParsedNodeType} from './parser_nodes';
 import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
 
 // eslint-disable no-underscore-dangle
 const _getASTfor = (file: string, data?: string): [BabylonFile, string] => {
   const _data = data || readFileSync(file).toString();
-  const config = {plugins: ['*'], sourceType: 'module'};
+  const config: BabylonOptions= {plugins: ['*'] as any[], sourceType: 'module'};
   return [babylonParse(_data, config), _data];
 };
 
@@ -31,7 +32,7 @@ export const parse = (file: string, data?: string): ParseResult => {
   const [ast, _data] = _getASTfor(file, data);
 
   const updateNameInfo = (nBlock: NamedBlock, bNode: BabylonNode) => {
-    const arg = bNode.expression.arguments[0];
+    const arg = (bNode as any).expression.arguments[0];
     let name = arg.value;
 
     if (!name && arg.type === 'TemplateLiteral') {
@@ -123,11 +124,11 @@ export const parse = (file: string, data?: string): ParseResult => {
     // Look through the node's children
     let child: ParsedNode | undefined = undefined;
 
-    if (!babylonParent.body) {
+    if (!babylonParent["body"]) {
       return;
     }
 
-    babylonParent.body.forEach(element => {
+    babylonParent["body"].forEach(element => {
       child = undefined;
       // Pull out the node
       // const element = babylonParent.body[node];
