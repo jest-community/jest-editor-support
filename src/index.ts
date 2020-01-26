@@ -21,8 +21,8 @@ import {
   ParsedNode,
   ParsedNodeTypes,
   ParsedRange,
+  ParsedNodeType,
 } from './parsers/parser_nodes';
-import {ParsedNodeType} from './parsers/parser_nodes';
 import parse from './parsers';
 import TestReconciler from './test_reconciler';
 

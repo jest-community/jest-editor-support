@@ -6,40 +6,39 @@
  *
  */
 
+import {Config as JestConfig} from '@jest/types';
 import {Options} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
-import { Config as JestConfig } from "@jest/types";
 
 type JestSettings = {
-  configs: JestConfig.ProjectConfig[],
-  globalConfig: JestConfig.GlobalConfig,
-  version: string
+  configs: JestConfig.ProjectConfig[];
+  globalConfig: JestConfig.GlobalConfig;
+  version: string;
 };
 
 type Settings = {
-  jestVersionMajor: number,
-  configs: JestConfig.ProjectConfig[]
-}
+  jestVersionMajor: number;
+  configs: JestConfig.ProjectConfig[];
+};
 
-function parseSettings(text: string, debug: boolean = false): Settings {
+function parseSettings(text: string, debug = false): Settings {
   const jsonPattern = new RegExp(/^[\s]*\{/gm);
   let settings: JestSettings | null = null;
 
   try {
     settings = JSON.parse(text) as JestSettings;
 
-    const jestVersionMajor = parseInt(settings.version.split('.').shift() || "", 10);
+    const jestVersionMajor = parseInt(settings.version.split('.').shift() || '', 10);
     if (debug) {
       // eslint-disable-next-line no-console
       console.log(`found config jestVersionMajor=${jestVersionMajor}`);
     }
-  
+
     return {
       jestVersionMajor,
       configs: Array.isArray(settings.configs) ? settings.configs : [(settings as any).config],
     };
-
   } catch (err) {
     // skip the non-json content, if any
     const idx = text.search(jsonPattern);
@@ -62,7 +61,7 @@ export default function getSettings(workspace: ProjectWorkspace, options?: Optio
     const getConfigProcess = _createProcess(workspace, ['--showConfig']);
 
     if (!(getConfigProcess.stdout && getConfigProcess.stderr)) {
-      throw Error("stdout or stderr not available.")
+      throw Error('stdout or stderr not available.');
     }
 
     let configString = '';

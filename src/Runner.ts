@@ -11,8 +11,8 @@ import {readFile} from 'fs';
 import {tmpdir} from 'os';
 import * as path from 'path';
 import EventEmitter from 'events';
-import {messageTypes} from './types';
-import {Options, MessageType} from './types';
+import {messageTypes, Options, MessageType} from './types';
+
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
@@ -28,9 +28,9 @@ export default class Runner extends EventEmitter {
 
   _createProcess: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess;
 
-  watchMode: boolean = false;
+  watchMode = false;
 
-  watchAll: boolean = false;
+  watchAll = false;
 
   options: Options;
 
@@ -46,7 +46,7 @@ export default class Runner extends EventEmitter {
     this.prevMessageTypes = [];
   }
 
-  start(watchMode: boolean = true, watchAll: boolean = false) {
+  start(watchMode = true, watchAll = false) {
     if (this.debugprocess) {
       return;
     }
@@ -85,8 +85,8 @@ export default class Runner extends EventEmitter {
 
     this.debugprocess = this._createProcess(this.workspace, args);
 
-    if (!(this.debugprocess.stdout && this.debugprocess.stderr)){
-      throw Error("stdout or stderr not available.")
+    if (!(this.debugprocess.stdout && this.debugprocess.stderr)) {
+      throw Error('stdout or stderr not available.');
     }
 
     this.debugprocess.stdout.on('data', (data: Buffer) => {

@@ -71,9 +71,9 @@ export default class TestReconciler {
     return assertions.map(assertion => {
       // Failure messages seems to always be an array of one item
       const message = assertion.failureMessages && assertion.failureMessages[0];
-      let short: string | undefined = undefined;
-      let terse: string | undefined = undefined;
-      let line: number | undefined = undefined;
+      let short: string | undefined;
+      let terse: string | undefined;
+      let line: number | undefined;
       const location = convertJestLocation(assertion.location); // output from jest --testLocationInResults (https://jestjs.io/docs/en/cli#testlocationinresults)
       if (message) {
         // Just the first line, with little whitespace
@@ -83,8 +83,8 @@ export default class TestReconciler {
         line = this.lineOfError(message, filename) || undefined;
       }
       return {
-        line: line,
-        message: message || "",
+        line,
+        message: message || '',
         shortMessage: short,
         status: this.statusToReconcilationState(assertion.status),
         terseMessage: terse,

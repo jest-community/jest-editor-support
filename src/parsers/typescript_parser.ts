@@ -19,8 +19,7 @@
 import {readFileSync} from 'fs';
 
 import ts from 'typescript';
-import {NamedBlock, ParsedRange, ParsedNode, ParseResult} from './parser_nodes';
-import {ParsedNodeType} from './parser_nodes';
+import {NamedBlock, ParsedRange, ParsedNode, ParseResult, ParsedNodeType} from './parser_nodes';
 
 /* eslint-disable no-param-reassign */
 function getNode<T extends ParsedNode>(file: ts.SourceFile, expression: ts.CallExpression, node: T): T {

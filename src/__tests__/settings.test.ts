@@ -156,11 +156,7 @@ describe('getSettings', () => {
         "testRegex": "some-regex"
       }]
     }`;
-    const run_test = async (
-      text: string,
-      expected_version: number = 23,
-      expected_regex: string = 'some-regex'
-    ): Promise<void> => {
+    const runTest = async (text: string, expected_version = 23, expected_regex = 'some-regex'): Promise<void> => {
       expect.assertions(2);
       const {createProcess, mockProcessResult} = prepareProcess();
       const settingsPromise = getSettings(workspace, {
@@ -174,16 +170,16 @@ describe('getSettings', () => {
     };
 
     it('can parse correct config', () => {
-      run_test(json);
+      runTest(json);
     });
 
     it('can parse config even with noise', () => {
-      const with_noise = `
+      const withNoise = `
       > something
       > more noise
       ${json}
       `;
-      run_test(with_noise);
+      runTest(withNoise);
     });
   });
 });

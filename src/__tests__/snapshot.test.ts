@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -108,12 +109,10 @@ describe('when metadata parse error', () => {
 
     let results = snapshotHelper.getMetadata(filePath);
     expect(results).toEqual([]);
-    // eslint-disable-next-line no-console
     expect(console.warn).not.toHaveBeenCalled();
 
     results = snapshotHelper.getMetadata(filePath, true);
     expect(results).toEqual([]);
-    // eslint-disable-next-line no-console
     expect(console.warn).toHaveBeenCalled();
   });
 });

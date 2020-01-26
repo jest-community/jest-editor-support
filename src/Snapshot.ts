@@ -9,39 +9,39 @@
 
 import traverse from '@babel/traverse';
 import {buildSnapshotResolver, utils} from 'jest-snapshot';
-import { Config as JestConfig } from "@jest/types";
+import {Config as JestConfig} from '@jest/types';
 
 import {getASTfor} from './parsers/babylon_parser';
 
 type Node = any;
 
 type SnapshotMetadata = {
-  exists: true | false,
-  name: string,
-  node: Node,
-  content?: string,
+  exists: true | false;
+  name: string;
+  node: Node;
+  content?: string;
 };
 
-const describeVariants = Object.assign((Object.create(null)), {
+const describeVariants = Object.assign(Object.create(null), {
   describe: true,
   fdescribe: true,
   xdescribe: true,
 });
-const base = Object.assign((Object.create(null)), {
+const base = Object.assign(Object.create(null), {
   describe: true,
   it: true,
   test: true,
 });
-const decorators = Object.assign((Object.create(null)), {
+const decorators = Object.assign(Object.create(null), {
   only: true,
   skip: true,
 });
 
 const validParents = Object.assign(
-  (Object.create(null) as any),
+  Object.create(null),
   base,
   describeVariants,
-  Object.assign((Object.create(null)), {
+  Object.assign(Object.create(null), {
     fit: true,
     xit: true,
     xtest: true,
@@ -90,7 +90,7 @@ export default class Snapshot {
     this._projectConfig = projectConfig;
   }
 
-  getMetadata(filePath: string, verbose: boolean = false): Array<SnapshotMetadata> {
+  getMetadata(filePath: string, verbose = false): Array<SnapshotMetadata> {
     let fileNode;
     try {
       fileNode = this._parser(filePath);
@@ -102,7 +102,7 @@ export default class Snapshot {
       return [];
     }
     const state = {
-      found: [] as {node: any, parents: any[]}[],
+      found: [] as {node: any; parents: any[]}[],
     };
     const Visitors = {
       Identifier(path, _state, matchers) {
@@ -125,7 +125,7 @@ export default class Snapshot {
     });
 
     // NOTE if no projectConfig is given the default resolver will be used
-    const snapshotResolver = buildSnapshotResolver(this._projectConfig || {} as JestConfig.ProjectConfig);
+    const snapshotResolver = buildSnapshotResolver(this._projectConfig || ({} as JestConfig.ProjectConfig));
     const snapshotPath = snapshotResolver.resolveSnapshotPath(filePath);
     const snapshots = utils.getSnapshotData(snapshotPath, 'none').data;
     let lastParent = null;
@@ -140,12 +140,12 @@ export default class Snapshot {
         count = 1;
       }
 
-      const result:{
-        content: string | undefined,
-        count: number,
-        exists: boolean,
-        name: string,
-        node: any,
+      const result: {
+        content: string | undefined;
+        count: number;
+        exists: boolean;
+        name: string;
+        node: any;
       } = {
         content: undefined,
         count,

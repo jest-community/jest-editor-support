@@ -10,15 +10,19 @@
 
 import {readFileSync} from 'fs';
 
-import { File as BabylonFile, Node as BabylonNode, ExpressionStatement as BabylonExpressionStatement, CallExpression as BabylonCallExpression } from 'babel-types';
-import { parse as babylonParse, BabylonOptions} from 'babylon';
-import {ParsedNodeType} from './parser_nodes';
-import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
+import {
+  File as BabylonFile,
+  Node as BabylonNode,
+  ExpressionStatement as BabylonExpressionStatement,
+  CallExpression as BabylonCallExpression,
+} from '@babel/types';
+import {parse as babylonParse, BabylonOptions} from 'babylon';
+import {ParsedNodeType, NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
 
 // eslint-disable no-underscore-dangle
 const _getASTfor = (file: string, data?: string): [BabylonFile, string] => {
   const _data = data || readFileSync(file).toString();
-  const config: BabylonOptions= {plugins: ['*'] as any[], sourceType: 'module'};
+  const config: BabylonOptions = {plugins: ['*'] as any[], sourceType: 'module'};
   return [babylonParse(_data, config), _data];
 };
 
@@ -51,9 +55,11 @@ export const parse = (file: string, data?: string): ParseResult => {
     );
   };
   const updateNode = (node: ParsedNode, babylonNode: BabylonNode) => {
-    node.start = babylonNode.loc.start;
-    node.end = babylonNode.loc.end;
-    node.start.column += 1;
+    node.start = babylonNode.loc?.start;
+    node.end = babylonNode.loc?.end;
+    if (node.start) {
+      node.start.column += 1;
+    }
 
     parseResult.addNode(node);
     if (node instanceof NamedBlock) {
@@ -122,13 +128,13 @@ export const parse = (file: string, data?: string): ParseResult => {
   // A recursive AST parser
   const searchNodes = (babylonParent: BabylonNode, parent: ParsedNode) => {
     // Look through the node's children
-    let child: ParsedNode | undefined = undefined;
+    let child: ParsedNode | undefined;
 
-    if (!babylonParent["body"]) {
+    if (!babylonParent.body) {
       return;
     }
 
-    babylonParent["body"].forEach(element => {
+    babylonParent.body.forEach(element => {
       child = undefined;
       // Pull out the node
       // const element = babylonParent.body[node];

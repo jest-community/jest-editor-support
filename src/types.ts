@@ -10,16 +10,16 @@ import {ChildProcess} from 'child_process';
 import ProjectWorkspace from './project_workspace';
 
 export type Location = {
-  column: number,
-  line: number,
+  column: number;
+  line: number;
 };
 
 export type Options = {
-  createProcess?: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess,
-  noColor?: boolean,
-  testNamePattern?: string,
-  testFileNamePattern?: string,
-  reporters?: string[],
+  createProcess?: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess;
+  noColor?: boolean;
+  testNamePattern?: string;
+  testFileNamePattern?: string;
+  reporters?: string[];
 };
 
 /**
@@ -37,13 +37,13 @@ export type TestReconciliationState =
  *
  */
 export type TestAssertionStatus = {
-  title: string,
-  status: TestReconciliationState,
-  message: string,
-  shortMessage?: string,
-  terseMessage?: string,
-  location?: Location,
-  line?: number,
+  title: string;
+  status: TestReconciliationState;
+  message: string;
+  shortMessage?: string;
+  terseMessage?: string;
+  location?: Location;
+  line?: number;
 };
 
 /**
@@ -52,14 +52,14 @@ export type TestAssertionStatus = {
  *
  */
 export type TestFileAssertionStatus = {
-  file: string,
-  message: string,
-  status: TestReconciliationState,
-  assertions: TestAssertionStatus[] | null,
+  file: string;
+  message: string;
+  status: TestReconciliationState;
+  assertions: TestAssertionStatus[] | null;
 };
 
 export type JestTotalResultsMeta = {
-  noTestsFound: boolean,
+  noTestsFound: boolean;
 };
 
 // eslint-disable-next-line import/prefer-default-export

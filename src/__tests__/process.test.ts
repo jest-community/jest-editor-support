@@ -61,7 +61,7 @@ describe('createProcess', () => {
   });
 
   it('defines the "CI" environment variable', () => {
-    const expected = Object.assign({}, process.env, {CI: 'true'});
+    const expected = {...process.env, CI: 'true'};
 
     const workspace: any = {pathToJest: ''};
     const args = [];

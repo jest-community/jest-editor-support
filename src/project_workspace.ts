@@ -50,14 +50,14 @@ export default class ProjectWorkspace {
    *
    * @type {boolean}
    */
-  collectCoverage?: boolean
+  collectCoverage?: boolean;
 
   /**
    * if to output more information for debugging purpose. Default is false.
    *
    * @type {boolean}
    */
-  debug?: boolean
+  debug?: boolean;
 
   /**
    * suffix string used as part of the output file path, this is to support concurrent Runners.
@@ -65,7 +65,7 @@ export default class ProjectWorkspace {
    * @type {string}
    * @memberof ProjectWorkspace
    */
-  outputFileSuffix?: string
+  outputFileSuffix?: string;
 
   constructor(
     rootPath: string,

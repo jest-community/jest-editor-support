@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
+/* eslint-disable max-classes-per-file */
 /* eslint-disable no-use-before-define */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
@@ -25,11 +27,11 @@ export class ParsedRange {
 
 // export type ParsedNodeType = 'expect' | 'describe' | 'it' | 'ROOT';
 
-export const ParsedNodeTypes:{
-  describe: 'describe',
-  expect: 'expect',
-  it: 'it',
-  root: 'root',
+export const ParsedNodeTypes: {
+  describe: 'describe';
+  expect: 'expect';
+  it: 'it';
+  root: 'root';
 } = {
   describe: 'describe',
   expect: 'expect',
@@ -79,7 +81,7 @@ export class ParsedNode {
     return child;
   }
 
-  filter(f: (node: ParsedNode) => boolean, filterSelf: boolean = false): Array<ParsedNode> {
+  filter(f: (node: ParsedNode) => boolean, filterSelf = false): Array<ParsedNode> {
     const filtered: Array<ParsedNode> = [];
 
     const _filter = (node: ParsedNode, _filterSelf: boolean) => {
@@ -149,13 +151,16 @@ export class ParseResult {
     this.itBlocks = [];
   }
 
-  addNode(node: ParsedNode, dedup: boolean = false) {
+  addNode(node: ParsedNode, dedup = false) {
     if (node instanceof DescribeBlock) {
       this.describeBlocks.push(node);
     } else if (node instanceof ItBlock) {
       this.itBlocks.push(node);
     } else if (node instanceof Expect) {
-      if (dedup && this.expects.some(e => e?.start?.line === node?.start?.line && e?.start?.column === node?.start?.column)) {
+      if (
+        dedup &&
+        this.expects.some(e => e?.start?.line === node?.start?.line && e?.start?.column === node?.start?.column)
+      ) {
         // found dup, return
         return;
       }

@@ -8,15 +8,14 @@
 
 import {tmpdir} from 'os';
 import * as path from 'path';
-import {spawn} from 'child_process';
+import {spawn, ChildProcess} from 'child_process';
 import {readFileSync} from 'fs';
 import EventEmitter from 'events';
-import {ChildProcess} from 'child_process';
+import {Readable} from 'stream';
 import Runner from '../Runner';
 import {createProcess} from '../Process';
 import {messageTypes} from '../types';
 import ProjectWorkspace from '../project_workspace';
-import { Readable } from 'stream';
 
 // ('use strict');
 
@@ -316,7 +315,7 @@ describe('Runner', () => {
       const workspace: any = {};
       const sut = new Runner(workspace);
       process.platform = 'win32';
-      (sut as any).debugprocess = ({pid: 123});
+      (sut as any).debugprocess = {pid: 123};
       sut.closeProcess();
 
       expect(spawn).toBeCalledWith('taskkill', ['/pid', '123', '/T', '/F']);
@@ -327,7 +326,7 @@ describe('Runner', () => {
       const sut = new Runner(workspace);
       process.platform = 'linux';
       const kill = jest.fn();
-      (sut as any).debugprocess = ({kill});
+      (sut as any).debugprocess = {kill};
       sut.closeProcess();
 
       expect(kill).toBeCalledWith();
@@ -336,7 +335,7 @@ describe('Runner', () => {
     it('clears the debugprocess property', () => {
       const workspace: any = {};
       const sut = new Runner(workspace);
-      (sut as any).debugprocess = ({kill: () => {}});
+      (sut as any).debugprocess = {kill: () => {}};
       sut.closeProcess();
 
       expect(sut.debugprocess).not.toBeDefined();
@@ -351,9 +350,10 @@ describe('events', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    fakeProcess = (new EventEmitter()) as any;
+    fakeProcess = new EventEmitter() as any;
     (fakeProcess as any).stdout = new EventEmitter();
     (fakeProcess as any).stderr = new EventEmitter();
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     fakeProcess.kill = () => {};
 
     (createProcess as any).mockImplementation(() => fakeProcess);
@@ -436,6 +436,7 @@ describe('events', () => {
       const expected = {};
       (fakeProcess as any).stderr.emit('data', expected);
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(runner.findMessageType).toBeCalledWith(expected);
     });
 
