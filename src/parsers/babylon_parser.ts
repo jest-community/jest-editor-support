@@ -13,16 +13,35 @@ import {readFileSync} from 'fs';
 import {
   File as BabylonFile,
   Node as BabylonNode,
+  BlockStatement as BabylonBlockStatement,
+  ArrowFunctionExpression as BabylonArrowFunctionExpression,
+  FunctionExpression as BabylonFunctionExpression,
   ExpressionStatement as BabylonExpressionStatement,
   CallExpression as BabylonCallExpression,
 } from '@babel/types';
-import {parse as babylonParse, BabylonOptions} from 'babylon';
+import {parse as babylonParse, ParserOptions as BabylonOptions} from '@babel/parser';
 import {ParsedNodeType, NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
 
 // eslint-disable no-underscore-dangle
 const _getASTfor = (file: string, data?: string): [BabylonFile, string] => {
   const _data = data || readFileSync(file).toString();
-  const config: BabylonOptions = {plugins: ['*'] as any[], sourceType: 'module'};
+  const config: BabylonOptions = {
+    // https://babeljs.io/docs/en/v7-migration-api#babel-parser-known-as-babylon
+    plugins: [
+      'asyncGenerators',
+      'classProperties',
+      'decorators-legacy',
+      'doExpressions',
+      'dynamicImport',
+      // 'exportExtensions',  this doesn't seem to be a valid option according to type definitions.
+      'flow',
+      'functionBind',
+      'functionSent',
+      'jsx',
+      'objectRestSpread',
+    ],
+    sourceType: 'module',
+  };
   return [babylonParse(_data, config), _data];
 };
 
@@ -130,11 +149,11 @@ export const parse = (file: string, data?: string): ParseResult => {
     // Look through the node's children
     let child: ParsedNode | undefined;
 
-    if (!babylonParent.body) {
+    if (!(babylonParent as BabylonBlockStatement).body) {
       return;
     }
 
-    babylonParent.body.forEach(element => {
+    (babylonParent as BabylonBlockStatement).body.forEach(element => {
       child = undefined;
       // Pull out the node
       // const element = babylonParent.body[node];
@@ -148,7 +167,9 @@ export const parse = (file: string, data?: string): ParseResult => {
       } else if (element && element.type === 'VariableDeclaration') {
         element.declarations
           .filter(declaration => declaration.init && isFunctionDeclaration(declaration.init.type))
-          .forEach(declaration => searchNodes(declaration.init.body, parent));
+          .forEach(declaration =>
+            searchNodes((declaration.init as BabylonArrowFunctionExpression | BabylonFunctionExpression).body, parent)
+          );
       } else if (
         element &&
         element.type === 'ExpressionStatement' &&
@@ -157,17 +178,24 @@ export const parse = (file: string, data?: string): ParseResult => {
         element.expression.right &&
         isFunctionDeclaration(element.expression.right.type)
       ) {
-        searchNodes(element.expression.right.body, parent);
-      } else if (element.type === 'ReturnStatement' && element.argument.arguments) {
-        element.argument.arguments
+        searchNodes(
+          (element.expression.right as BabylonArrowFunctionExpression | BabylonFunctionExpression).body,
+          parent
+        );
+      } else if (element.type === 'ReturnStatement' && (element?.argument as BabylonCallExpression)?.arguments) {
+        (element.argument as BabylonCallExpression).arguments
           .filter(argument => isFunctionDeclaration(argument.type))
-          .forEach(argument => searchNodes(argument.body, parent));
+          .forEach(argument =>
+            searchNodes((argument as BabylonArrowFunctionExpression | BabylonFunctionExpression).body, parent)
+          );
       }
 
       if (isFunctionCall(element)) {
-        element.expression.arguments
+        ((element as BabylonExpressionStatement).expression as BabylonCallExpression).arguments
           .filter(argument => isFunctionDeclaration(argument.type))
-          .forEach(argument => searchNodes(argument.body, child || parent));
+          .forEach(argument =>
+            searchNodes((argument as BabylonArrowFunctionExpression | BabylonFunctionExpression).body, child || parent)
+          );
       }
     });
   };
