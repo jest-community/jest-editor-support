@@ -7,10 +7,10 @@ module.exports = {
   },
   extends: [
     'airbnb-typescript/base',
-    "airbnb/hooks",
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    'airbnb/hooks',
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'prettier', 
     'plugin:prettier/recommended', 
     'prettier/@typescript-eslint',
@@ -19,7 +19,7 @@ module.exports = {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
   },
-  parser: "@typescript-eslint/parser",
+  parser: '@typescript-eslint/parser',
   parserOptions: {
     project: './tsconfig.json'
   },
@@ -28,7 +28,7 @@ module.exports = {
     'prettier/prettier': 'error',
     'no-underscore-dangle': 'off',
     'camelcase': 'off',
-    'no-param-reassign': ["error", { "props": false }],
+    'no-param-reassign': ['error', { 'props': false }],
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/prefer-regexp-exec': 'off',
     '@typescript-eslint/array-type': ['error', {
