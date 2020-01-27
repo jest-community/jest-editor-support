@@ -26,7 +26,7 @@ export default class Runner extends EventEmitter {
 
   workspace: ProjectWorkspace;
 
-  _createProcess: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess;
+  _createProcess: (workspace: ProjectWorkspace, args: string[]) => ChildProcess;
 
   watchMode = false;
 

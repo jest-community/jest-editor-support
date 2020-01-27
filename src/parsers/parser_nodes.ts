@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable max-classes-per-file */
-/* eslint-disable no-use-before-define */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -50,7 +48,7 @@ export class ParsedNode {
 
   file: string;
 
-  children?: Array<ParsedNode>;
+  children?: ParsedNode[];
 
   constructor(type: ParsedNodeType, file: string) {
     this.type = type;
@@ -81,8 +79,8 @@ export class ParsedNode {
     return child;
   }
 
-  filter(f: (node: ParsedNode) => boolean, filterSelf = false): Array<ParsedNode> {
-    const filtered: Array<ParsedNode> = [];
+  filter(f: (node: ParsedNode) => boolean, filterSelf = false): ParsedNode[] {
+    const filtered: ParsedNode[] = [];
 
     const _filter = (node: ParsedNode, _filterSelf: boolean) => {
       if (_filterSelf && f(node)) {
@@ -132,11 +130,11 @@ export class DescribeBlock extends NamedBlock {
 // export type NodeClass = Node | Expect | ItBlock | DescribeBlock;
 
 export class ParseResult {
-  describeBlocks: Array<DescribeBlock>;
+  describeBlocks: DescribeBlock[];
 
-  expects: Array<Expect>;
+  expects: Expect[];
 
-  itBlocks: Array<ItBlock>;
+  itBlocks: ItBlock[];
 
   root: ParsedNode;
 

@@ -67,7 +67,7 @@ const getArrayOfParents = path => {
   return result;
 };
 
-const buildName: (snapshotNode: Node, parents: Array<Node>, position: number) => string = (
+const buildName: (snapshotNode: Node, parents: Node[], position: number) => string = (
   snapshotNode,
   parents,
   position
@@ -80,17 +80,17 @@ const buildName: (snapshotNode: Node, parents: Array<Node>, position: number) =>
 export default class Snapshot {
   _parser: Function;
 
-  _matchers: Array<string>;
+  _matchers: string[];
 
   _projectConfig?: JestConfig.ProjectConfig;
 
-  constructor(parser?: Function, customMatchers?: Array<string>, projectConfig?: JestConfig.ProjectConfig) {
+  constructor(parser?: Function, customMatchers?: string[], projectConfig?: JestConfig.ProjectConfig) {
     this._parser = parser || getASTfor;
     this._matchers = ['toMatchSnapshot', 'toThrowErrorMatchingSnapshot'].concat(customMatchers || []);
     this._projectConfig = projectConfig;
   }
 
-  getMetadata(filePath: string, verbose = false): Array<SnapshotMetadata> {
+  getMetadata(filePath: string, verbose = false): SnapshotMetadata[] {
     let fileNode;
     try {
       fileNode = this._parser(filePath);

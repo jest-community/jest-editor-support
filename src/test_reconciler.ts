@@ -53,7 +53,7 @@ export default class TestReconciler {
   // we don't get this as structured data, but what we get
   // is useful enough to make it for ourselves
 
-  mapAssertions(filename: string, assertions: Array<FormattedAssertionResult>): Array<TestAssertionStatus> {
+  mapAssertions(filename: string, assertions: FormattedAssertionResult[]): TestAssertionStatus[] {
     // convert jest location (column is 0-based and line is 1-based) to all 0-based location used internally in this package
     /* eslint-disable no-param-reassign */
     const convertJestLocation = (jestLocation?: Location) => {

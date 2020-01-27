@@ -15,7 +15,7 @@ export type Location = {
 };
 
 export type Options = {
-  createProcess?: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess;
+  createProcess?: (workspace: ProjectWorkspace, args: string[]) => ChildProcess;
   noColor?: boolean;
   testNamePattern?: string;
   testFileNamePattern?: string;

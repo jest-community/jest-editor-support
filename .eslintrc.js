@@ -30,6 +30,11 @@ module.exports = {
     'camelcase': 'off',
     'no-param-reassign': ["error", { "props": false }],
     '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/prefer-regexp-exec': 'off'
+    '@typescript-eslint/prefer-regexp-exec': 'off',
+    '@typescript-eslint/array-type': ['error', {
+      'default' : 'array',
+      'readonly': 'array'
+    }],
+    'max-classes-per-file': 'off'
   },
 };

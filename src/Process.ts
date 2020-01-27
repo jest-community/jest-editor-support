@@ -16,7 +16,7 @@ import ProjectWorkspace from './project_workspace';
  * @returns {ChildProcess}
  */
 // eslint-disable-next-line import/prefer-default-export
-export const createProcess = (workspace: ProjectWorkspace, args: Array<string>): ChildProcess => {
+export const createProcess = (workspace: ProjectWorkspace, args: string[]): ChildProcess => {
   const runtimeExecutable = [workspace.pathToJest, ...args];
 
   // If a path to configuration file was defined, push it to runtimeArgs
