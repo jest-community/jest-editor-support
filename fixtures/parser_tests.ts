@@ -181,15 +181,15 @@ export function parserTests(parse: (file: string, data?: string) => ParseResult)
       expect(descBlock.children.length).toBe(4);
 
       // check test blocks, including the template literal
-      const found = descBlock?.children
-        ?.map(b => b as ItBlock)
+      const found = descBlock.children
+        .map(b => b as NamedBlock)
         .filter(
           b =>
             b.name === 'needs to have a PR number' ||
             b.name === 'does not validate without josh' ||
             b.name === 'does not validate when ${key} is missing'
         );
-      expect(found?.length).toBe(3);
+      expect(found.length).toBe(3);
     });
   });
   describe('Nested Elements', () => {
