@@ -29,8 +29,8 @@ describe('createProcess', () => {
     const args = [];
     createProcess(workspace, args);
 
-    expect((spawn as any).mock.calls[0][0]).toBe('jest');
-    expect((spawn as any).mock.calls[0][1]).toEqual([]);
+    expect((spawn as jest.Mock<any>).mock.calls[0][0]).toBe('jest');
+    expect((spawn as jest.Mock<any>).mock.calls[0][1]).toEqual([]);
   });
 
   it('spawns a command with spaces from workspace.pathToJest', () => {
@@ -38,7 +38,7 @@ describe('createProcess', () => {
     const args = [];
     createProcess(workspace, args);
 
-    expect((spawn as any).mock.calls[0][0]).toBe('npm test --');
+    expect((spawn as jest.Mock<any>).mock.calls[0][0]).toBe('npm test --');
   });
 
   it('appends args', () => {
@@ -46,7 +46,7 @@ describe('createProcess', () => {
     const args = ['--option', 'value', '--another'];
     createProcess(workspace, args);
 
-    expect((spawn as any).mock.calls[0][0]).toEqual(['npm', 'test', '--', ...args].join(' '));
+    expect((spawn as jest.Mock<any>).mock.calls[0][0]).toEqual(['npm', 'test', '--', ...args].join(' '));
   });
 
   it('sets the --config arg to workspace.pathToConfig', () => {
@@ -57,7 +57,9 @@ describe('createProcess', () => {
     const args = ['--option', 'value'];
     createProcess(workspace, args);
 
-    expect((spawn as any).mock.calls[0][0]).toEqual('npm test -- --option value --config non-standard.jest.js');
+    expect((spawn as jest.Mock<any>).mock.calls[0][0]).toEqual(
+      'npm test -- --option value --config non-standard.jest.js'
+    );
   });
 
   it('defines the "CI" environment variable', () => {
@@ -67,7 +69,7 @@ describe('createProcess', () => {
     const args = [];
     createProcess(workspace, args);
 
-    expect((spawn as any).mock.calls[0][2].env).toEqual(expected);
+    expect((spawn as jest.Mock<any>).mock.calls[0][2].env).toEqual(expected);
   });
 
   it('sets the current working directory of the child process', () => {
@@ -78,7 +80,7 @@ describe('createProcess', () => {
     const args = [];
     createProcess(workspace, args);
 
-    expect((spawn as any).mock.calls[0][2].cwd).toBe(workspace.rootPath);
+    expect((spawn as jest.Mock<any>).mock.calls[0][2].cwd).toBe(workspace.rootPath);
   });
 
   it('should set the "shell" property', () => {
@@ -87,6 +89,6 @@ describe('createProcess', () => {
     const args = [];
     createProcess(workspace, args);
 
-    expect((spawn as any).mock.calls[0][2].shell).toBe(expected);
+    expect((spawn as jest.Mock<any>).mock.calls[0][2].shell).toBe(expected);
   });
 });

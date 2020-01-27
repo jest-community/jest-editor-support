@@ -42,17 +42,18 @@ export type ParsedNodeType = keyof typeof ParsedNodeTypes;
 export class ParsedNode {
   type: ParsedNodeType;
 
-  start: Location | undefined = undefined;
+  start?: Location;
 
-  end: Location | undefined = undefined;
+  end?: Location;
 
   file: string;
 
-  children?: ParsedNode[];
+  children: ParsedNode[];
 
   constructor(type: ParsedNodeType, file: string) {
     this.type = type;
     this.file = file;
+    this.children = [];
   }
 
   addChild(type: ParsedNodeType): ParsedNode {
@@ -104,9 +105,9 @@ export class Expect extends ParsedNode {
 }
 
 export class NamedBlock extends ParsedNode {
-  name: string | undefined = undefined;
+  name?: string;
 
-  nameRange: ParsedRange | undefined = undefined;
+  nameRange?: ParsedRange;
 
   constructor(type: ParsedNodeType, file: string, name?: string) {
     super(type, file);

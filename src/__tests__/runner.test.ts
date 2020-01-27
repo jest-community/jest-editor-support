@@ -384,8 +384,12 @@ describe('events', () => {
       expect(data.mock.calls[0][0]).toEqual(storedJSON);
     };
 
-    doTest(fakeProcess.stdout!);
-    doTest((fakeProcess as any).stderr);
+    if (fakeProcess.stdout && fakeProcess.stderr) {
+      doTest(fakeProcess.stdout);
+      doTest(fakeProcess.stderr);
+    } else {
+      throw Error('Unexpected: fakeProcess.stdout or fakeProcess.stderr not assigned.');
+    }
   });
 
   it('emits errors when process errors', () => {

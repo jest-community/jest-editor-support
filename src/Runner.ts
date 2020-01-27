@@ -20,7 +20,7 @@ import {createProcess} from './Process';
 // passes out events when it understands what data is being
 // pass sent out of the process
 export default class Runner extends EventEmitter {
-  debugprocess: ChildProcess | null = null;
+  debugprocess?: ChildProcess;
 
   outputPath: string;
 
@@ -85,7 +85,7 @@ export default class Runner extends EventEmitter {
 
     this.debugprocess = this._createProcess(this.workspace, args);
 
-    if (!(this.debugprocess.stdout && this.debugprocess.stderr)) {
+    if (!this.debugprocess.stdout || !this.debugprocess.stderr) {
       throw Error('stdout or stderr not available.');
     }
 

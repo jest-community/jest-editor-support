@@ -3,83 +3,83 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
- * 
+ *
  */
 
 // import type {ConsoleBuffer} from './Console';
 
 export type RawFileCoverage = {
-  path: string,
-  s: {[statementId: number]: number},
-  b: {[branchId: number]: number},
-  f: {[functionId: number]: number},
-  l: {[lineId: number]: number},
-  fnMap: {[functionId: number]: any},
-  statementMap: {[statementId: number]: any},
-  branchMap: {[branchId: number]: any},
-  inputSourceMap?: Object,
+  path: string;
+  s: {[statementId: number]: number};
+  b: {[branchId: number]: number};
+  f: {[functionId: number]: number};
+  l: {[lineId: number]: number};
+  fnMap: {[functionId: number]: any};
+  statementMap: {[statementId: number]: any};
+  branchMap: {[branchId: number]: any};
+  inputSourceMap?: Record<string, any>;
 };
 
 export type RawCoverage = {
-  [filePath: string]: RawFileCoverage,
+  [filePath: string]: RawFileCoverage;
 };
 
 type FileCoverageTotal = {
-  total: number,
-  covered: number,
-  skipped: number,
-  pct: number,
+  total: number;
+  covered: number;
+  skipped: number;
+  pct: number;
 };
 
 export type CoverageSummary = {
-  lines: FileCoverageTotal,
-  statements: FileCoverageTotal,
-  branches: FileCoverageTotal,
-  functions: FileCoverageTotal,
-  merge: (other: CoverageSummary) => void,
+  lines: FileCoverageTotal;
+  statements: FileCoverageTotal;
+  branches: FileCoverageTotal;
+  functions: FileCoverageTotal;
+  merge: (other: CoverageSummary) => void;
 };
 
 export type FileCoverage = {
-  getLineCoverage: () => Object,
-  getUncoveredLines: () => Array<number>,
-  getBranchCoverageByLine: () => Object,
-  toJSON: () => Object,
-  merge: (other: Object) => void,
-  computeSimpleTotals: (property: string) => FileCoverageTotal,
-  computeBranchTotals: () => FileCoverageTotal,
-  resetHits: () => void,
-  toSummary: () => CoverageSummary,
+  getLineCoverage: () => Record<string, any>;
+  getUncoveredLines: () => number[];
+  getBranchCoverageByLine: () => Record<string, any>;
+  toJSON: () => Record<string, any>;
+  merge: (other: Record<string, any>) => void;
+  computeSimpleTotals: (property: string) => FileCoverageTotal;
+  computeBranchTotals: () => FileCoverageTotal;
+  resetHits: () => void;
+  toSummary: () => CoverageSummary;
 };
 
 export type CoverageMap = {
-  merge: (data: Object) => void,
-  getCoverageSummary: () => FileCoverage,
-  data: RawCoverage,
-  addFileCoverage: (fileCoverage: RawFileCoverage) => void,
-  files: () => Array<string>,
-  fileCoverageFor: (file: string) => FileCoverage,
+  merge: (data: Record<string, any>) => void;
+  getCoverageSummary: () => FileCoverage;
+  data: RawCoverage;
+  addFileCoverage: (fileCoverage: RawFileCoverage) => void;
+  files: () => string[];
+  fileCoverageFor: (file: string) => FileCoverage;
 };
 
 export type SerializableError = {
-  code?: any,
-  message: string,
-  stack?: string,
-  type?: string,
+  code?: any;
+  message: string;
+  stack?: string;
+  type?: string;
 };
 
 export type FailedAssertion = {
-  matcherName: string,
-  message?: string,
-  actual?: any,
-  pass?: boolean,
-  expected?: any,
-  isNot?: boolean,
-  stack?: string,
+  matcherName: string;
+  message?: string;
+  actual?: any;
+  pass?: boolean;
+  expected?: any;
+  isNot?: boolean;
+  stack?: string;
 };
 
 export type AssertionLocation = {
-  fullName: string,
-  path: string,
+  fullName: string;
+  path: string;
 };
 
 export type Status = 'passed' | 'failed' | 'skipped' | 'pending' | 'todo';
@@ -88,143 +88,143 @@ export type Bytes = number;
 export type Milliseconds = number;
 
 type Callsite = {
-  column: number,
-  line: number,
+  column: number;
+  line: number;
 };
 
 export type AssertionResult = {
-  ancestorTitles: Array<string>,
-  duration?: Milliseconds,
-  failureMessages: Array<string>,
-  fullName: string,
-  location?: Callsite,
-  numPassingAsserts: number,
-  status: Status,
-  title: string,
+  ancestorTitles: string[];
+  duration?: Milliseconds;
+  failureMessages: string[];
+  fullName: string;
+  location?: Callsite;
+  numPassingAsserts: number;
+  status: Status;
+  title: string;
 };
 
 export type FormattedAssertionResult = {
-  failureMessages: Array<string> | null,
-  fullName: string,
-  location?: Callsite,
-  status: Status,
-  title: string,
+  failureMessages: string[] | null;
+  fullName: string;
+  location?: Callsite;
+  status: Status;
+  title: string;
 };
 
 export type AggregatedResultWithoutCoverage = {
-  numFailedTests: number,
-  numFailedTestSuites: number,
-  numPassedTests: number,
-  numPassedTestSuites: number,
-  numPendingTests: number,
-  numTodoTests: number,
-  numPendingTestSuites: number,
-  numRuntimeErrorTestSuites: number,
-  numTotalTests: number,
-  numTotalTestSuites: number,
-  openHandles: Array<Error>,
-  snapshot: SnapshotSummary,
-  startTime: number,
-  success: boolean,
-  testResults: Array<TestResult>,
-  wasInterrupted: boolean,
+  numFailedTests: number;
+  numFailedTestSuites: number;
+  numPassedTests: number;
+  numPassedTestSuites: number;
+  numPendingTests: number;
+  numTodoTests: number;
+  numPendingTestSuites: number;
+  numRuntimeErrorTestSuites: number;
+  numTotalTests: number;
+  numTotalTestSuites: number;
+  openHandles: Error[];
+  snapshot: SnapshotSummary;
+  startTime: number;
+  success: boolean;
+  testResults: TestResult[];
+  wasInterrupted: boolean;
 };
 
 export type AggregatedResult = AggregatedResultWithoutCoverage & {
-  coverageMap?: CoverageMap,
+  coverageMap?: CoverageMap;
 };
 
 export type Suite = {
-  title: string,
-  suites: Array<Suite>,
-  tests: Array<AssertionResult>,
+  title: string;
+  suites: Suite[];
+  tests: AssertionResult[];
 };
 
 export type TestResult = {
   // console: ?ConsoleBuffer,
-  coverage?: RawCoverage,
-  displayName?: string,
-  failureMessage?: string,
-  leaks: boolean,
-  memoryUsage?: Bytes,
-  numFailingTests: number,
-  numPassingTests: number,
-  numPendingTests: number,
-  numTodoTests: number,
-  openHandles: Array<Error>,
+  coverage?: RawCoverage;
+  displayName?: string;
+  failureMessage?: string;
+  leaks: boolean;
+  memoryUsage?: Bytes;
+  numFailingTests: number;
+  numPassingTests: number;
+  numPendingTests: number;
+  numTodoTests: number;
+  openHandles: Error[];
   perfStats: {
-    end: Milliseconds,
-    start: Milliseconds,
-  },
-  skipped: boolean,
+    end: Milliseconds;
+    start: Milliseconds;
+  };
+  skipped: boolean;
   snapshot: {
-    added: number,
-    fileDeleted: boolean,
-    matched: number,
-    unchecked: number,
-    uncheckedKeys: Array<string>,
-    unmatched: number,
-    updated: number,
-  },
-  sourceMaps: {[sourcePath: string]: string},
-  testExecError?: SerializableError,
-  testFilePath: string,
-  testResults: Array<AssertionResult>,
+    added: number;
+    fileDeleted: boolean;
+    matched: number;
+    unchecked: number;
+    uncheckedKeys: string[];
+    unmatched: number;
+    updated: number;
+  };
+  sourceMaps: {[sourcePath: string]: string};
+  testExecError?: SerializableError;
+  testFilePath: string;
+  testResults: AssertionResult[];
 };
 
 export type FormattedTestResult = {
-  message: string,
-  name: string,
-  summary: string,
-  status: 'failed' | 'passed',
-  startTime: number,
-  endTime: number,
-  coverage: any,
-  assertionResults: Array<FormattedAssertionResult>,
+  message: string;
+  name: string;
+  summary: string;
+  status: 'failed' | 'passed';
+  startTime: number;
+  endTime: number;
+  coverage: any;
+  assertionResults: FormattedAssertionResult[];
 };
 
 export type FormattedTestResults = {
-  coverageMap?: CoverageMap,
-  numFailedTests: number,
-  numFailedTestSuites: number,
-  numPassedTests: number,
-  numPassedTestSuites: number,
-  numPendingTests: number,
-  numPendingTestSuites: number,
-  numRuntimeErrorTestSuites: number,
-  numTotalTests: number,
-  numTotalTestSuites: number,
-  snapshot: SnapshotSummary,
-  startTime: number,
-  success: boolean,
-  testResults: Array<FormattedTestResult>,
-  wasInterrupted: boolean,
+  coverageMap?: CoverageMap;
+  numFailedTests: number;
+  numFailedTestSuites: number;
+  numPassedTests: number;
+  numPassedTestSuites: number;
+  numPendingTests: number;
+  numPendingTestSuites: number;
+  numRuntimeErrorTestSuites: number;
+  numTotalTests: number;
+  numTotalTestSuites: number;
+  snapshot: SnapshotSummary;
+  startTime: number;
+  success: boolean;
+  testResults: FormattedTestResult[];
+  wasInterrupted: boolean;
 };
 
 export type CodeCoverageReporter = any;
 
 export type CodeCoverageFormatter = (
   coverage?: RawCoverage,
-  reporter?: CodeCoverageReporter,
-) => Object | undefined;
+  reporter?: CodeCoverageReporter
+) => Record<string, any> | undefined;
 
 export type UncheckedSnapshot = {
-  filePath: string,
-  keys: Array<string>,
+  filePath: string;
+  keys: string[];
 };
 
 export type SnapshotSummary = {
-  added: number,
-  didUpdate: boolean,
-  failure: boolean,
-  filesAdded: number,
-  filesRemoved: number,
-  filesUnmatched: number,
-  filesUpdated: number,
-  matched: number,
-  total: number,
-  unchecked: number,
-  uncheckedKeysByFile: Array<UncheckedSnapshot>,
-  unmatched: number,
-  updated: number,
+  added: number;
+  didUpdate: boolean;
+  failure: boolean;
+  filesAdded: number;
+  filesRemoved: number;
+  filesUnmatched: number;
+  filesUpdated: number;
+  matched: number;
+  total: number;
+  unchecked: number;
+  uncheckedKeysByFile: UncheckedSnapshot[];
+  unmatched: number;
+  updated: number;
 };

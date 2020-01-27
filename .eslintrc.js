@@ -35,6 +35,6 @@ module.exports = {
       'default' : 'array',
       'readonly': 'array'
     }],
-    'max-classes-per-file': 'off'
+    'max-classes-per-file': 'off',
   },
 };

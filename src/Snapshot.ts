@@ -141,7 +141,7 @@ export default class Snapshot {
       }
 
       const result: {
-        content: string | undefined;
+        content?: string;
         count: number;
         exists: boolean;
         name: string;
