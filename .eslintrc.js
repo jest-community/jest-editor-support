@@ -16,7 +16,7 @@ module.exports = {
   },
   plugins: ['flowtype', 'prettier'],
   rules: {
-    'prettier/prettier': 'error',
+    'prettier/prettier': 'off',  // disabled temporarily to prevent un-necessary delta in conversion to TS.
     'no-underscore-dangle': 'off',
     'camelcase': 'off',
     'no-param-reassign': ["error", { "props": false }],
