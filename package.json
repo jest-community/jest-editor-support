@@ -24,7 +24,7 @@
     "test": "jest",
     "flow": "flow",
     "lint": "eslint \"?(__mocks__|src|tests)/**/*.+(ts|js)\"",
-    "ci": "yarn flow && yarn lint && yarn test --coverage",
+    "ci": "yarn type-check && yarn flow && yarn lint && yarn test --coverage",
     "prettier": "prettier --check \"?(__mocks__|src|tests)/**/*.+(js|ts)\"",
     "prettier-write": "prettier --write",
     "prettier-project": "yarn prettier-write \"?(__mocks__|src|tests)/**/*.+(js|ts)\"",
