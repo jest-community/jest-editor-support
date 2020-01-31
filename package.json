@@ -23,7 +23,7 @@
     "prepublish": "yarn run build",
     "test": "jest",
     "flow": "flow",
-    "lint": "eslint \"?(__mocks__|src|tests)/**/*.+(ts|js)\"",
+    "lint": "eslint \"?(__mocks__|src|tests)/**/*.+(js|ts)\"",
     "ci": "yarn type-check && yarn lint && yarn test --coverage && yarn flow",
     "prettier": "prettier --check \"?(__mocks__|src|tests)/**/*.+(js|ts)\"",
     "prettier-write": "prettier --write",
