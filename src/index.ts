@@ -21,7 +21,7 @@ import {
   ParsedNode,
   ParsedNodeTypes,
   ParsedRange,
-  ParsedNodeType
+  ParsedNodeType,
 } from './parsers/parser_nodes';
 import parse from './parsers';
 import TestReconciler from './test_reconciler';
@@ -42,5 +42,5 @@ export {
   Snapshot,
   TestReconciler,
   parse,
-  ParsedNodeType
+  ParsedNodeType,
 };
