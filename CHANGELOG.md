@@ -9,6 +9,8 @@ Bug-fixes within the same version aren't needed
 
 ### 27.1.1
 * replace babylon and typescript parser with @babel/parser 7.x
+## Master
+* Replace babylon and typescript parsers with @babel/parser 7.x
 
 ### 27.1.0
 * Add `--reporters` option support - [@jmarceli](https://github.com/jmarceli)
@@ -50,4 +52,3 @@ in your head, consider this a 1.0 kinda thing.
   look at the usage of the `buildSnapshotResolver`
 
 - Adds the ability to parse describe blocks - https://github.com/facebook/jest/pull/7215
-
