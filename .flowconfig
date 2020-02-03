@@ -12,5 +12,10 @@ flow-typed
 
 [options]
 esproposal.optional_chaining=enable
+module.file_ext=.js
+module.file_ext=.ts
 
 [strict]
+
+[untyped]
+.*\.ts
