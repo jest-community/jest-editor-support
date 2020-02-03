@@ -16,8 +16,8 @@ describe('select parser', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  it('for .js or .jsx file', () => {
-    const files = ['abc.js', 'abc.jsx'];
+  it('for .js or .jsx or .mjs file', () => {
+    const files = ['abc.js', 'abc.jsx', 'abc.mjs'];
     files.forEach(file => {
       parse(file, undefined, true);
       expect(parseJs).toHaveBeenCalled();
