@@ -23,10 +23,10 @@ parse(
 ```
 Parse is a static Jest parser which uses Babel 7 and supports js,jsx,ts,tsx,mjs files.   
 
-- filePath = Path to the file you want to parse
-- serializedData = Serialized data, will be used instead of the filePath if available (optional)
-- strictMode = If this option is activated the parser throws an exception if the filetype is not detected, defaults to false
-- additionalPlugins = List of [ECMAScript Babel Proposal plugins](https://babeljs.io/docs/en/babel-parser#ecmascript-proposals-https-githubcom-babel-proposals) Array of strings e.g. ['dynamicImport']
+- filePath = Path to the file you want to parse.
+- serializedData = Serialized data, will be used instead of the filePath if available (optional).
+- strictMode = If this option is activated the parser throws an exception if the filetype is not detected, defaults to false.
+- additionalPlugins = List of ECMAScript proposal [plugins](https://babeljs.io/docs/en/babel-parser#ecmascript-proposals-https-githubcom-babel-proposals). Pass an array of strings e.g. ```['dynamicImport']```. Please have a look at the list of [plugins](https://github.com/jest-community/jest-editor-support/blob/master/src/parsers/babel_parser.js#L174) activated by default.
 
 ## Note
 
