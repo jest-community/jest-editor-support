@@ -10,18 +10,23 @@ The engine that allows editors to build on top of Jest.
 
 This is only useful if you are interested in building an editor integration for Jest.
 
-For now as an end user, we'd recommend looking at either [vscode-jest](https://github.com/jest-community/vscode-jest/) or [majestic](https://github.com/Raathigesh/majestic/).
+For now as an end user, we'd recommend looking at either [vscode-jest](https://github.com/jest-community/vscode-jest/), [vscode-jest-runner](https://github.com/firsttris/vscode-jest-runner) or [majestic](https://github.com/Raathigesh/majestic/).
 
 ## API
-
-parse(filePath: string, serializedData?: string, strictMode?: boolean = false)
-
-parse is a static jest parser which uses babel 7 and supports js,jsx,ts,tsx,mjs files.   
-Here is a [list](https://github.com/jest-community/jest-editor-support/blob/master/src/parsers/babel_parser.js#L174) of [The ECMAScript Proposal](https://babeljs.io/docs/en/babel-parser#ecmascript-proposals-https-githubcom-babel-proposals) plugins the parser has activated.
+```
+parse(   
+  filePath: string,   
+  serializedData?: string,   
+  strictMode: boolean = false,   
+  additionalPlugins?: stirng[]   
+)
+```
+Parse is a static Jest parser which uses Babel 7 and supports js,jsx,ts,tsx,mjs files.   
 
 - filePath = Path to the file you want to parse
 - serializedData = Serialized data, will be used instead of the filePath if available (optional)
-- strictMode = If this option is activated the parser throws an exception if the filetype is not detected, defaults to false (optional)
+- strictMode = If this option is activated the parser throws an exception if the filetype is not detected, defaults to false
+- additionalPlugins = List of [ECMAScript Babel Proposal plugins](https://babeljs.io/docs/en/babel-parser#ecmascript-proposals-https-githubcom-babel-proposals) Array of strings e.g. ['dynamicImport']
 
 ## Note
 
