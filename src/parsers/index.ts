@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import {ParseResult} from './parser_nodes';
@@ -16,7 +15,7 @@ import {parse as parseTs} from './typescript_parser';
  *
  * exception will be throw should the underlying parse failed.
  */
-export default function parse(file: string, data?: string, strict: boolean = false): ParseResult {
+export default function parse(file: string, data?: string, strict = false): ParseResult {
   if (file.match(/\.tsx?$/)) {
     return parseTs(file, data);
   }
