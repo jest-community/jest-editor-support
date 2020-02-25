@@ -17,7 +17,7 @@ import {parseJs, parseTs} from './babel_parser';
 export default function parse(
   filePath: string,
   serializedData?: string,
-  strictMode: boolean = false,
+  strictMode = false,
   additionalPlugins?: string[]
 ): ParseResult {
   if (filePath.match(/\.tsx?$/)) {

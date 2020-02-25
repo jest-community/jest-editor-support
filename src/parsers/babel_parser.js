@@ -171,7 +171,16 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   return parseResult;
 };
 
-export const plugins = ['jsx', 'classProperties'];
+export const plugins = [
+  'jsx',
+  'classProperties',
+  'exportDefaultFrom',
+  'logicalAssignment',
+  'nullishCoalescingOperator',
+  'objectRestSpread',
+  'optionalChaining',
+  'topLevelAwait',
+];
 
 // Its not possible to use the parser with flow and typescript active at the same time
 export const parseJs = (file: string, data: ?string, additionalPlugins: string[] = []): ParseResult =>
