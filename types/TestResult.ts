@@ -3,7 +3,7 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
- * 
+ *
  */
 
 // import {ConsoleBuffer} from './Console';
@@ -17,7 +17,7 @@ export type RawFileCoverage = {
   fnMap: {[functionId: number]: any};
   statementMap: {[statementId: number]: any};
   branchMap: {[branchId: number]: any};
-  inputSourceMap?: Record<string, any>;
+  inputSourceMap?: Object;
 };
 
 export type RawCoverage = {
@@ -40,11 +40,11 @@ export type CoverageSummary = {
 };
 
 export type FileCoverage = {
-  getLineCoverage: () => Record<string, any>;
+  getLineCoverage: () => Object;
   getUncoveredLines: () => number[];
-  getBranchCoverageByLine: () => Record<string, any>;
-  toJSON: () => Record<string, any>;
-  merge: (other: Record<string, any>) => void;
+  getBranchCoverageByLine: () => Object;
+  toJSON: () => Object;
+  merge: (other: Object) => void;
   computeSimpleTotals: (property: string) => FileCoverageTotal;
   computeBranchTotals: () => FileCoverageTotal;
   resetHits: () => void;
@@ -52,7 +52,7 @@ export type FileCoverage = {
 };
 
 export type CoverageMap = {
-  merge: (data: Record<string, any>) => void;
+  merge: (data: Object) => void;
   getCoverageSummary: () => FileCoverage;
   data: RawCoverage;
   addFileCoverage: (fileCoverage: RawFileCoverage) => void;
