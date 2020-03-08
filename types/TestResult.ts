@@ -3,11 +3,10 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @flow
+ * 
  */
 
-// import type {ConsoleBuffer} from './Console';
+// import {ConsoleBuffer} from './Console';
 
 export type RawFileCoverage = {
   path: string;
@@ -143,7 +142,7 @@ export type Suite = {
 };
 
 export type TestResult = {
-  // console: ?ConsoleBuffer,
+  // console?: ConsoleBuffer,
   coverage?: RawCoverage;
   displayName?: string;
   failureMessage?: string;

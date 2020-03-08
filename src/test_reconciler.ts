@@ -20,11 +20,7 @@ import {FormattedAssertionResult, FormattedTestResults} from '../types/TestResul
  *  at a file level, generating useful error messages and providing a nice API.
  */
 export default class TestReconciler {
-  fileStatuses: {[key: string]: TestFileAssertionStatus};
-
-  constructor() {
-    this.fileStatuses = {};
-  }
+  fileStatuses: {[key: string]: TestFileAssertionStatus} = {};
 
   // the processed test results will be returned immediately instead of saved in
   // instance properties. This is 1) to prevent race condition 2) the data is already

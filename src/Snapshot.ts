@@ -16,7 +16,7 @@ import {getASTfor} from './parsers/babel_parser';
 type Node = any;
 
 type SnapshotMetadata = {
-  exists: true | false;
+  exists: boolean;
   name: string;
   node: Node;
   content?: string;
