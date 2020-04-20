@@ -89,7 +89,6 @@ describe('createProcess', () => {
     createProcess(workspace, args);
 
     expect(spawn.mock.calls[0][2].shell).toBe(expected);
-    expect(spawn.mock.calls[0][2].detached).toBe(expected);
   });
   it('should set "detached" to true for non-windows system', () => {
     const workspace: any = {pathToJest: ''};
