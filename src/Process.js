@@ -35,6 +35,10 @@ export const createProcess = (workspace: ProjectWorkspace, args: Array<string>):
     cwd: workspace.rootPath,
     env,
     shell: true,
+    // run in detached mode so the process will be the group leader and any subsequent process spawned
+    // within can be later killed as a group to prevent orphan processes.
+    // see https://nodejs.org/api/child_process.html#child_process_options_detached
+    detached: true,
   };
 
   if (workspace.debug) {

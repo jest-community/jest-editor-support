@@ -82,12 +82,13 @@ describe('createProcess', () => {
     expect(spawn.mock.calls[0][2].cwd).toBe(workspace.rootPath);
   });
 
-  it('should set the "shell" property', () => {
+  it('should set the "shell" and "detached" property', () => {
     const expected = true;
     const workspace: any = {pathToJest: ''};
     const args = [];
     createProcess(workspace, args);
 
     expect(spawn.mock.calls[0][2].shell).toBe(expected);
+    expect(spawn.mock.calls[0][2].detached).toBe(expected);
   });
 });

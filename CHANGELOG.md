@@ -5,6 +5,8 @@ Bug-fixes within the same version aren't needed
 
 ## Master
 
+* Address orphan process issue - @connectdotz
+  
 -->
 
 ### 27.1.0
