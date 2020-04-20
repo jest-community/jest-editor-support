@@ -345,6 +345,21 @@ describe('Runner', () => {
       expect(kill).not.toBeCalled();
       expect(processKill).toBeCalledWith(-123);
     });
+    it('if process.kill() failed, it will fallback to subprocess.kill', () => {
+      const workspace: any = {};
+      const sut = new Runner(workspace);
+      process.platform = 'posix';
+      const kill = jest.fn();
+      sut.debugprocess = ({kill, pid: 123}: any);
+
+      processKill.mockImplementation(() => {
+        throw new Error('for testing');
+      });
+
+      sut.closeProcess();
+
+      expect(kill).toBeCalled();
+    });
 
     it('clears the debugprocess property', () => {
       const workspace: any = {};
