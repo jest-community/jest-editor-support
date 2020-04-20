@@ -82,7 +82,7 @@ describe('createProcess', () => {
     expect(spawn.mock.calls[0][2].cwd).toBe(workspace.rootPath);
   });
 
-  it('should set the "shell" and "detached" property', () => {
+  it('should set the "shell" property', () => {
     const expected = true;
     const workspace: any = {pathToJest: ''};
     const args = [];
@@ -90,5 +90,23 @@ describe('createProcess', () => {
 
     expect(spawn.mock.calls[0][2].shell).toBe(expected);
     expect(spawn.mock.calls[0][2].detached).toBe(expected);
+  });
+  it('should set "detached" to true for non-windows system', () => {
+    const workspace: any = {pathToJest: ''};
+    const args = [];
+
+    const savedProcess = process;
+    const processMock = {...process};
+    global.process = processMock;
+
+    processMock.platform = 'darwin';
+    createProcess(workspace, args);
+    expect(spawn.mock.calls[0][2].detached).toBe(true);
+
+    processMock.platform = 'win32';
+    createProcess(workspace, args);
+    expect(spawn.mock.calls[1][2].detached).toBe(false);
+
+    global.process = savedProcess;
   });
 });
