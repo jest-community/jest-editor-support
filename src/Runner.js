@@ -180,7 +180,22 @@ export default class Runner extends EventEmitter {
       // Windows doesn't exit the process when it should.
       spawn('taskkill', ['/pid', `${this.debugprocess.pid}`, '/T', '/F']);
     } else {
-      this.debugprocess.kill();
+      try {
+        // kill all process with the same PGID, i.e.
+        // as a detached process, it is the same as the PID of the leader process.
+        process.kill(-this.debugprocess.pid);
+      } catch (e) {
+        // if anything goes wrong, fallback to the old benavior
+        // knowing this could leave orphan process...
+        // eslint-disable-next-line no-console
+        console.warn(
+          `failed to kill process group, this could leave some orphan process whose ppid=${
+            this.debugprocess.pid
+          }. error=`,
+          e
+        );
+        this.debugprocess.kill();
+      }
     }
     delete this.debugprocess;
   }
