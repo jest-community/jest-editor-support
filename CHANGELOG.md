@@ -5,9 +5,11 @@ Bug-fixes within the same version aren't needed
 
 ## Master
 
-* Address orphan process issue - @connectdotz
   
 -->
+
+### 27.2.0
+* Address orphan process issue - @connectdotz
 
 ### 27.1.0
 * Add `--reporters` option support - [@jmarceli](https://github.com/jmarceli)
