@@ -32,7 +32,7 @@ export class Runner extends EventEmitter {
 export interface JestSettings {
   jestVersionMajor: number;
   configs: JestConfig.ProjectConfig[];
-};
+}
 
 export function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<JestSettings>;
 
