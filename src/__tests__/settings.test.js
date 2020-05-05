@@ -128,9 +128,9 @@ describe('getSettings', () => {
   it('passes command and args to createProcess', () => {
     const localJestMajorVersion = 1000;
     const pathToConfig = 'test';
-    const pathToJest = 'path_to_jest';
+    const jestCommandLine = 'path_to_jest';
     const rootPath = 'root_path';
-    const workspace = new ProjectWorkspace(rootPath, pathToJest, pathToConfig, localJestMajorVersion);
+    const workspace = new ProjectWorkspace(rootPath, jestCommandLine, localJestMajorVersion, pathToConfig);
 
     const {createProcess} = prepareProcess();
     getSettings(workspace, {
@@ -141,7 +141,7 @@ describe('getSettings', () => {
       {
         localJestMajorVersion,
         pathToConfig,
-        pathToJest,
+        jestCommandLine,
         rootPath,
       },
       ['--showConfig']

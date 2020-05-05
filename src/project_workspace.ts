@@ -18,24 +18,31 @@ export default class ProjectWorkspace {
   rootPath: string;
 
   /**
-   * The path to Jest, this is normally a file path like
-   * `node_modules/.bin/jest` but you should not make the assumption that
-   * it is always a direct file path, as in a create-react app it would look
-   * like `npm test --`.
+   * The command to execute Jest on the command line, this is normally a file path like
+   * `node_modules/.bin/jest` but you should not make the assumption that it is always a direct
+   * file path, as in a create-react app it would look like `npm test --`.
    *
    * This means when launching a process, you will need to split on the first
    * space, and then move any other args into the args of the process.
    *
    * @type {string}
    */
-  pathToJest: string;
+  jestCommandLine: string;
 
   /**
-   * Path to a local Jest config file.
+   * @deprecated please use `jestCommandLine` instead.  If both settings are provided, only
+   * `jestCommandLine` will be used.
+   *
+   * @type {string?}
+   */
+  pathToJest?: string;
+
+  /**
+   * Optional. Path to a local Jest config file.
    *
    * @type {string}
    */
-  pathToConfig: string;
+  pathToConfig?: string;
 
   /**
    * local Jest major release version, as the runner could run against
@@ -69,15 +76,17 @@ export default class ProjectWorkspace {
 
   constructor(
     rootPath: string,
-    pathToJest: string,
-    pathToConfig: string,
+    jestCommandLine: string,
     localJestMajorVersion: number,
+    pathToConfig?: string,
     outputFileSuffix?: string,
     collectCoverage?: boolean,
-    debug?: boolean
+    debug?: boolean,
+    pathToJest?: string
   ) {
     this.rootPath = rootPath;
     this.pathToJest = pathToJest;
+    this.jestCommandLine = jestCommandLine;
     this.pathToConfig = pathToConfig;
     this.localJestMajorVersion = localJestMajorVersion;
     this.outputFileSuffix = outputFileSuffix ? outputFileSuffix.replace(/[^a-z0-9]/gi, '_').toLowerCase() : undefined;

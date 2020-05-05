@@ -18,11 +18,20 @@ describe('createProcess', () => {
   });
 
   it('spawns the process', () => {
-    const workspace: any = {pathToJest: ''};
+    const workspace: any = {jestCommandLine: ''};
     const args = [];
     createProcess(workspace, args);
 
     expect(spawn).toBeCalled();
+  });
+
+  it('spawns the command from workspace.jestCommandLine', () => {
+    const workspace: any = {jestCommandLine: 'jest'};
+    const args = [];
+    createProcess(workspace, args);
+
+    expect(spawn.mock.calls[0][0]).toBe('jest');
+    expect(spawn.mock.calls[0][1]).toEqual([]);
   });
 
   it('spawns the command from workspace.pathToJest', () => {
@@ -34,8 +43,17 @@ describe('createProcess', () => {
     expect(spawn.mock.calls[0][1]).toEqual([]);
   });
 
-  it('spawns a command with spaces from workspace.pathToJest', () => {
-    const workspace: any = {pathToJest: 'npm test --'};
+  it('spawns the command from workspace.jestCommandLine ignoring workspace.pathToJest', () => {
+    const workspace: any = {jestCommandLine: 'jest', pathToJest: 'not jest'};
+    const args = [];
+    createProcess(workspace, args);
+
+    expect(spawn.mock.calls[0][0]).toBe('jest');
+    expect(spawn.mock.calls[0][1]).toEqual([]);
+  });
+
+  it('spawns a command with spaces from workspace.jestCommandLine', () => {
+    const workspace: any = {jestCommandLine: 'npm test --'};
     const args = [];
     createProcess(workspace, args);
 
@@ -43,7 +61,7 @@ describe('createProcess', () => {
   });
 
   it('appends args', () => {
-    const workspace: any = {pathToJest: 'npm test --'};
+    const workspace: any = {jestCommandLine: 'npm test --'};
     const args = ['--option', 'value', '--another'];
     createProcess(workspace, args);
 
@@ -53,7 +71,7 @@ describe('createProcess', () => {
   it('sets the --config arg to workspace.pathToConfig', () => {
     const workspace: any = {
       pathToConfig: 'non-standard.jest.js',
-      pathToJest: 'npm test --',
+      jestCommandLine: 'npm test --',
     };
     const args = ['--option', 'value'];
     createProcess(workspace, args);
@@ -64,7 +82,7 @@ describe('createProcess', () => {
   it('defines the "CI" environment variable', () => {
     const expected = Object.assign({}, process.env, {CI: 'true'});
 
-    const workspace: any = {pathToJest: ''};
+    const workspace: any = {jestCommandLine: ''};
     const args = [];
     createProcess(workspace, args);
 
@@ -73,7 +91,7 @@ describe('createProcess', () => {
 
   it('sets the current working directory of the child process', () => {
     const workspace: any = {
-      pathToJest: '',
+      jestCommandLine: '',
       rootPath: 'root directory',
     };
     const args = [];
@@ -84,14 +102,15 @@ describe('createProcess', () => {
 
   it('should set the "shell" property', () => {
     const expected = true;
-    const workspace: any = {pathToJest: ''};
+    const workspace: any = {jestCommandLine: ''};
     const args = [];
     createProcess(workspace, args);
 
     expect(spawn.mock.calls[0][2].shell).toBe(expected);
   });
+
   it('should set "detached" to true for non-windows system', () => {
-    const workspace: any = {pathToJest: ''};
+    const workspace: any = {jestCommandLine: ''};
     const args = [];
 
     const savedProcess = process;
