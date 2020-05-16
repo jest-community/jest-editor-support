@@ -130,7 +130,7 @@ describe('getSettings', () => {
     const pathToConfig = 'test';
     const jestCommandLine = 'path_to_jest';
     const rootPath = 'root_path';
-    const workspace = new ProjectWorkspace(rootPath, jestCommandLine, localJestMajorVersion, pathToConfig);
+    const workspace = new ProjectWorkspace(rootPath, jestCommandLine, pathToConfig, localJestMajorVersion);
 
     const {createProcess} = prepareProcess();
     getSettings(workspace, {
