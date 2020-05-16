@@ -39,13 +39,14 @@ export function getSettings(workspace: ProjectWorkspace, options?: Options): Pro
 export class ProjectWorkspace {
   constructor(
     rootPath: string,
-    pathToJest: string,
+    jestCommandLine: string,
     pathToConfig: string,
-    localJestMajorVersin: number,
+    localJestMajorVersion: number,
     outputFileSuffix?: string,
     collectCoverage?: boolean,
     debug?: boolean,
   );
+  jestCommandLine: string;
   pathToJest: string;
   pathToConfig: string;
   rootPath: string;

@@ -10,6 +10,8 @@
  * Represents the project that the extension is running on and it's state
  */
 export default class ProjectWorkspace {
+  private _jestCommandLine: string;
+
   /**
    * The path to the root of the project's workspace
    *
@@ -27,7 +29,13 @@ export default class ProjectWorkspace {
    *
    * @type {string}
    */
-  jestCommandLine: string;
+  get jestCommandLine() {
+    return this._jestCommandLine;
+  }
+
+  set jestCommandLine(commandLine: string) {
+    this._jestCommandLine = commandLine;
+  }
 
   /**
    * @deprecated please use `jestCommandLine` instead.  If both settings are provided, only
@@ -35,7 +43,13 @@ export default class ProjectWorkspace {
    *
    * @type {string?}
    */
-  pathToJest?: string;
+  get pathToJest() {
+    return this._jestCommandLine;
+  }
+
+  set pathToJest(commandLine: string) {
+    this._jestCommandLine = commandLine;
+  }
 
   /**
    * Optional. Path to a local Jest config file.
@@ -77,15 +91,13 @@ export default class ProjectWorkspace {
   constructor(
     rootPath: string,
     jestCommandLine: string,
+    pathToConfig: string,
     localJestMajorVersion: number,
-    pathToConfig?: string,
     outputFileSuffix?: string,
     collectCoverage?: boolean,
-    debug?: boolean,
-    pathToJest?: string
+    debug?: boolean
   ) {
     this.rootPath = rootPath;
-    this.pathToJest = pathToJest;
     this.jestCommandLine = jestCommandLine;
     this.pathToConfig = pathToConfig;
     this.localJestMajorVersion = localJestMajorVersion;
