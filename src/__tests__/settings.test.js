@@ -148,6 +148,26 @@ describe('getSettings', () => {
     );
   });
 
+  it('setting pathToJest updates jestCommandLine', () => {
+    const localJestMajorVersion = 1000;
+    const pathToConfig = 'test';
+    const jestCommandLine = 'path_to_jest';
+    const rootPath = 'root_path';
+    const workspace = new ProjectWorkspace(rootPath, jestCommandLine, pathToConfig, localJestMajorVersion);
+
+    // first check that both pathToConfig and jestCommandLine are the same value.
+    expect(workspace.jestCommandLine).toBe(jestCommandLine);
+    expect(workspace.pathToJest).toBe(jestCommandLine);
+
+    // then update the pathToJest property.
+    const updatedPathToJest = 'updated pathToJest';
+    workspace.pathToJest = updatedPathToJest;
+
+    // check that both pathToConfig and jestCommandLine yield the same value.
+    expect(workspace.jestCommandLine).toBe(updatedPathToJest);
+    expect(workspace.pathToJest).toBe(updatedPathToJest);
+  });
+
   describe('parse config', () => {
     const workspace = new ProjectWorkspace('root_path', 'path_to_jest', 'test', 1000);
 
