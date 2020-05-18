@@ -10,6 +10,21 @@
 import ProjectWorkspace, {createProjectWorkspace} from '../project_workspace';
 
 describe('setup', () => {
+  beforeAll(() => {
+    // we mock console.warn because we emit a warning when the deprecated property is used.  We will
+    // throw away the actual message to save cluttering the test output.
+    jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    // make sure the call details are reset between each test.
+    jest.clearAllMocks();
+  });
+
   it('sets itself up fom the constructor', () => {
     const workspace = new ProjectWorkspace('root_path', 'jest_command_line', 'path_to_config', 1000);
     expect(workspace.rootPath).toEqual('root_path');
@@ -69,5 +84,25 @@ describe('setup', () => {
     expect(instance.outputFileSuffix).toBe(config.outputFileSuffix);
     expect(instance.rootPath).toBe(config.rootPath);
     expect(instance.pathToConfig).toBe(undefined);
+  });
+
+  it('accessing pathToJest invokes console warning.', () => {
+    const config = {
+      jestCommandLine: 'jestCommandLine',
+      localJestMajorVersion: 1000,
+      rootPath: 'rootPath',
+      collectCoverage: false,
+      debug: true,
+      outputFileSuffix: 'suffix',
+    };
+
+    const instance = createProjectWorkspace(config);
+
+    instance.pathToJest = 'new value';
+    expect(global.console.warn).toBeCalledTimes(1);
+
+    // eslint-disable-next-line no-unused-vars
+    const {pathToJest} = instance;
+    expect(global.console.warn).toBeCalledTimes(2);
   });
 });

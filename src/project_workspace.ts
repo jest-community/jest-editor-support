@@ -40,16 +40,19 @@ export default class ProjectWorkspace {
   jestCommandLine: string;
 
   /**
-   * @deprecated please use `jestCommandLine` instead.  If both settings are provided, only
-   * `jestCommandLine` will be used.
+   * @deprecated please use `jestCommandLine` instead.
    *
    * @type {string?}
    */
   get pathToJest() {
+    // eslint-disable-next-line no-console
+    console.warn('Use of ProjectWorkspace.pathToJest is deprecated.  Please use jestCommandLine instead.');
     return this.jestCommandLine;
   }
 
   set pathToJest(commandLine: string) {
+    // eslint-disable-next-line no-console
+    console.warn('Use of ProjectWorkspace.pathToJest is deprecated.  Please use jestCommandLine instead.');
     this.jestCommandLine = commandLine;
   }
 
