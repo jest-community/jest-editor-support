@@ -34,24 +34,6 @@ describe('createProcess', () => {
     expect(spawn.mock.calls[0][1]).toEqual([]);
   });
 
-  it('spawns the command from workspace.pathToJest', () => {
-    const workspace: any = {pathToJest: 'jest'};
-    const args = [];
-    createProcess(workspace, args);
-
-    expect(spawn.mock.calls[0][0]).toBe('jest');
-    expect(spawn.mock.calls[0][1]).toEqual([]);
-  });
-
-  it('spawns the command from workspace.jestCommandLine ignoring workspace.pathToJest', () => {
-    const workspace: any = {jestCommandLine: 'jest', pathToJest: 'not jest'};
-    const args = [];
-    createProcess(workspace, args);
-
-    expect(spawn.mock.calls[0][0]).toBe('jest');
-    expect(spawn.mock.calls[0][1]).toEqual([]);
-  });
-
   it('spawns a command with spaces from workspace.jestCommandLine', () => {
     const workspace: any = {jestCommandLine: 'npm test --'};
     const args = [];

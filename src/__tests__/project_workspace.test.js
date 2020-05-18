@@ -7,7 +7,7 @@
  * @flow
  */
 
-import ProjectWorkspace from '../project_workspace';
+import ProjectWorkspace, {createProjectWorkspace} from '../project_workspace';
 
 describe('setup', () => {
   it('sets itself up fom the constructor', () => {
@@ -28,5 +28,46 @@ describe('setup', () => {
       const workspace = new ProjectWorkspace('root_path', 'jest_command_line', 'path_to_config', 1000, pair[0]);
       expect(workspace.outputFileSuffix).toEqual(pair[1]);
     });
+  });
+
+  it('ensure that pathToJest is a shadow accessor for jestCommandLine', () => {
+    const localJestMajorVersion = 1000;
+    const pathToConfig = 'test';
+    const jestCommandLine = 'path_to_jest';
+    const rootPath = 'root_path';
+    const workspace = new ProjectWorkspace(rootPath, jestCommandLine, pathToConfig, localJestMajorVersion);
+
+    // first check that both pathToConfig and jestCommandLine are the same value.
+    expect(workspace.jestCommandLine).toBe(jestCommandLine);
+    expect(workspace.pathToJest).toBe(jestCommandLine);
+
+    // then update the pathToJest property.
+    const updatedPathToJest = 'updated pathToJest';
+    workspace.pathToJest = updatedPathToJest;
+
+    // check that both pathToConfig and jestCommandLine yield the same value.
+    expect(workspace.jestCommandLine).toBe(updatedPathToJest);
+    expect(workspace.pathToJest).toBe(updatedPathToJest);
+  });
+
+  it('ProjectWorkspace factory can create a valid instance without pathToConfig', () => {
+    const config = {
+      jestCommandLine: 'jestCommandLine',
+      localJestMajorVersion: 1000,
+      rootPath: 'rootPath',
+      collectCoverage: false,
+      debug: true,
+      outputFileSuffix: 'suffix',
+    };
+
+    const instance = createProjectWorkspace(config);
+
+    expect(instance.collectCoverage).toBe(config.collectCoverage);
+    expect(instance.debug).toBe(config.debug);
+    expect(instance.jestCommandLine).toBe(config.jestCommandLine);
+    expect(instance.localJestMajorVersion).toBe(config.localJestMajorVersion);
+    expect(instance.outputFileSuffix).toBe(config.outputFileSuffix);
+    expect(instance.rootPath).toBe(config.rootPath);
+    expect(instance.pathToConfig).toBe(undefined);
   });
 });

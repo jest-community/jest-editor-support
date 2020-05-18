@@ -6,6 +6,16 @@
  *
  */
 
+export interface ProjectWorkspaceConfig {
+  jestCommandLine: string;
+  pathToConfig?: string;
+  rootPath: string;
+  localJestMajorVersion: number;
+  outputFileSuffix?: string;
+  collectCoverage?: boolean;
+  debug?: boolean;
+}
+
 /**
  * Represents the project that the extension is running on and it's state
  */
@@ -44,11 +54,11 @@ export default class ProjectWorkspace {
   }
 
   /**
-   * Optional. Path to a local Jest config file.
+   * Path to a local Jest config file.
    *
    * @type {string}
    */
-  pathToConfig?: string;
+  pathToConfig: string;
 
   /**
    * local Jest major release version, as the runner could run against
@@ -98,3 +108,21 @@ export default class ProjectWorkspace {
     this.debug = debug;
   }
 }
+
+/**
+ * A factory to create a ProjectWorkspace instance from a ProjectWorkspaceConfig object.
+ */
+export const createProjectWorkspace = (config: ProjectWorkspaceConfig): ProjectWorkspace => {
+  // Note for pathToConfig we are forcing the TS compiler to accept undefined for ProjectWorkspace.pathToConfig.
+  // This property should be allowed to be optional, since Jest will work fine if no config file is provided.  It
+  // will just use defaults.
+  return new ProjectWorkspace(
+    config.rootPath,
+    config.jestCommandLine,
+    (config.pathToConfig as unknown) as string,
+    config.localJestMajorVersion,
+    config.outputFileSuffix,
+    config.collectCoverage,
+    config.debug
+  );
+};
