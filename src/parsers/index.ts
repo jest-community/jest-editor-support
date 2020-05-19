@@ -14,22 +14,17 @@ import {parseJs, parseTs} from './babel_parser';
  *
  * exception will be throw should the underlying parse failed.
  */
-export default function parse(
-  filePath: string,
-  serializedData?: string,
-  strictMode = false,
-  additionalPlugins?: string[]
-): ParseResult {
+export default function parse(filePath: string, serializedData?: string, strictMode = false): ParseResult {
   if (filePath.match(/\.tsx?$/)) {
-    return parseTs(filePath, serializedData, additionalPlugins);
+    return parseTs(filePath, serializedData);
   }
   if (filePath.match(/\.m?jsx?$/)) {
-    return parseJs(filePath, serializedData, additionalPlugins);
+    return parseJs(filePath, serializedData);
   }
 
   // unexpected file extension, for backward compatibility, will use js parser
   if (strictMode) {
     throw new TypeError(`unable to find parser for unrecognized file extension: ${filePath}`);
   }
-  return parseJs(filePath, serializedData, additionalPlugins);
+  return parseJs(filePath, serializedData);
 }

@@ -172,18 +172,32 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
 };
 
 export const plugins = [
-  'jsx',
+  'asyncGenerators',
+  'bigInt',
+  'classPrivateMethods',
+  'classPrivateProperties',
   'classProperties',
+  'doExpressions',
+  'dynamicImport',
+  'estree',
   'exportDefaultFrom',
+  'exportNamespaceFrom', // deprecated
+  'functionBind',
+  'functionSent',
+  'importMeta',
+  'jsx',
   'logicalAssignment',
   'nullishCoalescingOperator',
+  'numericSeparator',
   'objectRestSpread',
+  'optionalCatchBinding',
   'optionalChaining',
+  'partialApplication',
+  'throwExpressions',
   'topLevelAwait',
 ];
 
 // Its not possible to use the parser with flow and typescript active at the same time
-export const parseJs = (file: string, data: ?string, additionalPlugins: string[] = []): ParseResult =>
-  parse(file, data, {plugins: [...plugins, ...additionalPlugins, 'flow']});
-export const parseTs = (file: string, data: ?string, additionalPlugins: string[] = []): ParseResult =>
-  parse(file, data, {plugins: [...plugins, ...additionalPlugins, 'typescript']});
+export const parseJs = (file: string, data: ?string): ParseResult => parse(file, data, {plugins: [...plugins, 'flow']});
+export const parseTs = (file: string, data: ?string): ParseResult =>
+  parse(file, data, {plugins: [...plugins, 'typescript']});
