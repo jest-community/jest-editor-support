@@ -4,8 +4,16 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
+<<<<<<< HEAD
 * Replace babylon and typescript parsers with @babel/parser 7.x
+=======
+
+  
+>>>>>>> 0f49706aaa3f786a2c85b075e46d63db9b73c572
 -->
+
+### 27.2.0
+* Address orphan process issue - @connectdotz
 
 ### 27.1.0
 * Add `--reporters` option support - [@jmarceli](https://github.com/jmarceli)
