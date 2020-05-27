@@ -189,9 +189,7 @@ export default class Runner extends EventEmitter {
         // knowing this could leave orphan process...
         // eslint-disable-next-line no-console
         console.warn(
-          `failed to kill process group, this could leave some orphan process whose ppid=${
-            this.debugprocess.pid
-          }. error=`,
+          `failed to kill process group, this could leave some orphan process whose ppid=${this.debugprocess.pid}. error=`,
           e
         );
         this.debugprocess.kill();
