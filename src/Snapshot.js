@@ -12,7 +12,7 @@ import traverse from '@babel/traverse';
 import {buildSnapshotResolver, utils} from 'jest-snapshot';
 import type {ProjectConfig} from '../types/Config';
 
-import {getASTfor} from './parsers/babylon_parser';
+import {getASTfor} from './parsers/babel_parser';
 
 type Node = any;
 

@@ -7,7 +7,7 @@
  * @flow
  */
 
-const {parse} = require('../../parsers/babylon_parser');
+const {parseJs} = require('../../parsers/babel_parser');
 const {parserTests} = require('../../../fixtures/parser_tests');
 
-parserTests(parse);
+parserTests(parseJs);

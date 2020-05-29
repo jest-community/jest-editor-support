@@ -24,6 +24,7 @@
     "test": "jest",
     "flow": "flow",
     "lint": "eslint \"?(__mocks__|src|tests)/**/*.+(js|ts)\"",
+    "lint:fix": "eslint \"?(__mocks__|src|tests)/**/*.+(js|ts)\" --fix",
     "ci": "yarn type-check && yarn lint && yarn test --coverage && yarn flow",
     "prettier": "prettier --check \"?(__mocks__|src|tests)/**/*.+(js|ts)\"",
     "prettier-write": "prettier --write",
@@ -56,15 +57,16 @@
     "flow-bin": "^0.97.0",
     "jest": "^24.7.0",
     "lint-staged": "^8.1.5",
-    "prettier": "^1.17.0"
+    "prettier": "^1.17.0",
+    "typescript": "^3.8.2"
   },
   "dependencies": {
+    "@babel/parser": "^7.8.3",
     "@babel/traverse": "^7.6.2",
+    "@babel/types": "^7.8.3",
     "@jest/types": "^24.8.0",
-    "babylon": "^6.14.1",
     "core-js": "^3.2.1",
-    "jest-snapshot": "^24.7.0",
-    "typescript": "^3.4.3"
+    "jest-snapshot": "^24.7.0"
   },
   "jest": {
     "testPathIgnorePatterns": [

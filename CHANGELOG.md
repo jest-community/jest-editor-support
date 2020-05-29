@@ -4,8 +4,7 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
-
-  
+* Replace babylon and typescript parsers with @babel/parser 7.x - @firsttris 
 -->
 
 ### 27.2.0
@@ -51,4 +50,3 @@ in your head, consider this a 1.0 kinda thing.
   look at the usage of the `buildSnapshotResolver`
 
 - Adds the ability to parse describe blocks - https://github.com/facebook/jest/pull/7215
-

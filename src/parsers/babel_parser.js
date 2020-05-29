@@ -10,28 +10,27 @@
  */
 
 import {readFileSync} from 'fs';
-
-import {File as BabylonFile, Node as BabylonNode, parse as babylonParse} from 'babylon';
+import {File as BabelFile, Node as BabelNode} from '@babel/types';
+import * as parser from '@babel/parser';
 import type {ParsedNodeType} from './parser_nodes';
 import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
 
-// eslint-disable no-underscore-dangle
-const _getASTfor = (file: string, data: ?string): [BabylonFile, string] => {
+const _getASTfor = (file: string, data: ?string, options: ?parser.ParserOptions): [BabelFile, string] => {
   const _data = data || readFileSync(file).toString();
-  const config = {plugins: ['*'], sourceType: 'module'};
-  return [babylonParse(_data, config), _data];
+  const config = {...options, sourceType: 'module'};
+  return [parser.parse(_data, config), _data];
 };
 
-export const getASTfor = (file: string, data: ?string): BabylonFile => {
+export const getASTfor = (file: string, data: ?string): BabelFile => {
   const [bFile] = _getASTfor(file, data);
   return bFile;
 };
 
-export const parse = (file: string, data: ?string): ParseResult => {
+export const parse = (file: string, data: ?string, options: ?parser.ParserOptions): ParseResult => {
   const parseResult = new ParseResult(file);
-  const [ast, _data] = _getASTfor(file, data);
+  const [ast, _data] = _getASTfor(file, data, options);
 
-  const updateNameInfo = (nBlock: NamedBlock, bNode: BabylonNode) => {
+  const updateNameInfo = (nBlock: NamedBlock, bNode: BabelNode) => {
     const arg = bNode.expression.arguments[0];
     let name = arg.value;
 
@@ -50,7 +49,7 @@ export const parse = (file: string, data: ?string): ParseResult => {
       arg.loc.end.column - 1
     );
   };
-  const updateNode = (node: ParsedNode, babylonNode: BabylonNode) => {
+  const updateNode = (node: ParsedNode, babylonNode: BabelNode) => {
     node.start = babylonNode.loc.start;
     node.end = babylonNode.loc.end;
     node.start.column += 1;
@@ -108,7 +107,7 @@ export const parse = (file: string, data: ?string): ParseResult => {
     return name === 'expect';
   };
 
-  const addNode = (type: ParsedNodeType, parent: ParsedNode, babylonNode: BabylonNode): ParsedNode => {
+  const addNode = (type: ParsedNodeType, parent: ParsedNode, babylonNode: BabelNode): ParsedNode => {
     const child = parent.addChild(type);
     updateNode(child, babylonNode);
 
@@ -120,7 +119,7 @@ export const parse = (file: string, data: ?string): ParseResult => {
   };
 
   // A recursive AST parser
-  const searchNodes = (babylonParent: BabylonNode, parent: ParsedNode) => {
+  const searchNodes = (babylonParent: BabelNode, parent: ParsedNode) => {
     // Look through the node's children
     let child: ?ParsedNode;
 
@@ -171,3 +170,34 @@ export const parse = (file: string, data: ?string): ParseResult => {
 
   return parseResult;
 };
+
+export const plugins = [
+  'asyncGenerators',
+  'bigInt',
+  'classPrivateMethods',
+  'classPrivateProperties',
+  'classProperties',
+  'doExpressions',
+  'dynamicImport',
+  'estree',
+  'exportDefaultFrom',
+  'exportNamespaceFrom', // deprecated
+  'functionBind',
+  'functionSent',
+  'importMeta',
+  'jsx',
+  'logicalAssignment',
+  'nullishCoalescingOperator',
+  'numericSeparator',
+  'objectRestSpread',
+  'optionalCatchBinding',
+  'optionalChaining',
+  'partialApplication',
+  'throwExpressions',
+  'topLevelAwait',
+];
+
+// Its not possible to use the parser with flow and typescript active at the same time
+export const parseJs = (file: string, data: ?string): ParseResult => parse(file, data, {plugins: [...plugins, 'flow']});
+export const parseTs = (file: string, data: ?string): ParseResult =>
+  parse(file, data, {plugins: [...plugins, 'typescript']});

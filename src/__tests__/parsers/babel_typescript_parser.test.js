@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {parse} from '../../parsers/typescript_parser';
+import {parseTs} from '../../parsers/babel_parser';
 import {parserTests} from '../../../fixtures/parser_tests';
 
-parserTests(parse);
+parserTests(parseTs);
