@@ -39,6 +39,8 @@ export type TestReconciliationState =
  */
 export type TestAssertionStatus = {
   title: string,
+  fullName: string,
+  ancestorTitles: string[],
   status: TestReconciliationState,
   message: string,
   shortMessage: ?string,

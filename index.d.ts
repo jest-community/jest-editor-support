@@ -157,6 +157,8 @@ export interface TestFileAssertionStatus {
  */
 export interface TestAssertionStatus {
   title: string;
+  fullName: string;
+  ancestorTitles: string[];
   status: TestReconcilationState;
   message: string;
   shortMessage?: string;

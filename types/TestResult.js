@@ -107,6 +107,7 @@ export type AssertionResult = {|
 export type FormattedAssertionResult = {
   failureMessages: Array<string> | null,
   fullName: string,
+  ancestorTitles: Array<string>,
   location: ?Callsite,
   status: Status,
   title: string,
@@ -204,10 +205,7 @@ export type FormattedTestResults = {
 
 export type CodeCoverageReporter = any;
 
-export type CodeCoverageFormatter = (
-  coverage: ?RawCoverage,
-  reporter?: CodeCoverageReporter,
-) => ?Object;
+export type CodeCoverageFormatter = (coverage: ?RawCoverage, reporter?: CodeCoverageReporter) => ?Object;
 
 export type UncheckedSnapshot = {|
   filePath: string,

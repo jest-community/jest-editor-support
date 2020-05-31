@@ -1,0 +1,117 @@
+{
+  "numFailedTestSuites": 1,
+  "numFailedTests": 2,
+  "numPassedTestSuites": 0,
+  "numPassedTests": 5,
+  "numPendingTestSuites": 0,
+  "numPendingTests": 0,
+  "numRuntimeErrorTestSuites": 0,
+  "numTodoTests": 0,
+  "numTotalTestSuites": 1,
+  "numTotalTests": 7,
+  "openHandles": [],
+  "snapshot": {
+    "added": 0,
+    "didUpdate": false,
+    "failure": false,
+    "filesAdded": 0,
+    "filesRemoved": 0,
+    "filesRemovedList": [],
+    "filesUnmatched": 0,
+    "filesUpdated": 0,
+    "matched": 0,
+    "total": 0,
+    "unchecked": 0,
+    "uncheckedKeysByFile": [],
+    "unmatched": 0,
+    "updated": 0
+  },
+  "startTime": 1590606132766,
+  "success": false,
+  "testResults": [
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "block-1",
+            "block-1-1"
+          ],
+          "failureMessages": [],
+          "fullName": "block-1 block-1-1 testing",
+          "location": null,
+          "status": "passed",
+          "title": "testing"
+        },
+        {
+          "ancestorTitles": [
+            "block-1"
+          ],
+          "failureMessages": [
+            "Error: whatever"
+          ],
+          "fullName": "block-1 test should fail",
+          "location": null,
+          "status": "failed",
+          "title": "test should fail"
+        },
+        {
+          "ancestorTitles": [],
+          "failureMessages": [],
+          "fullName": "test without describe",
+          "location": null,
+          "status": "passed",
+          "title": "test without describe"
+        },
+        {
+          "ancestorTitles": [
+            "block-2"
+          ],
+          "failureMessages": [
+            "Error: whatever"
+          ],
+          "fullName": "block-2 testing",
+          "location": null,
+          "status": "failed",
+          "title": "testing"
+        },
+        {
+          "ancestorTitles": [
+            "block-2"
+          ],
+          "failureMessages": [],
+          "fullName": "block-2 each test \"a\"",
+          "location": null,
+          "status": "passed",
+          "title": "each test \"a\""
+        },
+        {
+          "ancestorTitles": [
+            "block-2"
+          ],
+          "failureMessages": [],
+          "fullName": "block-2 each test \"b\"",
+          "location": null,
+          "status": "passed",
+          "title": "each test \"b\""
+        },
+        {
+          "ancestorTitles": [
+            "block-2"
+          ],
+          "failureMessages": [],
+          "fullName": "block-2 each test \"c\"",
+          "location": null,
+          "status": "passed",
+          "title": "each test \"c\""
+        }
+      ],
+      "endTime": 1590606133773,
+      "message": "whatever",
+      "name": "/test/tricky-test.ts",
+      "startTime": 1590606133162,
+      "status": "failed",
+      "summary": ""
+    }
+  ],
+  "wasInterrupted": false
+}

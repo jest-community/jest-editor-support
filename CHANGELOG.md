@@ -5,6 +5,7 @@ Bug-fixes within the same version aren't needed
 
 ## Master
 * Replace babylon and typescript parsers with @babel/parser 7.x - @firsttris 
+* expose fullName and ancestorTitles to assertions - @connectdotz
 -->
 
 ### 27.2.0
