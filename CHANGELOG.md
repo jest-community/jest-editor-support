@@ -5,10 +5,8 @@ Bug-fixes within the same version aren't needed
 
 ## Master
 * Replace babylon and typescript parsers with @babel/parser 7.x - @firsttris 
--->
-
-### 27.3.0
 * Renamed the property `pathToJest` to `jestCommandLine` in the ProjectWorkspace configuration object to better convey how the property is used internally.  Left the original `pathToJest` with a deprecated flag.
+-->
 
 ### 27.2.0
 * Address orphan process issue - @connectdotz
