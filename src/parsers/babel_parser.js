@@ -70,9 +70,12 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   // handle cases where it's a member expression (.only)
   const getNameForNode = node => {
     if (isFunctionCall(node) && node && node.expression && node.expression.callee) {
-      return (
-        node.expression.callee.name || (node.expression.callee.object ? node.expression.callee.object.name : undefined)
-      );
+      const name =
+        node.expression.callee.name ||
+        node.expression.callee.object?.name ||
+        node.expression.callee.callee?.object?.name;
+
+      return name;
     }
     return undefined;
   };
