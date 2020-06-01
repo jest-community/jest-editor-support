@@ -413,6 +413,27 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       expect(parseResult.expects.length).toEqual(0);
     });
   });
+  describe('parse error use case', () => {
+    it('https://github.com/jest-community/vscode-jest/issues/405', () => {
+      const data = `
+      describe('test', () => {
+        const a = [true, true, false];
+        a.forEach((item) => {
+          test(String(item), () => {
+            expect(item).toBe(false);
+          });
+        });
+      });
+      `;
+      const parseResult = parse('whatever', data);
+      expect(parseResult.itBlocks.length).toEqual(1);
+      expect(parseResult.expects.length).toEqual(1);
+
+      const itBlock = parseResult.itBlocks[0];
+      assertBlock2(itBlock, 5, 11, 7, 13, '__function__');
+      assertNameInfo(itBlock, '__function__', 5, 17, 5, 26);
+    });
+  });
 }
 
 module.exports = {

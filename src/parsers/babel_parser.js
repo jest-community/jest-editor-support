@@ -34,13 +34,20 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
     const arg = bNode.expression.arguments[0];
     let name = arg.value;
 
-    if (!name && arg.type === 'TemplateLiteral') {
-      name = _data.substring(arg.start + 1, arg.end - 1);
+    if (!name) {
+      switch (arg.type) {
+        case 'TemplateLiteral':
+          name = _data.substring(arg.start + 1, arg.end - 1);
+          break;
+        case 'CallExpression':
+          // a dynamic function: use a placeholder
+          name = '__function__';
+          break;
+        default:
+          throw new TypeError(`failed to update namedBlock from: ${JSON.stringify(bNode)}`);
+      }
     }
 
-    if (name == null) {
-      throw new TypeError(`failed to update namedBlock from: ${JSON.stringify(bNode)}`);
-    }
     nBlock.name = name;
     nBlock.nameRange = new ParsedRange(
       arg.loc.start.line,
