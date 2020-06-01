@@ -126,7 +126,7 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
     // Look through the node's children
     let child: ?ParsedNode;
 
-    if (!babylonParent.body) {
+    if (!babylonParent.body || !Array.isArray(babylonParent.body)) {
       return;
     }
 
@@ -198,6 +198,8 @@ export const plugins = [
   'partialApplication',
   'throwExpressions',
   'topLevelAwait',
+  ['decorators', {decoratorsBeforeExport: true}],
+  ['pipelineOperator', {proposal: 'smart'}],
 ];
 
 // Its not possible to use the parser with flow and typescript active at the same time

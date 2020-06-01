@@ -8,7 +8,7 @@
 
 const fixtures = __dirname;
 
-function parserTests(parse: (file: string) => ParseResult) {
+function parserTests(parse: (file: string) => ParseResult, isTypescript = false) {
   const assertBlock = (block, start, end, name: ?string = null) => {
     expect(block.start).toEqual(start);
     expect(block.end).toEqual(end);
@@ -400,6 +400,17 @@ function parserTests(parse: (file: string) => ParseResult) {
       const itBlock = parseResult.itBlocks[0];
       assertBlock2(itBlock, 2, 7, 6, 9, 'each test %p');
       assertNameInfo(itBlock, 'each test %p', 3, 10, 3, 21);
+    });
+  });
+  describe('typescript specific', () => {
+    it('parser should not crash on ArrowFunctionExpression', () => {
+      if (!isTypescript) {
+        return;
+      }
+      const parseResult = parse(`${fixtures}/typescript/parse-error.example`);
+      expect(parseResult.describeBlocks.length).toEqual(0);
+      expect(parseResult.itBlocks.length).toEqual(0);
+      expect(parseResult.expects.length).toEqual(0);
     });
   });
 }

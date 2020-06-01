@@ -8,4 +8,4 @@
 import {parseTs} from '../../parsers/babel_parser';
 import {parserTests} from '../../../fixtures/parser_tests';
 
-parserTests(parseTs);
+parserTests(parseTs, true);

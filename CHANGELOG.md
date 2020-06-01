@@ -6,7 +6,8 @@ Bug-fixes within the same version aren't needed
 ## Master
 * Replace babylon and typescript parsers with @babel/parser 7.x - @firsttris 
 * expose fullName and ancestorTitles to assertions - @connectdotz
-* fix regression: test.each is being ignored by parser - @connectdotz
+* fix parser regression: test.each is being ignored by parser - @connectdotz
+* fix typescript parsing error - @connectdotz
 -->
 
 ### 27.2.0
