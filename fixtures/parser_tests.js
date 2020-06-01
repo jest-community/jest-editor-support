@@ -370,6 +370,38 @@ function parserTests(parse: (file: string) => ParseResult) {
       expect(block.children).toBeFalsy();
     });
   });
+  describe('jest.each', () => {
+    it('should be able to detect it.each', () => {
+      const data = `
+      it.each(['a', 'b', 'c'])('each test %p', (v) => {
+        expect(v).not.toBeUndefined();
+      });
+        `;
+      const parseResult = parse('whatever', data);
+      expect(parseResult.itBlocks.length).toEqual(1);
+      expect(parseResult.expects.length).toEqual(1);
+
+      const itBlock = parseResult.itBlocks[0];
+      assertBlock2(itBlock, 2, 7, 4, 9, 'each test %p');
+      assertNameInfo(itBlock, 'each test %p', 2, 33, 2, 44);
+    });
+    it('should be able to detect test.each with a bit different layout', () => {
+      const data = `
+      test.each(['a','b', 'c'])(
+        'each test %p', 
+        (v) => {
+        expect(v).not.toBeUndefined();
+      });
+          `;
+      const parseResult = parse('whatever', data);
+      expect(parseResult.itBlocks.length).toEqual(1);
+      expect(parseResult.expects.length).toEqual(1);
+
+      const itBlock = parseResult.itBlocks[0];
+      assertBlock2(itBlock, 2, 7, 6, 9, 'each test %p');
+      assertNameInfo(itBlock, 'each test %p', 3, 10, 3, 21);
+    });
+  });
 }
 
 module.exports = {
