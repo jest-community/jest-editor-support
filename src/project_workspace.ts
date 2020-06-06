@@ -6,6 +6,16 @@
  *
  */
 
+export interface ProjectWorkspaceConfig {
+  jestCommandLine: string;
+  pathToConfig?: string;
+  rootPath: string;
+  localJestMajorVersion: number;
+  outputFileSuffix?: string;
+  collectCoverage?: boolean;
+  debug?: boolean;
+}
+
 /**
  * Represents the project that the extension is running on and it's state
  */
@@ -18,17 +28,33 @@ export default class ProjectWorkspace {
   rootPath: string;
 
   /**
-   * The path to Jest, this is normally a file path like
-   * `node_modules/.bin/jest` but you should not make the assumption that
-   * it is always a direct file path, as in a create-react app it would look
-   * like `npm test --`.
+   * The command to execute Jest on the command line, this is normally a file path like
+   * `node_modules/.bin/jest` but you should not make the assumption that it is always a direct
+   * file path, as in a create-react app it would look like `npm test --`.
    *
    * This means when launching a process, you will need to split on the first
    * space, and then move any other args into the args of the process.
    *
    * @type {string}
    */
-  pathToJest: string;
+  jestCommandLine: string;
+
+  /**
+   * @deprecated please use `jestCommandLine` instead.
+   *
+   * @type {string?}
+   */
+  get pathToJest() {
+    // eslint-disable-next-line no-console
+    console.warn('Use of ProjectWorkspace.pathToJest is deprecated.  Please use jestCommandLine instead.');
+    return this.jestCommandLine;
+  }
+
+  set pathToJest(commandLine: string) {
+    // eslint-disable-next-line no-console
+    console.warn('Use of ProjectWorkspace.pathToJest is deprecated.  Please use jestCommandLine instead.');
+    this.jestCommandLine = commandLine;
+  }
 
   /**
    * Path to a local Jest config file.
@@ -69,7 +95,7 @@ export default class ProjectWorkspace {
 
   constructor(
     rootPath: string,
-    pathToJest: string,
+    jestCommandLine: string,
     pathToConfig: string,
     localJestMajorVersion: number,
     outputFileSuffix?: string,
@@ -77,7 +103,7 @@ export default class ProjectWorkspace {
     debug?: boolean
   ) {
     this.rootPath = rootPath;
-    this.pathToJest = pathToJest;
+    this.jestCommandLine = jestCommandLine;
     this.pathToConfig = pathToConfig;
     this.localJestMajorVersion = localJestMajorVersion;
     this.outputFileSuffix = outputFileSuffix ? outputFileSuffix.replace(/[^a-z0-9]/gi, '_').toLowerCase() : undefined;
@@ -85,3 +111,21 @@ export default class ProjectWorkspace {
     this.debug = debug;
   }
 }
+
+/**
+ * A factory to create a ProjectWorkspace instance from a ProjectWorkspaceConfig object.
+ */
+export const createProjectWorkspace = (config: ProjectWorkspaceConfig): ProjectWorkspace => {
+  // Note for pathToConfig we are forcing the TS compiler to accept undefined for ProjectWorkspace.pathToConfig.
+  // This property should be allowed to be optional, since Jest will work fine if no config file is provided.  It
+  // will just use defaults.
+  return new ProjectWorkspace(
+    config.rootPath,
+    config.jestCommandLine,
+    (config.pathToConfig as unknown) as string,
+    config.localJestMajorVersion,
+    config.outputFileSuffix,
+    config.collectCoverage,
+    config.debug
+  );
+};

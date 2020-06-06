@@ -36,17 +36,29 @@ export interface JestSettings {
 
 export function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<JestSettings>;
 
+export function createProjectWorkspace(config: ProjectWorkspaceConfig): ProjectWorkspace;
+
+export interface ProjectWorkspaceConfig {
+  jestCommandLine: string;
+  pathToConfig?: string;
+  rootPath: string;
+  localJestMajorVersion: number;
+  outputFileSuffix?: string;
+  collectCoverage?: boolean;
+  debug?: boolean;
+}
+
 export class ProjectWorkspace {
   constructor(
     rootPath: string,
-    pathToJest: string,
+    jestCommandLine: string,
     pathToConfig: string,
-    localJestMajorVersin: number,
+    localJestMajorVersion: number,
     outputFileSuffix?: string,
     collectCoverage?: boolean,
     debug?: boolean,
   );
-  pathToJest: string;
+  jestCommandLine: string;
   pathToConfig: string;
   rootPath: string;
   localJestMajorVersion: number;
