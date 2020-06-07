@@ -34,13 +34,20 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
     const arg = bNode.expression.arguments[0];
     let name = arg.value;
 
-    if (!name && arg.type === 'TemplateLiteral') {
-      name = _data.substring(arg.start + 1, arg.end - 1);
+    if (!name) {
+      switch (arg.type) {
+        case 'TemplateLiteral':
+          name = _data.substring(arg.start + 1, arg.end - 1);
+          break;
+        case 'CallExpression':
+          // a dynamic function: use a placeholder
+          name = '__function__';
+          break;
+        default:
+          throw new TypeError(`failed to update namedBlock from: ${JSON.stringify(bNode)}`);
+      }
     }
 
-    if (name == null) {
-      throw new TypeError(`failed to update namedBlock from: ${JSON.stringify(bNode)}`);
-    }
     nBlock.name = name;
     nBlock.nameRange = new ParsedRange(
       arg.loc.start.line,
@@ -70,9 +77,12 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   // handle cases where it's a member expression (.only)
   const getNameForNode = node => {
     if (isFunctionCall(node) && node && node.expression && node.expression.callee) {
-      return (
-        node.expression.callee.name || (node.expression.callee.object ? node.expression.callee.object.name : undefined)
-      );
+      const name =
+        node.expression.callee.name ||
+        node.expression.callee.object?.name ||
+        node.expression.callee.callee?.object?.name;
+
+      return name;
     }
     return undefined;
   };
@@ -123,7 +133,7 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
     // Look through the node's children
     let child: ?ParsedNode;
 
-    if (!babylonParent.body) {
+    if (!babylonParent.body || !Array.isArray(babylonParent.body)) {
       return;
     }
 
@@ -195,6 +205,8 @@ export const plugins = [
   'partialApplication',
   'throwExpressions',
   'topLevelAwait',
+  ['decorators', {decoratorsBeforeExport: true}],
+  ['pipelineOperator', {proposal: 'smart'}],
 ];
 
 // Its not possible to use the parser with flow and typescript active at the same time

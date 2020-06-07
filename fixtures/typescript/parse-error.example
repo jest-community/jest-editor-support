@@ -1,0 +1,29 @@
+const makeWarning = (fileName: string) => (
+  messageType: MessageType,
+  contextType: ContextType,
+  source: ContainerNode<ItBlock> | DataNode<ItBlock>,
+  assertion?: ContainerNode<TestAssertionStatus> | DataNodeType<TestAssertionStatus>,
+  extraReason?: string
+): void => {
+  const output = (message: string): void =>
+    console.warn(`[${fileName}] ${message} \n source=`, source, `\n assertion=`, assertion);
+
+  const blockType = contextType === 'container' ? 'describe' : 'test';
+  switch (messageType) {
+    case 'context-mismatch':
+      output(
+        `!! context mismatched !! ${contextType} nodes are different under "${source.name}": `
+      );
+      break;
+    case 'match-failed': {
+      output(`!! match failed !! ${blockType}: "${source.name}": ${extraReason} `);
+      break;
+    }
+    case 'unusual-match': {
+      output(`unusual match: ${extraReason} : ${blockType} ${source.name}: `);
+      break;
+    }
+  }
+};
+
+

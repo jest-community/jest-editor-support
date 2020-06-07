@@ -83,6 +83,33 @@ Expected value to be falsy, instead received
       }
     });
   });
+  describe('with fullName and ancestorTitles', () => {
+    beforeEach(() => {
+      parser = new TestReconciler();
+      results = reconcilerWithFile(parser, 'with-ancestors-and-each.json');
+    });
+    it('can parse and preserve nested describe context', () => {
+      expect(results.length).toEqual(1);
+      const {assertions} = results[0];
+      if (assertions) {
+        expect(assertions.length).toEqual(7);
+        expect(assertions[0].fullName).toEqual('block-1 block-1-1 testing');
+        expect(assertions[0].ancestorTitles).toEqual(['block-1', 'block-1-1']);
+        expect(assertions[0].title).toEqual('testing');
+      } else {
+        expect(assertions).not.toBeNull();
+      }
+    });
+    it('test without describe, fullName is title and ancestorTitles is []', () => {
+      const {assertions} = results[0];
+      if (assertions) {
+        expect(assertions[2].ancestorTitles).toEqual([]);
+        expect(assertions[2].fullName).toEqual(assertions[2].title);
+      } else {
+        expect(assertions).not.toBeNull();
+      }
+    });
+  });
   describe('in a monorepo project', () => {
     beforeEach(() => {
       parser = new TestReconciler();

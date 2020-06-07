@@ -91,6 +91,8 @@ export default class TestReconciler {
         terseMessage: terse,
         title: assertion.title,
         location,
+        fullName: assertion.fullName,
+        ancestorTitles: assertion.ancestorTitles,
       };
     });
   }

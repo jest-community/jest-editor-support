@@ -8,7 +8,7 @@
 
 const fixtures = __dirname;
 
-function parserTests(parse: (file: string) => ParseResult) {
+function parserTests(parse: (file: string) => ParseResult, isTypescript = false) {
   const assertBlock = (block, start, end, name: ?string = null) => {
     expect(block.start).toEqual(start);
     expect(block.end).toEqual(end);
@@ -368,6 +368,70 @@ function parserTests(parse: (file: string) => ParseResult) {
       block = parseResult.describeBlocks[parseResult.describeBlocks.length - 1];
       expect(block.name).toEqual('empty describe should not crash');
       expect(block.children).toBeFalsy();
+    });
+  });
+  describe('jest.each', () => {
+    it('should be able to detect it.each', () => {
+      const data = `
+      it.each(['a', 'b', 'c'])('each test %p', (v) => {
+        expect(v).not.toBeUndefined();
+      });
+        `;
+      const parseResult = parse('whatever', data);
+      expect(parseResult.itBlocks.length).toEqual(1);
+      expect(parseResult.expects.length).toEqual(1);
+
+      const itBlock = parseResult.itBlocks[0];
+      assertBlock2(itBlock, 2, 7, 4, 9, 'each test %p');
+      assertNameInfo(itBlock, 'each test %p', 2, 33, 2, 44);
+    });
+    it('should be able to detect test.each with a bit different layout', () => {
+      const data = `
+      test.each(['a','b', 'c'])(
+        'each test %p', 
+        (v) => {
+        expect(v).not.toBeUndefined();
+      });
+          `;
+      const parseResult = parse('whatever', data);
+      expect(parseResult.itBlocks.length).toEqual(1);
+      expect(parseResult.expects.length).toEqual(1);
+
+      const itBlock = parseResult.itBlocks[0];
+      assertBlock2(itBlock, 2, 7, 6, 9, 'each test %p');
+      assertNameInfo(itBlock, 'each test %p', 3, 10, 3, 21);
+    });
+  });
+  describe('typescript specific', () => {
+    it('parser should not crash on ArrowFunctionExpression', () => {
+      if (!isTypescript) {
+        return;
+      }
+      const parseResult = parse(`${fixtures}/typescript/parse-error.example`);
+      expect(parseResult.describeBlocks.length).toEqual(0);
+      expect(parseResult.itBlocks.length).toEqual(0);
+      expect(parseResult.expects.length).toEqual(0);
+    });
+  });
+  describe('parse error use case', () => {
+    it('https://github.com/jest-community/vscode-jest/issues/405', () => {
+      const data = `
+      describe('test', () => {
+        const a = [true, true, false];
+        a.forEach((item) => {
+          test(String(item), () => {
+            expect(item).toBe(false);
+          });
+        });
+      });
+      `;
+      const parseResult = parse('whatever', data);
+      expect(parseResult.itBlocks.length).toEqual(1);
+      expect(parseResult.expects.length).toEqual(1);
+
+      const itBlock = parseResult.itBlocks[0];
+      assertBlock2(itBlock, 5, 11, 7, 13, '__function__');
+      assertNameInfo(itBlock, '__function__', 5, 17, 5, 26);
     });
   });
 }
