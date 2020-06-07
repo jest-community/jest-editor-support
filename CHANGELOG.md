@@ -4,12 +4,15 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
+
+-->
+
+### 28.0.0-beta.0
 * Replace babylon and typescript parsers with @babel/parser 7.x - @firsttris 
 * Renamed the property `pathToJest` to `jestCommandLine` in the ProjectWorkspace configuration object to better convey how the property is used internally.  Left the original `pathToJest` with a deprecated flag. - @rossknudsen
 * expose fullName and ancestorTitles to assertions - @connectdotz
 * fix parser regression: test.each is being ignored by parser - @connectdotz
 * fix typescript parsing error - @connectdotz
--->
 
 ### 27.2.0
 * Address orphan process issue - @connectdotz
