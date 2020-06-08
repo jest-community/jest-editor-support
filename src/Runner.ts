@@ -4,16 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import {ChildProcess, spawn} from 'child_process';
 import {readFile} from 'fs';
 import {tmpdir} from 'os';
 import * as path from 'path';
-import EventEmitter from 'events';
-import {messageTypes} from './types';
-import type {Options, MessageType} from './types';
+import {EventEmitter} from 'events';
+import {messageTypes, Options, MessageType} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
@@ -27,7 +25,7 @@ export default class Runner extends EventEmitter {
 
   workspace: ProjectWorkspace;
 
-  _createProcess: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess;
+  _createProcess: (workspace: ProjectWorkspace, args: string[]) => ChildProcess;
 
   watchMode: boolean;
 
@@ -47,7 +45,7 @@ export default class Runner extends EventEmitter {
     this.prevMessageTypes = [];
   }
 
-  start(watchMode: boolean = true, watchAll: boolean = false) {
+  start(watchMode = true, watchAll = false) {
     if (this.debugprocess) {
       return;
     }

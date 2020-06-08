@@ -5,44 +5,43 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @flow
  */
 
 import traverse from '@babel/traverse';
 import {buildSnapshotResolver, utils} from 'jest-snapshot';
-import type {ProjectConfig} from '../types/Config';
+import {Config} from '@jest/types';
 
 import {getASTfor} from './parsers/babel_parser';
 
 type Node = any;
 
 type SnapshotMetadata = {
-  exists: true | false,
-  name: string,
-  node: Node,
-  content?: string,
+  exists: true | false;
+  name: string;
+  node: Node;
+  content?: string;
 };
 
-const describeVariants = Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+const describeVariants = Object.assign(Object.create(null), {
   describe: true,
   fdescribe: true,
   xdescribe: true,
 });
-const base = Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+const base = Object.assign(Object.create(null), {
   describe: true,
   it: true,
   test: true,
 });
-const decorators = Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+const decorators = Object.assign(Object.create(null), {
   only: true,
   skip: true,
 });
 
 const validParents = Object.assign(
-  (Object.create(null): any),
+  Object.create(null),
   base,
   describeVariants,
-  Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+  Object.assign(Object.create(null), {
     fit: true,
     xit: true,
     xtest: true,
@@ -68,7 +67,7 @@ const getArrayOfParents = path => {
   return result;
 };
 
-const buildName: (snapshotNode: Node, parents: Array<Node>, position: number) => string = (
+const buildName: (snapshotNode: Node, parents: Node[], position: number) => string = (
   snapshotNode,
   parents,
   position
@@ -81,17 +80,17 @@ const buildName: (snapshotNode: Node, parents: Array<Node>, position: number) =>
 export default class Snapshot {
   _parser: Function;
 
-  _matchers: Array<string>;
+  _matchers: string[];
 
-  _projectConfig: ?ProjectConfig;
+  _projectConfig?: Config.ProjectConfig;
 
-  constructor(parser: any, customMatchers?: Array<string>, projectConfig?: ProjectConfig) {
+  constructor(parser: any, customMatchers?: string[], projectConfig?: Config.ProjectConfig) {
     this._parser = parser || getASTfor;
     this._matchers = ['toMatchSnapshot', 'toThrowErrorMatchingSnapshot'].concat(customMatchers || []);
     this._projectConfig = projectConfig;
   }
 
-  getMetadata(filePath: string, verbose: boolean = false): Array<SnapshotMetadata> {
+  getMetadata(filePath: string, verbose = false): SnapshotMetadata[] {
     let fileNode;
     try {
       fileNode = this._parser(filePath);
@@ -126,7 +125,7 @@ export default class Snapshot {
     });
 
     // NOTE if no projectConfig is given the default resolver will be used
-    const snapshotResolver = buildSnapshotResolver(this._projectConfig || {});
+    const snapshotResolver = buildSnapshotResolver(this._projectConfig || ({} as Config.ProjectConfig));
     const snapshotPath = snapshotResolver.resolveSnapshotPath(filePath);
     const snapshots = utils.getSnapshotData(snapshotPath, 'none').data;
     let lastParent = null;

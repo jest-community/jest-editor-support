@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import {ChildProcess, spawn} from 'child_process';
@@ -17,7 +16,7 @@ import ProjectWorkspace from './project_workspace';
  * @returns {ChildProcess}
  */
 // eslint-disable-next-line import/prefer-default-export
-export const createProcess = (workspace: ProjectWorkspace, args: Array<string>): ChildProcess => {
+export const createProcess = (workspace: ProjectWorkspace, args: string[]): ChildProcess => {
   const runtimeExecutable = [workspace.jestCommandLine, ...args];
 
   // If a path to configuration file was defined, push it to runtimeArgs

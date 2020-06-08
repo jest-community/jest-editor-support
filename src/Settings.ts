@@ -4,10 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
-import type {Options} from './types';
+import {Options} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
@@ -20,16 +19,16 @@ type Glob = string;
 // in favor of `@jest/types`, which exports the full config interface.
 
 type ProjectConfiguration = {
-  testRegex: string | Array<string>,
-  testMatch: Array<Glob>,
+  testRegex: string | string[];
+  testMatch: Glob[];
 };
 
 type JestSettings = {
-  jestVersionMajor: number,
-  configs: ProjectConfiguration[],
+  jestVersionMajor: number;
+  configs: ProjectConfiguration[];
 };
 
-function parseSettings(text: string, debug: ?boolean = false): JestSettings {
+function parseSettings(text: string, debug = false): JestSettings {
   const jsonPattern = new RegExp(/^[\s]*\{/gm);
   let settings = null;
 
