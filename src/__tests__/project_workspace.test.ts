@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import ProjectWorkspace, {createProjectWorkspace} from '../project_workspace';
@@ -99,10 +98,12 @@ describe('setup', () => {
     const instance = createProjectWorkspace(config);
 
     instance.pathToJest = 'new value';
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(global.console.warn).toBeCalledTimes(1);
 
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {pathToJest} = instance;
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(global.console.warn).toBeCalledTimes(2);
   });
 });
