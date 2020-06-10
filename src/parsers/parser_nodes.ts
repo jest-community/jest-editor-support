@@ -5,10 +5,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
-import type {Location} from '../types';
+import {Location} from '../types';
 
 /**
  * range and location here are 1-based position.
@@ -24,16 +23,14 @@ export class ParsedRange {
   }
 }
 
-// export type ParsedNodeType = 'expect' | 'describe' | 'it' | 'ROOT';
+export type ParsedNodeType = 'expect' | 'describe' | 'it' | 'root';
 
-export const ParsedNodeTypes = {
+export const ParsedNodeTypes: Record<ParsedNodeType, ParsedNodeType> = {
   describe: 'describe',
   expect: 'expect',
   it: 'it',
   root: 'root',
 };
-
-export type ParsedNodeType = $Keys<typeof ParsedNodeTypes>;
 
 export class ParsedNode {
   type: ParsedNodeType;
@@ -44,7 +41,7 @@ export class ParsedNode {
 
   file: string;
 
-  children: ?Array<ParsedNode>;
+  children?: ParsedNode[];
 
   constructor(type: ParsedNodeType, file: string) {
     this.type = type;
@@ -56,12 +53,15 @@ export class ParsedNode {
 
     switch (type) {
       case ParsedNodeTypes.describe:
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         child = new DescribeBlock(this.file);
         break;
       case ParsedNodeTypes.it:
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         child = new ItBlock(this.file);
         break;
       case ParsedNodeTypes.expect:
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         child = new Expect(this.file);
         break;
       default:
@@ -75,8 +75,8 @@ export class ParsedNode {
     return child;
   }
 
-  filter(f: (node: ParsedNode) => boolean, filterSelf: boolean = false): Array<ParsedNode> {
-    const filtered: Array<ParsedNode> = [];
+  filter(f: (node: ParsedNode) => boolean, filterSelf = false): ParsedNode[] {
+    const filtered: ParsedNode[] = [];
 
     const _filter = (node: ParsedNode, _filterSelf: boolean) => {
       if (_filterSelf && f(node)) {
@@ -126,11 +126,11 @@ export class DescribeBlock extends NamedBlock {
 // export type NodeClass = Node | Expect | ItBlock | DescribeBlock;
 
 export class ParseResult {
-  describeBlocks: Array<DescribeBlock>;
+  describeBlocks: DescribeBlock[];
 
-  expects: Array<Expect>;
+  expects: Expect[];
 
-  itBlocks: Array<ItBlock>;
+  itBlocks: ItBlock[];
 
   root: ParsedNode;
 
@@ -145,7 +145,7 @@ export class ParseResult {
     this.itBlocks = [];
   }
 
-  addNode(node: ParsedNode, dedup: boolean = false) {
+  addNode(node: ParsedNode, dedup = false) {
     if (node instanceof DescribeBlock) {
       this.describeBlocks.push(node);
     } else if (node instanceof ItBlock) {
