@@ -84,7 +84,7 @@ export default class Snapshot {
 
   _projectConfig?: Config.ProjectConfig;
 
-  constructor(parser: any, customMatchers?: string[], projectConfig?: Config.ProjectConfig) {
+  constructor(parser?: any, customMatchers?: string[], projectConfig?: Config.ProjectConfig) {
     this._parser = parser || getASTfor;
     this._matchers = ['toMatchSnapshot', 'toThrowErrorMatchingSnapshot'].concat(customMatchers || []);
     this._projectConfig = projectConfig;

@@ -10,7 +10,7 @@
 import path from 'path';
 import Snapshot from '../Snapshot';
 
-const snapshotHelper = new Snapshot(undefined);
+const snapshotHelper = new Snapshot();
 const snapshotFixturePath = path.resolve(__dirname, 'fixtures/snapshots');
 
 test('nodescribe.example', () => {
