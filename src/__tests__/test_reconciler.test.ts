@@ -81,6 +81,37 @@ Expected value to be falsy, instead received
         expect(assertions).not.toBeNull();
       }
     });
+    it('can retrieve the assertions by file name from parser', () => {
+      const {assertions} = results[0];
+
+      // test that we can request the assertions directly from the parser.
+      const requestedAssertions = parser.assertionsForTestFile(results[0].file);
+      expect(requestedAssertions).not.toBeNull();
+      expect(requestedAssertions).toStrictEqual(assertions);
+    });
+    it('returns null when retrieving assertions for non-existent file', () => {
+      const requestedAssertions = parser.assertionsForTestFile('C:\\missingfile');
+      expect(requestedAssertions).toBeNull();
+    });
+    it('can retrieve the status by file name from parser', () => {
+      const {status} = results[0];
+
+      // test that we can request the assertions directly from the parser.
+      const requestedState = parser.stateForTestFile(results[0].file);
+      expect(requestedState).toStrictEqual(status);
+    });
+    it('returns "Unknown" when retrieving the status for a non-existent file.', () => {
+      // test that we can request the assertions directly from the parser.
+      const requestedState = parser.stateForTestFile('C:\\missingfile');
+      expect(requestedState).toBe('Unknown');
+    });
+    it('returns null when retrieving the TestAssertionStatus for a non-existent file', () => {
+      const requestedAssertions = parser.stateForTestAssertion(
+        'C:\\missingfile',
+        'setup can safe guard outputFileSuffix'
+      );
+      expect(requestedAssertions).toBeNull();
+    });
   });
   describe('with fullName and ancestorTitles', () => {
     beforeEach(() => {
