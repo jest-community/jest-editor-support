@@ -23,14 +23,14 @@ export class ParsedRange {
   }
 }
 
-export type ParsedNodeType = 'expect' | 'describe' | 'it' | 'root';
+export enum ParsedNodeTypes {
+  describe = 'describe',
+  expect = 'expect',
+  it = 'it',
+  root = 'root',
+}
 
-export const ParsedNodeTypes: Record<ParsedNodeType, ParsedNodeType> = {
-  describe: 'describe',
-  expect: 'expect',
-  it: 'it',
-  root: 'root',
-};
+export type ParsedNodeType = keyof typeof ParsedNodeTypes;
 
 export class ParsedNode {
   type: ParsedNodeType;
