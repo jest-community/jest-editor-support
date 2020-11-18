@@ -5,13 +5,12 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import path from 'path';
-import type {TestFileAssertionStatus, TestAssertionStatus, TestReconciliationState, Location} from './types';
+import {TestFileAssertionStatus, TestAssertionStatus, TestReconciliationState, Location} from './types';
 
-import type {FormattedAssertionResult, FormattedTestResults} from '../types/TestResult';
+import {FormattedAssertionResult, FormattedTestResults} from '../types/TestResult';
 
 /**
  *  You have a Jest test runner watching for changes, and you have
@@ -21,11 +20,7 @@ import type {FormattedAssertionResult, FormattedTestResults} from '../types/Test
  *  at a file level, generating useful error messages and providing a nice API.
  */
 export default class TestReconciler {
-  fileStatuses: {[key: string]: TestFileAssertionStatus};
-
-  constructor() {
-    this.fileStatuses = {};
-  }
+  fileStatuses: {[key: string]: TestFileAssertionStatus} = {};
 
   // the processed test results will be returned immediately instead of saved in
   // instance properties. This is 1) to prevent race condition 2) the data is already
@@ -54,10 +49,10 @@ export default class TestReconciler {
   // we don't get this as structured data, but what we get
   // is useful enough to make it for ourselves
 
-  mapAssertions(filename: string, assertions: Array<FormattedAssertionResult>): Array<TestAssertionStatus> {
+  mapAssertions(filename: string, assertions: FormattedAssertionResult[]): TestAssertionStatus[] {
     // convert jest location (column is 0-based and line is 1-based) to all 0-based location used internally in this package
     /* eslint-disable no-param-reassign */
-    const convertJestLocation = (jestLocation: ?Location) => {
+    const convertJestLocation = (jestLocation?: Location) => {
       if (jestLocation) {
         jestLocation.line -= 1;
       }
@@ -117,7 +112,7 @@ export default class TestReconciler {
   }
 
   // Pull the line out from the stack trace
-  lineOfError(message: string, filePath: string): ?number {
+  lineOfError(message: string, filePath: string): number | undefined {
     const filename = path.basename(filePath);
     const restOfTrace = message.split(filename, 2)[1];
     return restOfTrace ? parseInt(restOfTrace.split(':')[1], 10) : null;

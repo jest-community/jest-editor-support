@@ -4,23 +4,22 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
-import type {ChildProcess} from 'child_process';
-import type ProjectWorkspace from './project_workspace';
+import {ChildProcess} from 'child_process';
+import ProjectWorkspace from './project_workspace';
 
 export type Location = {
-  column: number,
-  line: number,
+  column: number;
+  line: number;
 };
 
 export type Options = {
-  createProcess?: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess,
-  noColor?: boolean,
-  testNamePattern?: string,
-  testFileNamePattern?: string,
-  reporters?: string[],
+  createProcess?: (workspace: ProjectWorkspace, args: string[]) => ChildProcess;
+  noColor?: boolean;
+  testNamePattern?: string;
+  testFileNamePattern?: string;
+  reporters?: string[];
 };
 
 /**
@@ -38,15 +37,15 @@ export type TestReconciliationState =
  *
  */
 export type TestAssertionStatus = {
-  title: string,
-  fullName: string,
-  ancestorTitles: string[],
-  status: TestReconciliationState,
-  message: string,
-  shortMessage: ?string,
-  terseMessage: ?string,
-  location: ?Location,
-  line: ?number,
+  title: string;
+  fullName: string;
+  ancestorTitles: string[];
+  status: TestReconciliationState;
+  message: string;
+  shortMessage?: string;
+  terseMessage?: string;
+  location?: Location;
+  line?: number;
 };
 
 /**
@@ -55,14 +54,14 @@ export type TestAssertionStatus = {
  *
  */
 export type TestFileAssertionStatus = {
-  file: string,
-  message: string,
-  status: TestReconciliationState,
-  assertions: TestAssertionStatus[] | null,
+  file: string;
+  message: string;
+  status: TestReconciliationState;
+  assertions: TestAssertionStatus[] | null;
 };
 
 export type JestTotalResultsMeta = {
-  noTestsFound: boolean,
+  noTestsFound: boolean;
 };
 
 // eslint-disable-next-line import/prefer-default-export

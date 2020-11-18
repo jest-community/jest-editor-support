@@ -4,13 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
-import {spawn} from 'child_process';
+import {spawn as importedSpawn} from 'child_process';
 import {createProcess} from '../Process';
 
 jest.mock('child_process');
+
+const spawn = importedSpawn as jest.MockedFunction<typeof importedSpawn>;
 
 describe('createProcess', () => {
   afterEach(() => {
@@ -62,7 +63,7 @@ describe('createProcess', () => {
   });
 
   it('defines the "CI" environment variable', () => {
-    const expected = Object.assign({}, process.env, {CI: 'true'});
+    const expected = {...process.env, CI: 'true'};
 
     const workspace: any = {jestCommandLine: ''};
     const args = [];

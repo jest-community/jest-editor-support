@@ -4,10 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
-const {parseJs} = require('../../parsers/babel_parser');
-const {parserTests} = require('../../../fixtures/parser_tests');
+import {parseJs} from '../../parsers/babel_parser';
+import {parserTests} from '../../../fixtures/parser_tests';
 
 parserTests(parseJs);

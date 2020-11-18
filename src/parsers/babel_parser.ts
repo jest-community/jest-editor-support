@@ -6,32 +6,30 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import {readFileSync} from 'fs';
 import {File as BabelFile, Node as BabelNode} from '@babel/types';
 import * as parser from '@babel/parser';
-import type {ParsedNodeType} from './parser_nodes';
-import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
+import {NamedBlock, ParsedRange, ParseResult, ParsedNode, ParsedNodeType} from './parser_nodes';
 
-const _getASTfor = (file: string, data: ?string, options: ?parser.ParserOptions): [BabelFile, string] => {
+const _getASTfor = (file: string, data?: string, options?: parser.ParserOptions): [BabelFile, string] => {
   const _data = data || readFileSync(file).toString();
-  const config = {...options, sourceType: 'module'};
+  const config: parser.ParserOptions = {...options, sourceType: 'module'};
   return [parser.parse(_data, config), _data];
 };
 
-export const getASTfor = (file: string, data: ?string): BabelFile => {
+export const getASTfor = (file: string, data?: string): BabelFile => {
   const [bFile] = _getASTfor(file, data);
   return bFile;
 };
 
-export const parse = (file: string, data: ?string, options: ?parser.ParserOptions): ParseResult => {
+export const parse = (file: string, data?: string, options?: parser.ParserOptions): ParseResult => {
   const parseResult = new ParseResult(file);
   const [ast, _data] = _getASTfor(file, data, options);
 
   const updateNameInfo = (nBlock: NamedBlock, bNode: BabelNode) => {
-    const arg = bNode.expression.arguments[0];
+    const arg = (bNode as any).expression.arguments[0];
     let name = arg.value;
 
     if (!name) {
@@ -131,9 +129,9 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   // A recursive AST parser
   const searchNodes = (babylonParent: BabelNode, parent: ParsedNode) => {
     // Look through the node's children
-    let child: ?ParsedNode;
+    let child: ParsedNode | undefined;
 
-    if (!babylonParent.body || !Array.isArray(babylonParent.body)) {
+    if (!('body' in babylonParent) || !Array.isArray(babylonParent.body)) {
       return;
     }
 
@@ -181,7 +179,7 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   return parseResult;
 };
 
-export const plugins = [
+export const plugins: parser.ParserPlugin[] = [
   'asyncGenerators',
   'bigInt',
   'classPrivateMethods',
@@ -210,6 +208,6 @@ export const plugins = [
 ];
 
 // Its not possible to use the parser with flow and typescript active at the same time
-export const parseJs = (file: string, data: ?string): ParseResult => parse(file, data, {plugins: [...plugins, 'flow']});
-export const parseTs = (file: string, data: ?string): ParseResult =>
+export const parseJs = (file: string, data?: string): ParseResult => parse(file, data, {plugins: [...plugins, 'flow']});
+export const parseTs = (file: string, data?: string): ParseResult =>
   parse(file, data, {plugins: [...plugins, 'typescript']});

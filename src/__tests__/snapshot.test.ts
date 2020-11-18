@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @flow
  */
 
 import path from 'path';
@@ -104,7 +103,7 @@ describe('when metadata parse error', () => {
     expect(results).toEqual([]);
   });
   it('support verbose mode for debugging', () => {
-    (console: any).warn = jest.fn();
+    (console as any).warn = jest.fn();
     const filePath = path.join(snapshotFixturePath, 'typescript-file');
 
     let results = snapshotHelper.getMetadata(filePath);

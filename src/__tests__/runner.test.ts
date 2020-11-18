@@ -4,19 +4,21 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
-import {tmpdir} from 'os';
-import * as path from 'path';
-import {spawn} from 'child_process';
+import {tmpdir as importedTmpdir} from 'os';
+import * as importedPath from 'path';
+import {spawn, ChildProcess} from 'child_process';
 import {readFileSync} from 'fs';
-import EventEmitter from 'events';
-import type {ChildProcess} from 'child_process';
+import {EventEmitter} from 'events';
 import Runner from '../Runner';
-import {createProcess} from '../Process';
+import {createProcess as importedCreateProcess} from '../Process';
 import {messageTypes} from '../types';
 import ProjectWorkspace from '../project_workspace';
+
+const tmpdir = importedTmpdir as jest.MockedFunction<typeof importedTmpdir>;
+const path = importedPath as jest.Mocked<typeof importedPath>;
+const createProcess = importedCreateProcess as jest.MockedFunction<typeof importedCreateProcess>;
 
 // ('use strict');
 
@@ -48,23 +50,24 @@ describe('Runner', () => {
   let originalProcessKill;
 
   beforeAll(() => {
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     originalProcessKill = process.kill;
-    (process: any).kill = processKill;
+    process.kill = processKill;
   });
 
   afterAll(() => {
-    (process: any).kill = originalProcessKill;
+    process.kill = originalProcessKill;
   });
   describe('constructor', () => {
     it('does not set watchMode', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
 
       expect(sut.watchMode).not.toBeDefined();
     });
 
     it('does not set watchAll', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
 
       expect(sut.watchAll).not.toBeDefined();
@@ -76,7 +79,7 @@ describe('Runner', () => {
       const suffix = ['runner-test', undefined];
 
       suffix.forEach(s => {
-        const workspace: any = {outputFileSuffix: s};
+        const workspace = {outputFileSuffix: s} as ProjectWorkspace;
         path.join.mockImplementation((...paths: string[]) => paths.join('/'));
         const sut = new Runner(workspace);
         expect(sut.outputPath).toEqual(`tmpdir/jest_runner_${s || ''}.json`);
@@ -84,14 +87,14 @@ describe('Runner', () => {
     });
 
     it('sets the default options', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
 
       expect(sut.options).toEqual({});
     });
 
     it('sets the options', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const options = {};
       const sut = new Runner(workspace, options);
 
@@ -103,7 +106,7 @@ describe('Runner', () => {
     beforeEach(() => {
       jest.resetAllMocks();
 
-      (createProcess: any).mockImplementationOnce(() => {
+      createProcess.mockImplementationOnce(() => {
         const process: any = new EventEmitter();
         process.stdout = new EventEmitter();
         process.stderr = new EventEmitter();
@@ -112,7 +115,7 @@ describe('Runner', () => {
     });
 
     it('will not start when started', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
 
       sut.start();
@@ -124,7 +127,7 @@ describe('Runner', () => {
     it('sets watchMode', () => {
       const expected = true;
 
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
       sut.start(expected);
 
@@ -135,7 +138,7 @@ describe('Runner', () => {
       const watchMode = true;
       const watchAll = true;
 
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
       sut.start(watchMode, watchAll);
 
@@ -144,68 +147,68 @@ describe('Runner', () => {
     });
 
     it('calls createProcess', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
       sut.start(false);
 
-      expect((createProcess: any).mock.calls[0][0]).toBe(workspace);
+      expect(createProcess.mock.calls[0][0]).toBe(workspace);
     });
 
     it('calls createProcess with the --json arg', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
       sut.start(false);
 
-      expect((createProcess: any).mock.calls[0][1]).toContain('--json');
+      expect(createProcess.mock.calls[0][1]).toContain('--json');
     });
 
     it('calls createProcess with the --useStderr arg', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
       sut.start(false);
 
-      expect((createProcess: any).mock.calls[0][1]).toContain('--useStderr');
+      expect(createProcess.mock.calls[0][1]).toContain('--useStderr');
     });
 
     it('calls createProcess with the --jsonOutputFile arg for Jest 17 and below', () => {
-      const workspace: any = {localJestMajorVersion: 17};
+      const workspace = {localJestMajorVersion: 17} as ProjectWorkspace;
       const sut = new Runner(workspace);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcess.mock.calls[0][1];
       const index = args.indexOf('--jsonOutputFile');
       expect(index).not.toBe(-1);
       expect(args[index + 1]).toBe(sut.outputPath);
     });
 
     it('calls createProcess with the --outputFile arg for Jest 18 and above', () => {
-      const workspace: any = {localJestMajorVersion: 18};
+      const workspace = {localJestMajorVersion: 18} as ProjectWorkspace;
       const sut = new Runner(workspace);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcess.mock.calls[0][1];
       const index = args.indexOf('--outputFile');
       expect(index).not.toBe(-1);
       expect(args[index + 1]).toBe(sut.outputPath);
     });
 
     it('calls createProcess with the --watch arg when provided', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
       sut.start(true);
 
-      expect((createProcess: any).mock.calls[0][1]).toContain('--watch');
+      expect(createProcess.mock.calls[0][1]).toContain('--watch');
     });
 
     it('calls createProcess with the --coverage arg when provided', () => {
       const expected = '--coverage';
 
-      const workspace: any = {collectCoverage: true};
+      const workspace = {collectCoverage: true} as ProjectWorkspace;
       const options = {};
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcess.mock.calls[0][1];
       const index = args.indexOf(expected);
       expect(index).not.toBe(-1);
     });
@@ -213,12 +216,12 @@ describe('Runner', () => {
     it('calls createProcess with the ---no-coverage arg when provided and false', () => {
       const expected = '--no-coverage';
 
-      const workspace: any = {collectCoverage: false};
+      const workspace = {collectCoverage: false} as ProjectWorkspace;
       const options = {};
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcess.mock.calls[0][1];
       const index = args.indexOf(expected);
       expect(index).not.toBe(-1);
     });
@@ -226,12 +229,12 @@ describe('Runner', () => {
     it('calls createProcess without the --coverage arg when undefined', () => {
       const expected = '--coverage';
 
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const options = {};
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcess.mock.calls[0][1];
       const index = args.indexOf(expected);
       expect(index).toBe(-1);
     });
@@ -239,12 +242,12 @@ describe('Runner', () => {
     it('calls createProcess with the --testNamePattern arg when provided', () => {
       const expected = 'testNamePattern';
 
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const options = {testNamePattern: expected};
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcess.mock.calls[0][1];
       const index = args.indexOf('--testNamePattern');
       expect(index).not.toBe(-1);
       expect(args[index + 1]).toBe(expected);
@@ -252,34 +255,34 @@ describe('Runner', () => {
 
     it('calls createProcess with a test path pattern when provided', () => {
       const expected = 'testPathPattern';
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const options = {testFileNamePattern: expected};
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      expect((createProcess: any).mock.calls[0][1]).toContain(expected);
+      expect(createProcess.mock.calls[0][1]).toContain(expected);
     });
 
     it('calls createProcess with the no color option when provided', () => {
       const expected = '--no-color';
 
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const options = {noColor: true};
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      expect((createProcess: any).mock.calls[0][1]).toContain(expected);
+      expect(createProcess.mock.calls[0][1]).toContain(expected);
     });
 
     it('calls createProcess with the --reporters arg when provided', () => {
       const expected = ['reporter'];
 
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const options = {reporters: expected};
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcess.mock.calls[0][1];
       const index = args.indexOf('--reporters');
       expect(index).not.toBe(-1);
       expect(args[index + 1]).toBe(expected[0]);
@@ -288,12 +291,12 @@ describe('Runner', () => {
     it('calls createProcess with multiple --reporters arg when provided', () => {
       const expected = ['reporter1', 'reporter2'];
 
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const options = {reporters: expected};
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcess.mock.calls[0][1];
       const index = args.indexOf('--reporters');
       expect(args[index + 1]).toBe(expected[0]);
       const lastIndex = args.lastIndexOf('--reporters');
@@ -317,7 +320,7 @@ describe('Runner', () => {
     });
 
     it('does nothing if the runner has not started', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
       sut.closeProcess();
 
@@ -325,32 +328,32 @@ describe('Runner', () => {
     });
 
     it('spawns taskkill to close the process on Windows', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
       process.platform = 'win32';
-      sut.debugprocess = ({pid: 123}: any);
+      sut.debugprocess = {pid: 123} as any;
       sut.closeProcess();
 
       expect(spawn).toBeCalledWith('taskkill', ['/pid', '123', '/T', '/F']);
     });
 
     it('calls process.kill() with processGroup id to close the process on POSIX', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
-      process.platform = 'posix';
+      process.platform = 'linux'; // TODO this was 'posix' but the enumeration does not include this value.
       const kill = jest.fn();
-      sut.debugprocess = ({kill, pid: 123}: any);
+      sut.debugprocess = {kill, pid: 123} as any;
       sut.closeProcess();
 
       expect(kill).not.toBeCalled();
       expect(processKill).toBeCalledWith(-123);
     });
     it('if process.kill() failed, it will fallback to subprocess.kill', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
-      process.platform = 'posix';
+      process.platform = 'linux'; // TODO this was 'posix' but the enumeration does not include this value.
       const kill = jest.fn();
-      sut.debugprocess = ({kill, pid: 123}: any);
+      sut.debugprocess = {kill, pid: 123} as any;
 
       processKill.mockImplementation(() => {
         throw new Error('for testing');
@@ -362,9 +365,9 @@ describe('Runner', () => {
     });
 
     it('clears the debugprocess property', () => {
-      const workspace: any = {};
+      const workspace = {} as ProjectWorkspace;
       const sut = new Runner(workspace);
-      sut.debugprocess = ({kill: () => {}}: any);
+      sut.debugprocess = {kill: () => {}} as any;
       sut.closeProcess();
 
       expect(sut.debugprocess).not.toBeDefined();
@@ -378,12 +381,12 @@ describe('Runner', () => {
     beforeEach(() => {
       jest.resetAllMocks();
 
-      fakeProcess = (new EventEmitter(): any);
-      fakeProcess.stdout = new EventEmitter();
-      fakeProcess.stderr = new EventEmitter();
+      fakeProcess = new EventEmitter() as any;
+      fakeProcess.stdout = new EventEmitter() as any;
+      fakeProcess.stderr = new EventEmitter() as any;
       fakeProcess.kill = () => {};
 
-      (createProcess: any).mockImplementation(() => fakeProcess);
+      createProcess.mockImplementation(() => fakeProcess);
 
       const workspace = new ProjectWorkspace('.', 'node_modules/.bin/jest', 'test', 18);
       runner = new Runner(workspace);
@@ -398,7 +401,7 @@ describe('Runner', () => {
 
       runner.outputPath = `${fixtures}/failing-jsons/failing_jest_json.json`;
 
-      const doTest = (out: stream$Readable) => {
+      const doTest = (out: EventEmitter) => {
         data.mockClear();
 
         // Emitting data through stdout should trigger sending JSON
@@ -448,7 +451,7 @@ describe('Runner', () => {
         const listener = jest.fn();
         runner.on('executableJSON', listener);
         runner.outputPath = `${fixtures}/failing-jsons/failing_jest_json.json`;
-        (runner: any).doResultsFollowNoTestsFoundMessage = jest.fn().mockReturnValueOnce(true);
+        runner.doResultsFollowNoTestsFoundMessage = jest.fn().mockReturnValueOnce(true);
         fakeProcess.stdout.emit('data', 'Test results written to file');
 
         expect(listener.mock.calls[0].length).toBe(2);
@@ -466,22 +469,23 @@ describe('Runner', () => {
 
     describe('stderr.on("data")', () => {
       it('should identify the message type', () => {
-        (runner: any).findMessageType = jest.fn();
+        runner.findMessageType = jest.fn();
         const expected = {};
         fakeProcess.stderr.emit('data', expected);
 
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(runner.findMessageType).toBeCalledWith(expected);
       });
 
       it('should add the type to the message type history when known', () => {
-        (runner: any).findMessageType = jest.fn().mockReturnValueOnce(messageTypes.noTests);
+        runner.findMessageType = jest.fn().mockReturnValueOnce(messageTypes.noTests);
         fakeProcess.stderr.emit('data', Buffer.from(''));
 
         expect(runner.prevMessageTypes).toEqual([messageTypes.noTests]);
       });
 
       it('should clear the message type history when the type is unknown', () => {
-        (runner: any).findMessageType = jest.fn().mockReturnValueOnce(messageTypes.unknown);
+        runner.findMessageType = jest.fn().mockReturnValueOnce(messageTypes.unknown);
         fakeProcess.stderr.emit('data', Buffer.from(''));
 
         expect(runner.prevMessageTypes).toEqual([]);
@@ -492,7 +496,7 @@ describe('Runner', () => {
         const data = Buffer.from('');
         const type = {};
         const meta = {type};
-        (runner: any).findMessageType = jest.fn().mockReturnValueOnce(type);
+        runner.findMessageType = jest.fn().mockReturnValueOnce(type);
 
         runner.on('executableStdErr', listener);
         fakeProcess.stderr.emit('data', data, meta);
