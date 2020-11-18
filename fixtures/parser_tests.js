@@ -433,7 +433,7 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       assertBlock2(itBlock, 5, 11, 7, 13, '__function__');
       assertNameInfo(itBlock, '__function__', 5, 17, 5, 26);
     });
-    it.only('return statement without arguments should not crash', () => {
+    it('return statement without arguments should not crash', () => {
       const data = `
       it('test', () => {
         expect(true).toBe(true);
