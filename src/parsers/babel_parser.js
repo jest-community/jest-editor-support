@@ -161,7 +161,7 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
         isFunctionDeclaration(element.expression.right.type)
       ) {
         searchNodes(element.expression.right.body, parent);
-      } else if (element.type === 'ReturnStatement' && element.argument && element.argument.arguments) {
+      } else if (element.type === 'ReturnStatement' && element.argument?.arguments) {
         element.argument.arguments
           .filter(argument => isFunctionDeclaration(argument.type))
           .forEach(argument => searchNodes(argument.body, parent));
