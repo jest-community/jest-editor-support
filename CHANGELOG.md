@@ -4,9 +4,12 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
-* fix parser crash for return statement without argument. - @connectdotz
 -->
 
+### 28.0.0
+* fix parser crash for return statement without argument. - @connectdotz
+* upgrade dependency `danger` and address other vulnerable dependency issues.
+  
 ### 28.0.0-beta.0
 * Replace babylon and typescript parsers with @babel/parser 7.x - @firsttris 
 * Renamed the property `pathToJest` to `jestCommandLine` in the ProjectWorkspace configuration object to better convey how the property is used internally.  Left the original `pathToJest` with a deprecated flag. - @rossknudsen
