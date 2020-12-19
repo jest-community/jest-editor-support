@@ -4,7 +4,7 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
-
+* fix parser crash for return statement without argument. - @connectdotz
 -->
 
 ### 28.0.0-beta.0

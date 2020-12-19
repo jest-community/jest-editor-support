@@ -74,6 +74,9 @@
       "<rootDir>/build/",
       "<rootDir>/fixtures/"
     ],
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/fixtures/"
+    ],
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest"
     }
