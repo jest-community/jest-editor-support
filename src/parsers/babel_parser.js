@@ -15,6 +15,9 @@ import * as parser from '@babel/parser';
 import type {ParsedNodeType} from './parser_nodes';
 import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
 
+export const UNRESOLVED_FUNCTION_NAME = '__function__';
+export const UNSUPPORTED_TEST_NAME = '__unsupported__';
+
 const _getASTfor = (file: string, data: ?string, options: ?parser.ParserOptions): [BabelFile, string] => {
   const _data = data || readFileSync(file).toString();
   const config = {...options, sourceType: 'module'};
@@ -41,10 +44,13 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
           break;
         case 'CallExpression':
           // a dynamic function: use a placeholder
-          name = '__function__';
+          name = UNRESOLVED_FUNCTION_NAME;
           break;
         default:
-          throw new TypeError(`failed to update namedBlock from: ${JSON.stringify(bNode)}`);
+          // eslint-disable-next-line no-console
+          console.warn(`failed to extract name for type "${arg.type}" in node:`, bNode);
+          name = UNSUPPORTED_TEST_NAME;
+          break;
       }
     }
 
@@ -76,12 +82,13 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   // Pull out the name of a CallExpression (describe/it)
   // handle cases where it's a member expression (.only)
   const getNameForNode = node => {
-    if (isFunctionCall(node) && node && node.expression && node.expression.callee) {
+    if (isFunctionCall(node) && node?.expression?.callee) {
       const name =
         node.expression.callee.name ||
         node.expression.callee.object?.name ||
-        node.expression.callee.callee?.object?.name;
-
+        node.expression.callee.callee?.object?.name ||
+        // possible TaggedTemplateExpression
+        node.expression.callee.tag?.object?.name;
       return name;
     }
     return undefined;

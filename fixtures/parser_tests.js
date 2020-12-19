@@ -6,6 +6,8 @@
  *
  */
 
+import {UNRESOLVED_FUNCTION_NAME, UNSUPPORTED_TEST_NAME} from '../src/parsers/babel_parser';
+
 const fixtures = __dirname;
 
 function parserTests(parse: (file: string) => ParseResult, isTypescript = false) {
@@ -430,8 +432,8 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       expect(parseResult.expects.length).toEqual(1);
 
       const itBlock = parseResult.itBlocks[0];
-      assertBlock2(itBlock, 5, 11, 7, 13, '__function__');
-      assertNameInfo(itBlock, '__function__', 5, 17, 5, 26);
+      assertBlock2(itBlock, 5, 11, 7, 13, UNRESOLVED_FUNCTION_NAME);
+      assertNameInfo(itBlock, UNRESOLVED_FUNCTION_NAME, 5, 17, 5, 26);
     });
     it('return statement without arguments should not crash', () => {
       const data = `
@@ -443,6 +445,41 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       const parseResult = parse('whatever', data);
       expect(parseResult.itBlocks.length).toEqual(1);
       expect(parseResult.expects.length).toEqual(1);
+    });
+    it('https://github.com/jest-community/jest-editor-support/issues/55', () => {
+      const data = `
+        describe(functionDotName.name, () => {
+          it('should parse', () => {});
+        });
+      `;
+      const parseResult = parse('whatever', data);
+      expect(parseResult.describeBlocks.length).toEqual(1);
+      expect(parseResult.itBlocks.length).toEqual(1);
+
+      const dBlock = parseResult.describeBlocks[0];
+      assertNameInfo(dBlock, UNSUPPORTED_TEST_NAME, 2, 19, 2, 36);
+
+      const itBlock = parseResult.itBlocks[0];
+      assertBlock2(itBlock, 3, 11, 3, 39, 'should parse');
+    });
+    it('https://github.com/jest-community/jest-editor-support/issues/53', () => {
+      const data = `
+        test.each\`
+          a    | b    | expected
+          ${1} | ${1} | ${2}
+          ${1} | ${2} | ${3}
+          ${2} | ${1} | ${3}
+        \`('returns $expected when $a is added $b', ({a, b, expected}) => {
+          expect(a + b).toBe(expected);
+        });
+      `;
+      const parseResult = parse('whatever', data);
+      expect(parseResult.itBlocks.length).toEqual(1);
+
+      const name = 'returns $expected when $a is added $b';
+      const itBlock = parseResult.itBlocks[0];
+      assertBlock2(itBlock, 2, 9, 9, 11, name);
+      assertNameInfo(itBlock, name, 7, 12, 7, 48);
     });
   });
 }
