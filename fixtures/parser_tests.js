@@ -385,6 +385,52 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       assertBlock2(itBlock, 2, 7, 4, 9, 'each test %p');
       assertNameInfo(itBlock, 'each test %p', 2, 33, 2, 44);
     });
+    
+    it('For the simplest it.each cases', () => {
+      const data = parse(`${fixtures}/global_it_eaches.example`);
+
+      expect(data.itBlocks.length).toEqual(8);
+
+      const firstIt = data.itBlocks[0];
+      expect(firstIt.name).toEqual('works with old functions');
+      expect(firstIt.start).toEqual({column: 1, line: 2});
+      expect(firstIt.end).toEqual({column: 3, line: 4});
+
+      const secondIt = data.itBlocks[1];
+      expect(secondIt.name).toEqual('works with new functions');
+      expect(secondIt.start).toEqual({column: 1, line: 6});
+      expect(secondIt.end).toEqual({column: 3, line: 8});
+
+      const thirdIt = data.itBlocks[2];
+      expect(thirdIt.name).toEqual('works with flow functions');
+      expect(thirdIt.start).toEqual({column: 1, line: 10});
+      expect(thirdIt.end).toEqual({column: 3, line: 12});
+
+      const fourthIt = data.itBlocks[2];
+      expect(fourthIt.name).toEqual('works with flow functions');
+      expect(fourthIt.start).toEqual({column: 1, line: 10});
+      expect(fourthIt.end).toEqual({column: 3, line: 12});
+
+      const fifthIt = data.itBlocks[4];
+      expect(fifthIt.name).toEqual('works with it.only');
+      expect(fifthIt.start).toEqual({column: 1, line: 18});
+      expect(fifthIt.end).toEqual({column: 3, line: 20});
+
+      const sixthIt = data.itBlocks[5];
+      expect(sixthIt.name).toEqual('works with fit');
+      expect(sixthIt.start).toEqual({column: 1, line: 22});
+      expect(sixthIt.end).toEqual({column: 3, line: 24});
+
+      const seventhIt = data.itBlocks[6];
+      expect(seventhIt.name).toEqual('works with test');
+      expect(seventhIt.start).toEqual({column: 1, line: 26});
+      expect(seventhIt.end).toEqual({column: 3, line: 28});
+
+      const eigthIt = data.itBlocks[7];
+      expect(eigthIt.name).toEqual('works with test.only');
+      expect(eigthIt.start).toEqual({column: 1, line: 30});
+      expect(eigthIt.end).toEqual({column: 3, line: 32});
+    });
     it('should be able to detect test.each with a bit different layout', () => {
       const data = `
       test.each(['a','b', 'c'])(

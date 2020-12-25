@@ -1,0 +1,32 @@
+// @flow
+it.each(['a', 'b', 'c'])('works with old functions', function() {
+
+});
+
+it.each(['a', 'b', 'c'])('works with new functions', () => {
+
+});
+
+it.each(['a', 'b', 'c'])('works with flow functions', () => {
+  function foo(x: string): string { return x; }
+});
+
+it.each(['a', 'b', 'c'])('works with JSX', ()=> {
+  const foo = () => <div></div>;
+})
+
+it.only.each(['a', 'b', 'c'])('works with it.only', () => {
+
+});
+
+fit.each(['a', 'b', 'c'])('works with fit', () => {
+
+});
+
+test.each(['a', 'b', 'c'])('works with test', () => {
+
+});
+
+test.only.each(['a', 'b', 'c'])('works with test.only', () => {
+
+});
