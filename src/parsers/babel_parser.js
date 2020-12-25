@@ -77,15 +77,25 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   // handle cases where it's a member expression (.only)
   const getNameForNode = node => {
     if (isFunctionCall(node) && node && node.expression && node.expression.callee) {
-      const name =
-        node.expression.callee.name ||
-        node.expression.callee.object?.name ||
-        node.expression.callee.callee?.object?.name;
+      const rootCallee = getRootCallee(node.expression);
+      const name = rootCallee.name || getRootObject(rootCallee).name;
 
       return name;
     }
     return undefined;
   };
+
+  const getRootCallee = node => getRootOfType(node, 'callee');
+
+  const getRootObject = node => getRootOfType(node, 'object');
+
+  const getRootOfType = (node, type) => {
+    let rootForType = node;
+    while(rootForType[type]) {
+      rootForType = rootForType[type];
+    }
+    return rootForType;
+  }
 
   // When given a node in the AST, does this represent
   // the start of an it/test block?
