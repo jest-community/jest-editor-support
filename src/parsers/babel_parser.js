@@ -88,7 +88,7 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   // Pull out the name of a CallExpression (describe/it)
   // handle cases where it's a member expression (.only)
   const getNameForNode = node => {
-    if (isFunctionCall(node) && node && node.expression && node.expression.callee) {
+    if (isFunctionCall(node) && node.expression.callee) {
       const rootCallee = getRootCallee(node.expression);
       const name = rootCallee.name || getRootObject(rootCallee).name;
 
