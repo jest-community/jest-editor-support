@@ -73,6 +73,18 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   const isFunctionDeclaration = (nodeType: string) =>
     nodeType === 'ArrowFunctionExpression' || nodeType === 'FunctionExpression';
 
+  const getRootCallee = node => getRootOfType(node, 'callee');
+
+  const getRootObject = node => getRootOfType(node, 'object');
+
+  const getRootOfType = (node, type) => {
+    let rootForType = node;
+    while (rootForType[type]) {
+      rootForType = rootForType[type];
+    }
+    return rootForType;
+  };
+  
   // Pull out the name of a CallExpression (describe/it)
   // handle cases where it's a member expression (.only)
   const getNameForNode = node => {
@@ -84,18 +96,6 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
     }
     return undefined;
   };
-
-  const getRootCallee = node => getRootOfType(node, 'callee');
-
-  const getRootObject = node => getRootOfType(node, 'object');
-
-  const getRootOfType = (node, type) => {
-    let rootForType = node;
-    while(rootForType[type]) {
-      rootForType = rootForType[type];
-    }
-    return rootForType;
-  }
 
   // When given a node in the AST, does this represent
   // the start of an it/test block?
