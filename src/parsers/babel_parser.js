@@ -30,6 +30,20 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   const parseResult = new ParseResult(file);
   const [ast, _data] = _getASTfor(file, data, options);
 
+  const getRootOfTypeOrSelf = (node, type) => {
+    let rootForType = node;
+    while (rootForType[type]) {
+      rootForType = rootForType[type];
+    }
+    return rootForType;
+  };
+
+  const getRootCalleeOrSelf = node => getRootOfTypeOrSelf(node, 'callee');
+
+  const getRootTagOrSelf = node => getRootOfTypeOrSelf(node, 'tag');
+
+  const getRootObjectOrSelf = node => getRootOfTypeOrSelf(node, 'object');
+
   const updateNameInfo = (nBlock: NamedBlock, bNode: BabelNode) => {
     const arg = bNode.expression.arguments[0];
     let name = arg.value;
@@ -73,24 +87,12 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   const isFunctionDeclaration = (nodeType: string) =>
     nodeType === 'ArrowFunctionExpression' || nodeType === 'FunctionExpression';
 
-  const getRootCallee = node => getRootOfType(node, 'callee');
-
-  const getRootObject = node => getRootOfType(node, 'object');
-
-  const getRootOfType = (node, type) => {
-    let rootForType = node;
-    while (rootForType[type]) {
-      rootForType = rootForType[type];
-    }
-    return rootForType;
-  };
-  
   // Pull out the name of a CallExpression (describe/it)
   // handle cases where it's a member expression (.only)
   const getNameForNode = node => {
     if (isFunctionCall(node) && node.expression.callee) {
-      const rootCallee = getRootCallee(node.expression);
-      const name = rootCallee.name || getRootObject(rootCallee).name;
+      const rootCallee = getRootCalleeOrSelf(node.expression);
+      const name = rootCallee.name || getRootObjectOrSelf(getRootTagOrSelf(rootCallee)).name;
 
       return name;
     }
