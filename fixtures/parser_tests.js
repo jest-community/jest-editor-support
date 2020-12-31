@@ -447,6 +447,75 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       assertBlock2(itBlock, 2, 7, 6, 9, 'each test %p');
       assertNameInfo(itBlock, 'each test %p', 3, 10, 3, 21);
     });
+
+    it('For tagged template syntax', () => {
+      const parseResult = parse(`${fixtures}/each_tagged_templates.example`);
+
+      expect(parseResult).toMatchObject({
+        itBlocks: [
+          {
+            name: 'works with global tagged-template it.each',
+            start: { line: 1, column: 1 },
+            end: { line: 8, column: 3 }
+          },
+          {
+            name: 'works with global tagged-template test.each',
+            start: { line: 10, column: 1 },
+            end: { line: 17, column: 3 }
+          },
+          {
+            name: 'works with it inside tagged-template describe.each',
+            start: { line: 25, column: 3 },
+            end: { line: 27, column: 5 }
+          },
+          {
+            name: 'works with test inside tagged-template describe.each',
+            start: { line: 29, column: 3 },
+            end: { line: 31, column: 5 }
+          },
+          {
+            name: 'works with tagged-template it.each inside normal describe',
+            start: { line: 35, column: 3 },
+            end: { line: 42, column: 5 }
+          },
+          {
+            name: 'works with tagged-template test.each inside normal describe',
+            start: { line: 44, column: 3 },
+            end: { line: 51, column: 5 }
+          },
+          {
+            name: 'works with tagged-template it.each inside tagged-template describe.each',
+            start: { line: 59, column: 3 },
+            end: { line: 65, column: 5 }
+          },
+          {
+            name: 'works with tagged-template test.each inside tagged-template describe.each',
+            start: { line: 67, column: 3 },
+            end: { line: 73, column: 5 }
+          },
+        ],
+        describeBlocks: [
+          {
+            name: 'tagged describe.each',
+            start: { line: 19, column: 1 },
+            end: { line: 32, column: 3 }
+          },
+          {
+            name: 'normal describe',
+            start: { line: 34, column: 1 },
+            end: { line: 52, column: 3 }
+          },
+          {
+            name: 'tagged describe.each 2',
+            start: { line: 54, column: 1 },
+            end: { line: 74, column: 3 }
+          }
+        ]
+      });
+      // Make sure there are no extras
+      expect(parseResult.itBlocks.length).toBe(8);
+      expect(parseResult.describeBlocks.length).toBe(3);
+    });
   });
   describe('typescript specific', () => {
     it('parser should not crash on ArrowFunctionExpression', () => {
