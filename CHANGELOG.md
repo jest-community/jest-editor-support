@@ -4,8 +4,8 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
-* Detect Tagged Template Literal version of describe.each and it.each
-* Detect it when used with deep chain of modifiers ( e.g. `test.concurrent.only.each(table)(name, fn)`)
+* Detect Tagged Template Literal version of describe.each and it.each - @TheSench
+* Detect it when used with deep chain of modifiers (e.g. `test.concurrent.only.each(table)(name, fn)`) - @TheSench
 -->
 
 ### 28.0.0
