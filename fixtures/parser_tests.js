@@ -476,7 +476,64 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
             name: 'works with test.concurrent.skip',
             start: { line: 54, column: 1 },
             end: { line: 56, column: 3 }
+          }
+        ],
+        describeBlocks: [
+        ]
+      });
+    });
+
+    it('For the simplest describe.each cases', () => {
+      const parseResult = parse(`${fixtures}/global_describe_eaches.example`);
+
+      const filteredParseResult = simplifiedParseResult(parseResult);
+      expect(filteredParseResult).toMatchObject({
+        itBlocks: [
+          {
+            name: 'works with old functions',
+            start: { line: 2, column: 1 },
+            end: { line: 4, column: 3 }
           },
+          {
+            name: 'works with new functions',
+            start: { line: 6, column: 1 },
+            end: { line: 8, column: 3 }
+          },
+          {
+            name: 'works with flow functions',
+            start: { line: 10, column: 1 },
+            end: { line: 12, column: 3 }
+          },
+          {
+            name: 'works with JSX',
+            start: { line: 14, column: 1 },
+            end: { line: 16, column: 3 }
+          },
+          {
+            name: 'works with describe.only',
+            start: { line: 18, column: 1 },
+            end: { line: 20, column: 3 }
+          },
+          {
+            name: 'works with describe.concurrent',
+            start: { line: 22, column: 1 },
+            end: { line: 24, column: 3 }
+          },
+          {
+            name: 'works with describe.concurrent.only',
+            start: { line: 26, column: 1 },
+            end: { line: 28, column: 3 }
+          },
+          {
+            name: 'works with describe.concurrent.skip',
+            start: { line: 30, column: 1 },
+            end: { line: 32, column: 3 }
+          },
+          {
+            name: 'works with fdescribe',
+            start: { line: 34, column: 1 },
+            end: { line: 36, column: 3 }
+          }
         ],
         describeBlocks: [
         ]
