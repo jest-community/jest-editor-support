@@ -25,9 +25,10 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       }).not.toThrow();
     });
   });
-  /**
-   * Simplify parseResult to make diffing easier during failed tests
-   */
+  const parseResultNames = (parseResult: ParseResult) => ({
+    itBlocks: parseResult.itBlocks.map(it => it.name),
+    describeBlocks: parseResult.describeBlocks.map(describe => describe.name)
+  });
   const simplifiedParseResult = (parseResult: ParseResult) => ({
     itBlocks: parseResult.itBlocks.map(it => ({
       name: it.name,
@@ -39,7 +40,18 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       start: describe.start,
       end: describe.end
     }))
-  })
+  });
+  /**
+   * Compare names, start, and end of each it/describe in parse result
+   */
+  const assertParseResultSimple = (parseResult: ParseResult, expectedSimplifiedParseResult) => {
+    // Check just names first
+    const names = parseResultNames(parseResult);
+    const expectedNames = parseResultNames(expectedSimplifiedParseResult);
+    expect(names).toMatchObject(expectedNames);
+    // Then check names, start, and end
+    expect(simplifiedParseResult(parseResult)).toMatchObject(expectedSimplifiedParseResult);
+  };
 
   describe('File Parsing for it blocks', () => {
     it('For the simplest it cases', () => {
@@ -404,8 +416,7 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
     it('For the simplest it.each cases', () => {
       const parseResult = parse(`${fixtures}/global_it_eaches.example`);
 
-      const filteredParseResult = simplifiedParseResult(parseResult);
-      expect(filteredParseResult).toMatchObject({
+      assertParseResultSimple(parseResult, {
         itBlocks: [
           {
             name: 'works with old functions',
@@ -479,16 +490,19 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
           }
         ],
         describeBlocks: [
+          // No describes
         ]
       });
     });
 
     it('For the simplest describe.each cases', () => {
-      const parseResult = parse(`${fixtures}/global_describe_eaches.example`);
+      const parseResult = parse(`${fixtures}/describe_eaches.example`);
 
-      const filteredParseResult = simplifiedParseResult(parseResult);
-      expect(filteredParseResult).toMatchObject({
+      assertParseResultSimple(parseResult, {
         itBlocks: [
+          // No tests
+        ],
+        describeBlocks: [
           {
             name: 'works with old functions',
             start: { line: 2, column: 1 },
@@ -528,14 +542,142 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
             name: 'works with describe.concurrent.skip',
             start: { line: 30, column: 1 },
             end: { line: 32, column: 3 }
+          }
+        ]
+      });
+    });
+    it('For nested cases', () => {
+      const parseResult = parse(`${fixtures}/nested_eaches.example`);
+
+      assertParseResultSimple(parseResult, {
+        itBlocks: [
+          {
+            name: 'it.each 1',
+            start: { line: 2, column: 3 },
+            end: { line: 3, column: 5 }
+          },
+          {
+            name: 'it.each 2',
+            start: { line: 4, column: 3 },
+            end: { line: 5, column: 5 }
+          },
+          {
+            name: 'it.each 3',
+            start: { line: 9, column: 3 },
+            end: { line: 10, column: 5 }
+          },
+          {
+            name: 'works with old functions',
+            start: { line: 14, column: 3 },
+            end: { line: 15, column: 5 }
           },
           {
             name: 'works with fdescribe',
-            start: { line: 34, column: 1 },
-            end: { line: 36, column: 3 }
+            start: { line: 19, column: 3 },
+            end: { line: 20, column: 5 }
+          },
+          {
+            name: 'works with describe.only',
+            start: { line: 24, column: 3 },
+            end: { line: 25, column: 5 }
+          },
+          {
+            name: 'works with describe.each',
+            start: { line: 29, column: 3 },
+            end: { line: 30, column: 5 }
+          },
+          {
+            name: 'works with inner describe',
+            start: { line: 35, column: 5 },
+            end: { line: 36, column: 7 }
+          },
+          {
+            name: 'works with inner describe.each',
+            start: { line: 39, column: 5 },
+            end: { line: 40, column: 7 }
+          },
+          {
+            name: 'normal it with inner describe.each',
+            start: { line: 41, column: 5 },
+            end: { line: 42, column: 7 }
+          },
+          {
+            name: 'works with outer describe.each',
+            start: { line: 48, column: 5 },
+            end: { line: 49, column: 7 }
+          },
+          {
+            name: 'normal it with outer describe.each',
+            start: { line: 50, column: 5 },
+            end: { line: 51, column: 7 }
+          },
+          {
+            name: 'works with inner and outer describe.each',
+            start: { line: 54, column: 5 },
+            end: { line: 55, column: 7 }
+          },
+          {
+            name: 'normal it with inner and outer describe.each',
+            start: { line: 56, column: 5 },
+            end: { line: 57, column: 7 }
           }
         ],
         describeBlocks: [
+          {
+            name: 'some context',
+            start: { line: 1, column: 1 },
+            end: { line: 6, column: 3 }
+          },
+          {
+            name: 'some other context',
+            start: { line: 8, column: 1 },
+            end: { line: 11, column: 3 }
+          },
+          {
+            name: 'with old functions',
+            start: { line: 13, column: 1 },
+            end: { line: 16, column: 3 }
+          },
+          {
+            name: 'with describe.only',
+            start: { line: 23, column: 1 },
+            end: { line: 26, column: 3 }
+          },
+          {
+            name: 'with describe.each',
+            start: { line: 28, column: 1 },
+            end: { line: 31, column: 3 }
+          },
+          {
+            name: 'outer',
+            start: { line: 33, column: 1 },
+            end: { line: 44, column: 3 }
+          },
+          {
+            name: 'inner',
+            start: { line: 34, column: 3 },
+            end: { line: 37, column: 5 }
+          },
+          {
+            name: 'inner',
+            start: { line: 38, column: 3 },
+            end: { line: 43, column: 5 }
+          },
+          {
+            name: 'outer describe.each',
+            start: { line: 46, column: 1 },
+            end: { line: 59, column: 3 }
+          },
+          {
+            name: 'inner',
+            start: { line: 47, column: 3 },
+            end: { line: 52, column: 5 }
+          },
+          {
+            name: 'inner',
+            start: { line: 53, column: 3 },
+            end: { line: 58, column: 5 }
+          }
         ]
       });
     });
