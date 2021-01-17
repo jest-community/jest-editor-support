@@ -30,6 +30,14 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   const parseResult = new ParseResult(file);
   const [ast, _data] = _getASTfor(file, data, options);
 
+  const deepGet = (node, ...types: string[]) =>
+    types.reduce<BabelNode>((rootForType, type) => {
+      while (rootForType[type]) {
+        rootForType = rootForType[type];
+      }
+      return rootForType;
+    }, node);
+
   const updateNameInfo = (nBlock: NamedBlock, bNode: BabelNode) => {
     const arg = bNode.expression.arguments[0];
     let name = arg.value;
@@ -56,6 +64,7 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
       arg.loc.end.column - 1
     );
   };
+
   const updateNode = (node: ParsedNode, babylonNode: BabelNode) => {
     node.start = babylonNode.loc.start;
     node.end = babylonNode.loc.end;
@@ -74,13 +83,16 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
     nodeType === 'ArrowFunctionExpression' || nodeType === 'FunctionExpression';
 
   // Pull out the name of a CallExpression (describe/it)
-  // handle cases where it's a member expression (.only)
   const getNameForNode = node => {
-    if (isFunctionCall(node) && node && node.expression && node.expression.callee) {
+    if (isFunctionCall(node) && node.expression.callee) {
+      // Get root callee in case it's a chain of higher-order functions (e.g. .each(table)(name, fn))
+      const rootCallee = deepGet(node.expression, 'callee');
       const name =
-        node.expression.callee.name ||
-        node.expression.callee.object?.name ||
-        node.expression.callee.callee?.object?.name;
+        rootCallee.name ||
+        // handle cases where it's a member expression (e.g .only or .concurrent.only)
+        deepGet(rootCallee, 'object').name ||
+        // handle cases where it's part of a tag (e.g. .each`table`)
+        deepGet(rootCallee, 'tag', 'object').name;
 
       return name;
     }

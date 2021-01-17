@@ -1,0 +1,56 @@
+// @flow
+it.each(['a', 'b', 'c'])('works with old functions', function() {
+
+});
+
+it.each(['a', 'b', 'c'])('works with new functions', () => {
+
+});
+
+it.each(['a', 'b', 'c'])('works with flow functions', () => {
+  function foo(x: string): string { return x; }
+});
+
+it.each(['a', 'b', 'c'])('works with JSX', () => {
+  const foo = () => <div></div>;
+});
+
+it.only.each(['a', 'b', 'c'])('works with it.only', () => {
+
+});
+
+it.concurrent.each(['a', 'b', 'c'])('works with it.concurrent', () => {
+
+});
+
+it.concurrent.only.each(['a', 'b', 'c'])('works with it.concurrent.only', () => {
+
+});
+
+it.concurrent.skip.each(['a', 'b', 'c'])('works with it.concurrent.skip', () => {
+
+});
+
+fit.each(['a', 'b', 'c'])('works with fit', () => {
+
+});
+
+test.each(['a', 'b', 'c'])('works with test', () => {
+
+});
+
+test.only.each(['a', 'b', 'c'])('works with test.only', () => {
+
+});
+
+test.concurrent.each(['a', 'b', 'c'])('works with test.concurrent', () => {
+
+});
+
+test.concurrent.only.each(['a', 'b', 'c'])('works with test.concurrent.only', () => {
+
+});
+
+test.concurrent.skip.each(['a', 'b', 'c'])('works with test.concurrent.skip', () => {
+
+});

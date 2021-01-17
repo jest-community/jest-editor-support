@@ -1,0 +1,59 @@
+describe('some context', () => {
+  it.each([1, 2])('it.each 1', () => {
+  });
+  it.each([1, 2])('it.each 2', () => {
+  });
+});
+
+describe('some other context', () => {
+  it.each([1, 2])('it.each 3', () => {
+  });
+});
+
+describe('with old functions', function() {
+  it.each([1, 2])('works with old functions', () => {
+  });
+});
+
+fdescribe('with fdescribe', () => {
+  it.each([1, 2])('works with fdescribe', () => {
+  });
+});
+
+describe.only('with describe.only', () => {
+  it.each([1, 2])('works with describe.only', () => {
+  });
+});
+
+describe.each([1, 2])('with describe.each', () => {
+  it.each([1, 2])('works with describe.each', () => {
+  });
+});
+
+describe('outer', () => {
+  describe('inner', () => {
+    it.each([1, 2])('works with inner describe', () => {
+    });
+  });
+  describe.each([1, 2])('inner', () => {
+    it.each([1, 2])('works with inner describe.each', () => {
+    });
+    it('normal it with inner describe.each', () => {
+    });
+  });
+});
+
+describe.each([1, 2])('outer describe.each', () => {
+  describe('inner', () => {
+    it.each([1, 2])('works with outer describe.each', () => {
+    });
+    it('normal it with outer describe.each', () => {
+    });
+  });
+  describe.each([1, 2])('inner', () => {
+    it.each([1, 2])('works with inner and outer describe.each', () => {
+    });
+    it('normal it with inner and outer describe.each', () => {
+    });
+  });
+});

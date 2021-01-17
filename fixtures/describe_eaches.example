@@ -1,0 +1,36 @@
+// @flow
+describe.each(['a', 'b', 'c'])('works with old functions', function() {
+
+});
+
+describe.each(['a', 'b', 'c'])('works with new functions', () => {
+
+});
+
+describe.each(['a', 'b', 'c'])('works with flow functions', () => {
+  function foo(x: string): string { return x; }
+});
+
+describe.each(['a', 'b', 'c'])('works with JSX', () => {
+  const foo = () => <div></div>;
+});
+
+describe.only.each(['a', 'b', 'c'])('works with describe.only', () => {
+
+});
+
+describe.concurrent.each(['a', 'b', 'c'])('works with describe.concurrent', () => {
+
+});
+
+describe.concurrent.only.each(['a', 'b', 'c'])('works with describe.concurrent.only', () => {
+
+});
+
+describe.concurrent.skip.each(['a', 'b', 'c'])('works with describe.concurrent.skip', () => {
+
+});
+
+fdescribe.each(['a', 'b', 'c'])('works with fdescribe', () => {
+
+});

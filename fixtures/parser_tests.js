@@ -17,7 +17,7 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
     }
   };
   const assertBlock2 = (block, sl: number, sc: number, el: number, ec: number, name: ?string = null) =>
-    assertBlock(block, {column: sc, line: sl}, {column: ec, line: el}, name);
+    assertBlock(block, { column: sc, line: sl }, { column: ec, line: el }, name);
   describe('File parsing without throwing', () => {
     it('Should not throw', () => {
       expect(() => {
@@ -25,6 +25,33 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       }).not.toThrow();
     });
   });
+  const parseResultNames = (parseResult: ParseResult) => ({
+    itBlocks: parseResult.itBlocks.map(it => it.name),
+    describeBlocks: parseResult.describeBlocks.map(describe => describe.name)
+  });
+  const simplifiedParseResult = (parseResult: ParseResult) => ({
+    itBlocks: parseResult.itBlocks.map(it => ({
+      name: it.name,
+      start: it.start,
+      end: it.end
+    })),
+    describeBlocks: parseResult.describeBlocks.map(describe => ({
+      name: describe.name,
+      start: describe.start,
+      end: describe.end
+    }))
+  });
+  /**
+   * Compare names, start, and end of each it/describe in parse result
+   */
+  const assertParseResultSimple = (parseResult: ParseResult, expectedSimplifiedParseResult) => {
+    // Check just names first
+    const names = parseResultNames(parseResult);
+    const expectedNames = parseResultNames(expectedSimplifiedParseResult);
+    expect(names).toMatchObject(expectedNames);
+    // Then check names, start, and end
+    expect(simplifiedParseResult(parseResult)).toMatchObject(expectedSimplifiedParseResult);
+  };
 
   describe('File Parsing for it blocks', () => {
     it('For the simplest it cases', () => {
@@ -34,43 +61,43 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
 
       const firstIt = data.itBlocks[0];
       expect(firstIt.name).toEqual('works with old functions');
-      expect(firstIt.start).toEqual({column: 1, line: 2});
-      expect(firstIt.end).toEqual({column: 3, line: 4});
+      expect(firstIt.start).toEqual({ column: 1, line: 2 });
+      expect(firstIt.end).toEqual({ column: 3, line: 4 });
 
       const secondIt = data.itBlocks[1];
       expect(secondIt.name).toEqual('works with new functions');
-      expect(secondIt.start).toEqual({column: 1, line: 6});
-      expect(secondIt.end).toEqual({column: 3, line: 8});
+      expect(secondIt.start).toEqual({ column: 1, line: 6 });
+      expect(secondIt.end).toEqual({ column: 3, line: 8 });
 
       const thirdIt = data.itBlocks[2];
       expect(thirdIt.name).toEqual('works with flow functions');
-      expect(thirdIt.start).toEqual({column: 1, line: 10});
-      expect(thirdIt.end).toEqual({column: 3, line: 12});
+      expect(thirdIt.start).toEqual({ column: 1, line: 10 });
+      expect(thirdIt.end).toEqual({ column: 3, line: 12 });
 
       const fourthIt = data.itBlocks[2];
       expect(fourthIt.name).toEqual('works with flow functions');
-      expect(fourthIt.start).toEqual({column: 1, line: 10});
-      expect(fourthIt.end).toEqual({column: 3, line: 12});
+      expect(fourthIt.start).toEqual({ column: 1, line: 10 });
+      expect(fourthIt.end).toEqual({ column: 3, line: 12 });
 
       const fifthIt = data.itBlocks[4];
       expect(fifthIt.name).toEqual('works with it.only');
-      expect(fifthIt.start).toEqual({column: 1, line: 18});
-      expect(fifthIt.end).toEqual({column: 3, line: 20});
+      expect(fifthIt.start).toEqual({ column: 1, line: 18 });
+      expect(fifthIt.end).toEqual({ column: 3, line: 20 });
 
       const sixthIt = data.itBlocks[5];
       expect(sixthIt.name).toEqual('works with fit');
-      expect(sixthIt.start).toEqual({column: 1, line: 22});
-      expect(sixthIt.end).toEqual({column: 3, line: 24});
+      expect(sixthIt.start).toEqual({ column: 1, line: 22 });
+      expect(sixthIt.end).toEqual({ column: 3, line: 24 });
 
       const seventhIt = data.itBlocks[6];
       expect(seventhIt.name).toEqual('works with test');
-      expect(seventhIt.start).toEqual({column: 1, line: 26});
-      expect(seventhIt.end).toEqual({column: 3, line: 28});
+      expect(seventhIt.start).toEqual({ column: 1, line: 26 });
+      expect(seventhIt.end).toEqual({ column: 3, line: 28 });
 
       const eigthIt = data.itBlocks[7];
       expect(eigthIt.name).toEqual('works with test.only');
-      expect(eigthIt.start).toEqual({column: 1, line: 30});
-      expect(eigthIt.end).toEqual({column: 3, line: 32});
+      expect(eigthIt.start).toEqual({ column: 1, line: 30 });
+      expect(eigthIt.end).toEqual({ column: 3, line: 32 });
     });
 
     it('For its inside describes', () => {
@@ -80,33 +107,33 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
 
       const firstIt = data.itBlocks[0];
       expect(firstIt.name).toEqual('1');
-      expect(firstIt.start).toEqual({column: 3, line: 2});
-      expect(firstIt.end).toEqual({column: 5, line: 3});
+      expect(firstIt.start).toEqual({ column: 3, line: 2 });
+      expect(firstIt.end).toEqual({ column: 5, line: 3 });
 
       const secondIt = data.itBlocks[1];
       expect(secondIt.name).toEqual('2');
-      expect(secondIt.start).toEqual({column: 3, line: 4});
-      expect(secondIt.end).toEqual({column: 5, line: 5});
+      expect(secondIt.start).toEqual({ column: 3, line: 4 });
+      expect(secondIt.end).toEqual({ column: 5, line: 5 });
 
       const thirdIt = data.itBlocks[2];
       expect(thirdIt.name).toEqual('3');
-      expect(thirdIt.start).toEqual({column: 3, line: 9});
-      expect(thirdIt.end).toEqual({column: 5, line: 10});
+      expect(thirdIt.start).toEqual({ column: 3, line: 9 });
+      expect(thirdIt.end).toEqual({ column: 5, line: 10 });
 
       const fourthIt = data.itBlocks[3];
       expect(fourthIt.name).toEqual('4');
-      expect(fourthIt.start).toEqual({column: 3, line: 14});
-      expect(fourthIt.end).toEqual({column: 5, line: 15});
+      expect(fourthIt.start).toEqual({ column: 3, line: 14 });
+      expect(fourthIt.end).toEqual({ column: 5, line: 15 });
 
       const fifthIt = data.itBlocks[4];
       expect(fifthIt.name).toEqual('5');
-      expect(fifthIt.start).toEqual({column: 3, line: 19});
-      expect(fifthIt.end).toEqual({column: 5, line: 20});
+      expect(fifthIt.start).toEqual({ column: 3, line: 19 });
+      expect(fifthIt.end).toEqual({ column: 5, line: 20 });
 
       const sixthIt = data.itBlocks[5];
       expect(sixthIt.name).toEqual('6');
-      expect(sixthIt.start).toEqual({column: 3, line: 24});
-      expect(sixthIt.end).toEqual({column: 5, line: 25});
+      expect(sixthIt.start).toEqual({ column: 3, line: 24 });
+      expect(sixthIt.end).toEqual({ column: 5, line: 25 });
     });
 
     // These tests act more like linters that we don't raise on
@@ -140,8 +167,8 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       expect(data.expects.length).toEqual(8);
 
       const firstExpect = data.expects[0];
-      expect(firstExpect.start).toEqual({column: 5, line: 13});
-      expect(firstExpect.end).toEqual({column: 36, line: 13});
+      expect(firstExpect.start).toEqual({ column: 5, line: 13 });
+      expect(firstExpect.end).toEqual({ column: 36, line: 13 });
     });
 
     it('finds Expects in a danger flow test file ', () => {
@@ -149,8 +176,8 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       expect(data.expects.length).toEqual(3);
 
       const thirdExpect = data.expects[2];
-      expect(thirdExpect.start).toEqual({column: 5, line: 33});
-      expect(thirdExpect.end).toEqual({column: 39, line: 33});
+      expect(thirdExpect.start).toEqual({ column: 5, line: 33 });
+      expect(thirdExpect.end).toEqual({ column: 39, line: 33 });
     });
 
     it('finds Expects in a metaphysics test file', () => {
@@ -169,7 +196,7 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       expect(data.describeBlocks.length).toEqual(4);
 
       const firstDescribe = data.describeBlocks[0];
-      assertBlock(firstDescribe, {column: 1, line: 10}, {column: 2, line: 20}, '.isCI');
+      assertBlock(firstDescribe, { column: 1, line: 10 }, { column: 2, line: 20 }, '.isCI');
     });
     it('finds test blocks within describe blocks', () => {
       const data = parse(`${fixtures}/dangerjs/travis-ci.example`);
@@ -228,8 +255,8 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       expect(dBlock.children.length).toBe(1);
       expect(t1.children.length).toBe(1);
 
-      assertBlock(t1, {column: 3, line: 2}, {column: 5, line: 4}, 'test has no expression either');
-      assertBlock(e1, {column: 5, line: 3}, {column: 25, line: 3});
+      assertBlock(t1, { column: 3, line: 2 }, { column: 5, line: 4 }, 'test has no expression either');
+      assertBlock(e1, { column: 5, line: 3 }, { column: 25, line: 3 });
     });
 
     test(`simple template literal`, () => {
@@ -240,9 +267,9 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       const t2 = dBlock.children[1];
       const t3 = dBlock.children[2];
 
-      assertBlock(t1, {column: 3, line: 8}, {column: 46, line: 8}, '${expression} up front');
-      assertBlock(t2, {column: 3, line: 9}, {column: 4, line: 10}, 'at the end ${expression}');
-      assertBlock(t3, {column: 3, line: 11}, {column: 5, line: 12}, 'mixed ${expression1} and ${expression2}');
+      assertBlock(t1, { column: 3, line: 8 }, { column: 46, line: 8 }, '${expression} up front');
+      assertBlock(t2, { column: 3, line: 9 }, { column: 4, line: 10 }, 'at the end ${expression}');
+      assertBlock(t3, { column: 3, line: 11 }, { column: 5, line: 12 }, 'mixed ${expression1} and ${expression2}');
     });
 
     test(`template literal with functions`, () => {
@@ -255,11 +282,11 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
 
       assertBlock(
         t1,
-        {column: 3, line: 16},
-        {column: 5, line: 18},
+        { column: 3, line: 16 },
+        { column: 5, line: 18 },
         'this ${test} calls ${JSON.stringfy(expression)} should still work'
       );
-      assertBlock(e1, {column: 5, line: 17}, {column: 31, line: 17});
+      assertBlock(e1, { column: 5, line: 17 }, { column: 31, line: 17 });
     });
 
     test(`multiline template literal`, () => {
@@ -272,12 +299,12 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
 
       assertBlock(
         t1,
-        {column: 3, line: 22},
-        {column: 5, line: 25},
+        { column: 3, line: 22 },
+        { column: 5, line: 25 },
         `this \${test} will span in
     multiple lines`
       );
-      assertBlock(e1, {column: 5, line: 24}, {column: 32, line: 24});
+      assertBlock(e1, { column: 5, line: 24 }, { column: 32, line: 24 });
     });
 
     test(`edge case: should not fail`, () => {
@@ -288,8 +315,8 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       expect(dBlock.children.length).toBe(2);
       expect(t1.children.length).toBe(1);
 
-      assertBlock(t1, {column: 3, line: 29}, {column: 5, line: 31}, '');
-      assertBlock(e1, {column: 5, line: 30}, {column: 30, line: 30});
+      assertBlock(t1, { column: 3, line: 29 }, { column: 5, line: 31 }, '');
+      assertBlock(e1, { column: 5, line: 30 }, { column: 30, line: 30 });
     });
   });
 
@@ -385,6 +412,275 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       assertBlock2(itBlock, 2, 7, 4, 9, 'each test %p');
       assertNameInfo(itBlock, 'each test %p', 2, 33, 2, 44);
     });
+
+    it('For the simplest it.each cases', () => {
+      const parseResult = parse(`${fixtures}/global_it_eaches.example`);
+
+      assertParseResultSimple(parseResult, {
+        itBlocks: [
+          {
+            name: 'works with old functions',
+            start: { line: 2, column: 1 },
+            end: { line: 4, column: 3 }
+          },
+          {
+            name: 'works with new functions',
+            start: { line: 6, column: 1 },
+            end: { line: 8, column: 3 }
+          },
+          {
+            name: 'works with flow functions',
+            start: { line: 10, column: 1 },
+            end: { line: 12, column: 3 }
+          },
+          {
+            name: 'works with JSX',
+            start: { line: 14, column: 1 },
+            end: { line: 16, column: 3 }
+          },
+          {
+            name: 'works with it.only',
+            start: { line: 18, column: 1 },
+            end: { line: 20, column: 3 }
+          },
+          {
+            name: 'works with it.concurrent',
+            start: { line: 22, column: 1 },
+            end: { line: 24, column: 3 }
+          },
+          {
+            name: 'works with it.concurrent.only',
+            start: { line: 26, column: 1 },
+            end: { line: 28, column: 3 }
+          },
+          {
+            name: 'works with it.concurrent.skip',
+            start: { line: 30, column: 1 },
+            end: { line: 32, column: 3 }
+          },
+          {
+            name: 'works with fit',
+            start: { line: 34, column: 1 },
+            end: { line: 36, column: 3 }
+          },
+          {
+            name: 'works with test',
+            start: { line: 38, column: 1 },
+            end: { line: 40, column: 3 }
+          },
+          {
+            name: 'works with test.only',
+            start: { line: 42, column: 1 },
+            end: { line: 44, column: 3 }
+          },
+          {
+            name: 'works with test.concurrent',
+            start: { line: 46, column: 1 },
+            end: { line: 48, column: 3 }
+          },
+          {
+            name: 'works with test.concurrent.only',
+            start: { line: 50, column: 1 },
+            end: { line: 52, column: 3 }
+          },
+          {
+            name: 'works with test.concurrent.skip',
+            start: { line: 54, column: 1 },
+            end: { line: 56, column: 3 }
+          }
+        ],
+        describeBlocks: [
+          // No describes
+        ]
+      });
+    });
+
+    it('For the simplest describe.each cases', () => {
+      const parseResult = parse(`${fixtures}/describe_eaches.example`);
+
+      assertParseResultSimple(parseResult, {
+        itBlocks: [
+          // No tests
+        ],
+        describeBlocks: [
+          {
+            name: 'works with old functions',
+            start: { line: 2, column: 1 },
+            end: { line: 4, column: 3 }
+          },
+          {
+            name: 'works with new functions',
+            start: { line: 6, column: 1 },
+            end: { line: 8, column: 3 }
+          },
+          {
+            name: 'works with flow functions',
+            start: { line: 10, column: 1 },
+            end: { line: 12, column: 3 }
+          },
+          {
+            name: 'works with JSX',
+            start: { line: 14, column: 1 },
+            end: { line: 16, column: 3 }
+          },
+          {
+            name: 'works with describe.only',
+            start: { line: 18, column: 1 },
+            end: { line: 20, column: 3 }
+          },
+          {
+            name: 'works with describe.concurrent',
+            start: { line: 22, column: 1 },
+            end: { line: 24, column: 3 }
+          },
+          {
+            name: 'works with describe.concurrent.only',
+            start: { line: 26, column: 1 },
+            end: { line: 28, column: 3 }
+          },
+          {
+            name: 'works with describe.concurrent.skip',
+            start: { line: 30, column: 1 },
+            end: { line: 32, column: 3 }
+          }
+        ]
+      });
+    });
+    it('For nested cases', () => {
+      const parseResult = parse(`${fixtures}/nested_eaches.example`);
+
+      assertParseResultSimple(parseResult, {
+        itBlocks: [
+          {
+            name: 'it.each 1',
+            start: { line: 2, column: 3 },
+            end: { line: 3, column: 5 }
+          },
+          {
+            name: 'it.each 2',
+            start: { line: 4, column: 3 },
+            end: { line: 5, column: 5 }
+          },
+          {
+            name: 'it.each 3',
+            start: { line: 9, column: 3 },
+            end: { line: 10, column: 5 }
+          },
+          {
+            name: 'works with old functions',
+            start: { line: 14, column: 3 },
+            end: { line: 15, column: 5 }
+          },
+          {
+            name: 'works with fdescribe',
+            start: { line: 19, column: 3 },
+            end: { line: 20, column: 5 }
+          },
+          {
+            name: 'works with describe.only',
+            start: { line: 24, column: 3 },
+            end: { line: 25, column: 5 }
+          },
+          {
+            name: 'works with describe.each',
+            start: { line: 29, column: 3 },
+            end: { line: 30, column: 5 }
+          },
+          {
+            name: 'works with inner describe',
+            start: { line: 35, column: 5 },
+            end: { line: 36, column: 7 }
+          },
+          {
+            name: 'works with inner describe.each',
+            start: { line: 39, column: 5 },
+            end: { line: 40, column: 7 }
+          },
+          {
+            name: 'normal it with inner describe.each',
+            start: { line: 41, column: 5 },
+            end: { line: 42, column: 7 }
+          },
+          {
+            name: 'works with outer describe.each',
+            start: { line: 48, column: 5 },
+            end: { line: 49, column: 7 }
+          },
+          {
+            name: 'normal it with outer describe.each',
+            start: { line: 50, column: 5 },
+            end: { line: 51, column: 7 }
+          },
+          {
+            name: 'works with inner and outer describe.each',
+            start: { line: 54, column: 5 },
+            end: { line: 55, column: 7 }
+          },
+          {
+            name: 'normal it with inner and outer describe.each',
+            start: { line: 56, column: 5 },
+            end: { line: 57, column: 7 }
+          }
+        ],
+        describeBlocks: [
+          {
+            name: 'some context',
+            start: { line: 1, column: 1 },
+            end: { line: 6, column: 3 }
+          },
+          {
+            name: 'some other context',
+            start: { line: 8, column: 1 },
+            end: { line: 11, column: 3 }
+          },
+          {
+            name: 'with old functions',
+            start: { line: 13, column: 1 },
+            end: { line: 16, column: 3 }
+          },
+          {
+            name: 'with describe.only',
+            start: { line: 23, column: 1 },
+            end: { line: 26, column: 3 }
+          },
+          {
+            name: 'with describe.each',
+            start: { line: 28, column: 1 },
+            end: { line: 31, column: 3 }
+          },
+          {
+            name: 'outer',
+            start: { line: 33, column: 1 },
+            end: { line: 44, column: 3 }
+          },
+          {
+            name: 'inner',
+            start: { line: 34, column: 3 },
+            end: { line: 37, column: 5 }
+          },
+          {
+            name: 'inner',
+            start: { line: 38, column: 3 },
+            end: { line: 43, column: 5 }
+          },
+          {
+            name: 'outer describe.each',
+            start: { line: 46, column: 1 },
+            end: { line: 59, column: 3 }
+          },
+          {
+            name: 'inner',
+            start: { line: 47, column: 3 },
+            end: { line: 52, column: 5 }
+          },
+          {
+            name: 'inner',
+            start: { line: 53, column: 3 },
+            end: { line: 58, column: 5 }
+          }
+        ]
+      });
+    });
     it('should be able to detect test.each with a bit different layout', () => {
       const data = `
       test.each(['a','b', 'c'])(
@@ -400,6 +696,76 @@ function parserTests(parse: (file: string) => ParseResult, isTypescript = false)
       const itBlock = parseResult.itBlocks[0];
       assertBlock2(itBlock, 2, 7, 6, 9, 'each test %p');
       assertNameInfo(itBlock, 'each test %p', 3, 10, 3, 21);
+    });
+
+    it('For tagged template syntax', () => {
+      const parseResult = parse(`${fixtures}/each_tagged_templates.example`);
+
+      const filteredParseResult = simplifiedParseResult(parseResult);
+      expect(filteredParseResult).toMatchObject({
+        itBlocks: [
+          {
+            name: 'works with global tagged-template it.each',
+            start: { line: 1, column: 1 },
+            end: { line: 8, column: 3 }
+          },
+          {
+            name: 'works with global tagged-template test.each',
+            start: { line: 10, column: 1 },
+            end: { line: 17, column: 3 }
+          },
+          {
+            name: 'works with it inside tagged-template describe.each',
+            start: { line: 25, column: 3 },
+            end: { line: 27, column: 5 }
+          },
+          {
+            name: 'works with test inside tagged-template describe.each',
+            start: { line: 29, column: 3 },
+            end: { line: 31, column: 5 }
+          },
+          {
+            name: 'works with tagged-template it.each inside normal describe',
+            start: { line: 35, column: 3 },
+            end: { line: 42, column: 5 }
+          },
+          {
+            name: 'works with tagged-template test.each inside normal describe',
+            start: { line: 44, column: 3 },
+            end: { line: 51, column: 5 }
+          },
+          {
+            name: 'works with tagged-template it.each inside tagged-template describe.each',
+            start: { line: 59, column: 3 },
+            end: { line: 65, column: 5 }
+          },
+          {
+            name: 'works with tagged-template test.each inside tagged-template describe.each',
+            start: { line: 67, column: 3 },
+            end: { line: 73, column: 5 }
+          },
+        ],
+        describeBlocks: [
+          {
+            name: 'tagged describe.each',
+            start: { line: 19, column: 1 },
+            end: { line: 32, column: 3 }
+          },
+          {
+            name: 'normal describe',
+            start: { line: 34, column: 1 },
+            end: { line: 52, column: 3 }
+          },
+          {
+            name: 'tagged describe.each 2',
+            start: { line: 54, column: 1 },
+            end: { line: 74, column: 3 }
+          }
+        ]
+      });
+      // Make sure there are no extras
+      expect(parseResult.itBlocks.length).toBe(8);
+      expect(parseResult.describeBlocks.length).toBe(3);
     });
   });
   describe('typescript specific', () => {
