@@ -4,12 +4,13 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
+-->
+
+### 28.1.0
 * make parser missing name a warning instead of error (#55) - @connectdotz
 * clean up fixtures/parser_tests.js and add it for lint/prettier scripts. - @connectdotz
 * Detect Tagged Template Literal version of describe.each and it.each - @TheSench
 * Detect it when used with deep chain of modifiers (e.g. `test.concurrent.only.each(table)(name, fn)`) - @TheSench
--->
-
 ### 28.0.0
 * fix parser crash for return statement without argument. - @connectdotz
 * upgrade dependency `danger` and address other vulnerable dependency issues.
