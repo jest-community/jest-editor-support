@@ -4,7 +4,8 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
-* address a couple of parsing issues (#53, #55) - @connectdotz
+* make parser missing name a warning instead of error (#55) - @connectdotz
+* clean up fixtures/parser_tests.js and add it for lint/prettier scripts. - @connectdotz
 * Detect Tagged Template Literal version of describe.each and it.each - @TheSench
 * Detect it when used with deep chain of modifiers (e.g. `test.concurrent.only.each(table)(name, fn)`) - @TheSench
 -->
