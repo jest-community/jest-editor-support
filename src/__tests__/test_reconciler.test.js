@@ -64,6 +64,13 @@ Expected value to be falsy, instead received
       expect(status.status).toEqual('KnownSkip');
       expect(status.line).toBeNull();
     });
+
+    it('skips a todo method', () => {
+      const testName = 'this test has not been implemented yet';
+      const status: any = parser.stateForTestAssertion(dangerFilePath, testName);
+      expect(status.status).toEqual('KnownTodo');
+      expect(status.line).toBeNull();
+    });
   });
 
   describe('test result with --testLocationInResults', () => {
