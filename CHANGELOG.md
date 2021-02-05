@@ -4,53 +4,63 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
+- Identify todo tests, which are distinct from pending/skip tests @pmcelhaney
 -->
 
 ### 28.1.0
-* make parser missing name a warning instead of error (#55) - @connectdotz
-* clean up fixtures/parser_tests.js and add it for lint/prettier scripts. - @connectdotz
-* Detect Tagged Template Literal version of describe.each and it.each - @TheSench
-* Detect it when used with deep chain of modifiers (e.g. `test.concurrent.only.each(table)(name, fn)`) - @TheSench
+
+- make parser missing name a warning instead of error (#55) - @connectdotz
+- clean up fixtures/parser_tests.js and add it for lint/prettier scripts. - @connectdotz
+- Detect Tagged Template Literal version of describe.each and it.each - @TheSench
+- Detect it when used with deep chain of modifiers (e.g. `test.concurrent.only.each(table)(name, fn)`) - @TheSench
+
 ### 28.0.0
-* fix parser crash for return statement without argument. - @connectdotz
-* upgrade dependency `danger` and address other vulnerable dependency issues.
-  
+
+- fix parser crash for return statement without argument. - @connectdotz
+- upgrade dependency `danger` and address other vulnerable dependency issues.
+
 ### 28.0.0-beta.0
-* Replace babylon and typescript parsers with @babel/parser 7.x - @firsttris 
-* Renamed the property `pathToJest` to `jestCommandLine` in the ProjectWorkspace configuration object to better convey how the property is used internally.  Left the original `pathToJest` with a deprecated flag. - @rossknudsen
-* expose fullName and ancestorTitles to assertions - @connectdotz
-* fix parser regression: test.each is being ignored by parser - @connectdotz
-* fix typescript parsing error - @connectdotz
+
+- Replace babylon and typescript parsers with @babel/parser 7.x - @firsttris
+- Renamed the property `pathToJest` to `jestCommandLine` in the ProjectWorkspace configuration object to better convey how the property is used internally. Left the original `pathToJest` with a deprecated flag. - @rossknudsen
+- expose fullName and ancestorTitles to assertions - @connectdotz
+- fix parser regression: test.each is being ignored by parser - @connectdotz
+- fix typescript parsing error - @connectdotz
 
 ### 27.2.0
-* Address orphan process issue - @connectdotz
+
+- Address orphan process issue - @connectdotz
 
 ### 27.1.0
-* Add `--reporters` option support - [@jmarceli](https://github.com/jmarceli)
+
+- Add `--reporters` option support - [@jmarceli](https://github.com/jmarceli)
 
 ### 27.0.0
-* [breaking change] Replace the `Settings` class with a `getSettings` function - stephtr
+
+- [breaking change] Replace the `Settings` class with a `getSettings` function - stephtr
 
   `getSettings` now simply returns a promise resolving to jest's config.
 
-* Improved handling of quoted commands, arguments and escaped spaces - omjadas
+- Improved handling of quoted commands, arguments and escaped spaces - omjadas
 
 ### 26.0.0
-* incorporate `jest-test-typescript-parser` into this package since it has been deprecated from the original `jest` reposition (#9) - connectdotz
+
+- incorporate `jest-test-typescript-parser` into this package since it has been deprecated from the original `jest` reposition (#9) - connectdotz
 
   projects that link with this package no longer need to add `jest-test-typescript-parser` package separately. The newly exposed `parse` function can select the proper parser based on file extension.
 
-* fix a few race condition errors in Runner (#9) - connectdotz
-  - concurrent Runner output to the same hard coded output file: added optional 'outputFileSuffix' parameter. 
+- fix a few race condition errors in Runner (#9) - connectdotz
+
+  - concurrent Runner output to the same hard coded output file: added optional 'outputFileSuffix' parameter.
   - jest process output parser sometimes failed to identify testResults message.
 
-* `TestReconciler` will now report test locations from jest '--testLocationInResults' output
+- `TestReconciler` will now report test locations from jest '--testLocationInResults' output
 
-* Snapshot parsing error will no longer throw but returns empty result. (#9) - connectdotz
+- Snapshot parsing error will no longer throw but returns empty result. (#9) - connectdotz
 
   Turning on the verbose will output caught exception for debugging purpose.
 
-* upgrade to the latest jest version (24.7.x) - connectdotz
+- upgrade to the latest jest version (24.7.x) - connectdotz
 
 ### 25.0.0
 
@@ -61,7 +71,7 @@ in your head, consider this a 1.0 kinda thing.
 
   This is because the codebase was migrated with Jest, and now uses functions
   from the master builds that don't seem to be available on the latest production
-  versions of jest-snapshot/. If someone wants to backport this to the prod builds 
+  versions of jest-snapshot/. If someone wants to backport this to the prod builds
   look at the usage of the `buildSnapshotResolver`
 
 - Adds the ability to parse describe blocks - https://github.com/facebook/jest/pull/7215

@@ -131,6 +131,8 @@ export default class TestReconciler {
         return 'KnownFail';
       case 'pending':
         return 'KnownSkip';
+      case 'todo':
+        return 'KnownTodo';
       default:
         return 'Unknown';
     }
