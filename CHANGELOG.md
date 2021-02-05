@@ -4,7 +4,7 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
-* Identify todo tests, which are distinct from pending/skip tests @pmcelhaney
+- Identify todo tests, which are distinct from pending/skip tests @pmcelhaney
 -->
 
 ### 28.1.0
