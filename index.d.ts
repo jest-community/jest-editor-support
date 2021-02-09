@@ -10,16 +10,20 @@ import {ChildProcess} from 'child_process';
 import {Config as JestConfig} from '@jest/types';
 
 export interface Options {
-  createProcess?(
+  createProcess?: (
     workspace: ProjectWorkspace,
     args: string[],
-  ): ChildProcess;
+  ) => ChildProcess;
   noColor?: boolean;
   testNamePattern?: string;
   testFileNamePattern?: string;
   reporters?: string[];
+  // custom args if specified will supercede any auto arguement logic
+  args?: string[];
 }
 
+export type RunnerEvent = 'processClose' | 'processExit' | 'executableJSON' | 'executableStdErr' | 'executableOutput' | 'terminalError';
+export type DeprecatedRunnerEvent = 'debuggerProcessExit';
 export class Runner extends EventEmitter {
   constructor(workspace: ProjectWorkspace, options?: Options);
   watchMode: boolean;
@@ -27,6 +31,7 @@ export class Runner extends EventEmitter {
   start(watchMode?: boolean, watchAll?: boolean): void;
   closeProcess(): void;
   runJestWithUpdateForSnapshots(completion: () => void, args?: string[]): void;
+  on:(event: RunnerEvent|DeprecatedRunnerEvent, listener: (...args: any[]) => void) => this;
 }
 
 export interface JestSettings {
