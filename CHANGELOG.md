@@ -4,7 +4,9 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
-- Identify todo tests, which are distinct from pending/skip tests @pmcelhaney
+- Identify todo tests, which are distinct from pending/skip tests - @pmcelhaney
+- split exit and close runner event for correct/finer control; provide better event types. - @connectdotz
+- adding ability to pass explicit args for runner process - @connectdotz
 -->
 
 ### 28.1.0

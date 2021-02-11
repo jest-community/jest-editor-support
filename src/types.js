@@ -21,6 +21,8 @@ export type Options = {
   testNamePattern?: string,
   testFileNamePattern?: string,
   reporters?: string[],
+  // custom args if specified will supercede any auto arguement logic
+  args?: Array<string>,
 };
 
 /**

@@ -47,18 +47,10 @@ export default class Runner extends EventEmitter {
     this.prevMessageTypes = [];
   }
 
-  start(watchMode: boolean = true, watchAll: boolean = false) {
-    if (this.debugprocess) {
-      return;
-    }
-
-    this.watchMode = watchMode;
-    this.watchAll = watchAll;
-
+  _getArgs() {
     // Handle the arg change on v18
     const belowEighteen = this.workspace.localJestMajorVersion < 18;
     const outputArg = belowEighteen ? '--jsonOutputFile' : '--outputFile';
-
     const args = ['--testLocationInResults', '--json', '--useStderr', outputArg, this.outputPath];
     if (this.watchMode) {
       args.push(this.watchAll ? '--watchAll' : '--watch');
@@ -83,7 +75,18 @@ export default class Runner extends EventEmitter {
         args.push('--reporters', reporter);
       });
     }
+    return args;
+  }
 
+  start(watchMode: boolean = true, watchAll: boolean = false) {
+    if (this.debugprocess) {
+      return;
+    }
+
+    this.watchMode = watchMode;
+    this.watchAll = watchAll;
+
+    const args = this.options.args ?? this._getArgs();
     this.debugprocess = this._createProcess(this.workspace, args);
     this.debugprocess.stdout.on('data', (data: Buffer) => {
       this._parseOutput(data, false);
@@ -95,7 +98,10 @@ export default class Runner extends EventEmitter {
       this._parseOutput(data, true);
     });
     this.debugprocess.on('exit', () => {
+      // this is mainly for backward compatibility, should be deprecated soon
       this.emit('debuggerProcessExit');
+
+      this.emit('processExit');
       this.prevMessageTypes.length = 0;
     });
 
@@ -105,7 +111,10 @@ export default class Runner extends EventEmitter {
     });
 
     this.debugprocess.on('close', () => {
+      // this is mainly for backward compatibility, should be deprecated soon
       this.emit('debuggerProcessExit');
+
+      this.emit('processClose');
       this.prevMessageTypes.length = 0;
     });
   }
