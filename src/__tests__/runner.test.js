@@ -308,6 +308,14 @@ describe('Runner', () => {
       const args = (createProcess: any).mock.calls[0][1];
       expect(args).toEqual(options.args);
     });
+    it('calls createProcess with extra args appended to the auto arguments', () => {
+      const workspace: any = {};
+      const options = {noColor: true, extraArgs: ['--whatever']};
+      const sut = new Runner(workspace, options);
+      sut.start(false);
+
+      expect(createProcess).toBeCalledWith(workspace, expect.arrayContaining(['--no-color', '--whatever']));
+    });
   });
 
   describe('closeProcess', () => {
@@ -434,15 +442,15 @@ describe('Runner', () => {
     it('emits processExit when process exits', () => {
       const close = jest.fn();
       runner.on('processExit', close);
-      fakeProcess.emit('exit');
-      expect(close).toBeCalled();
+      fakeProcess.emit('exit', 0, null);
+      expect(close).toBeCalledWith(0, null);
     });
 
     it('emits processExit when process close', () => {
       const close = jest.fn();
       runner.on('processClose', close);
-      fakeProcess.emit('close');
-      expect(close).toBeCalled();
+      fakeProcess.emit('close', null, 'SIGKILL');
+      expect(close).toBeCalledWith(null, 'SIGKILL');
     });
     it('support to-be-deprecated debuggerProcessExit when process closes and exits', () => {
       const close = jest.fn();

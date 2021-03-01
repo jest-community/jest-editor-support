@@ -8,6 +8,7 @@
 import {EventEmitter} from 'events';
 import {ChildProcess} from 'child_process';
 import {Config as JestConfig} from '@jest/types';
+import { CoverageMap, CoverageMapData } from 'istanbul-lib-coverage';
 
 export interface Options {
   createProcess?: (
@@ -18,6 +19,8 @@ export interface Options {
   testNamePattern?: string;
   testFileNamePattern?: string;
   reporters?: string[];
+  // extra args if specified will be appended to auto arguments
+  extraArgs?: string[];
   // custom args if specified will supercede any auto arguement logic
   args?: string[];
 }
@@ -62,6 +65,7 @@ export class ProjectWorkspace {
     outputFileSuffix?: string,
     collectCoverage?: boolean,
     debug?: boolean,
+    nodeEnv?: {[key: string]: string | undefined},
   );
   jestCommandLine: string;
   pathToConfig: string;
@@ -70,6 +74,7 @@ export class ProjectWorkspace {
   outputFileSuffix?: string;
   collectCoverage?: boolean;
   debug?: boolean;
+  nodeEnv?: {[key: string]: string | undefined};
 }
 
 export interface IParseResults {
@@ -144,6 +149,7 @@ export class TestReconciler {
     name: string,
   ): TestFileAssertionStatus | null;
   updateFileWithJestStatus(data: any): TestFileAssertionStatus[];
+  removeTestFile(fileName: string): void;
 }
 
 /**
@@ -213,7 +219,7 @@ export interface JestTotalResults {
   numPassedTests: number;
   numFailedTests: number;
   numPendingTests: number;
-  coverageMap: any;
+  coverageMap?: CoverageMapData;
   testResults: Array<JestFileResults>;
 }
 

@@ -187,6 +187,17 @@ Expected value to be falsy, instead received
       });
     });
   });
+  it('can remove test file from cache', () => {
+    parser = new TestReconciler();
+    results = reconcilerWithFile(parser, 'failing_jest_json.json');
+
+    expect(results.length).toEqual(5);
+    const {file} = results[1];
+    expect(parser.assertionsForTestFile(file)).not.toBeNull();
+
+    parser.removeTestFile(file);
+    expect(parser.assertionsForTestFile(file)).toBeNull();
+  });
 });
 
 describe('Terse Messages', () => {

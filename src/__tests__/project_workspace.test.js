@@ -105,4 +105,19 @@ describe('setup', () => {
     const {pathToJest} = instance;
     expect(global.console.warn).toBeCalledTimes(2);
   });
+  it('allow passing nodeEnv', () => {
+    const config = {
+      jestCommandLine: 'jestCommandLine',
+      localJestMajorVersion: 1000,
+      rootPath: 'rootPath',
+      collectCoverage: false,
+      debug: true,
+      outputFileSuffix: 'suffix',
+      nodeEnv: {NODE_ENV: 'production'},
+    };
+
+    const instance = createProjectWorkspace(config);
+
+    expect(instance.nodeEnv).toBe(config.nodeEnv);
+  });
 });

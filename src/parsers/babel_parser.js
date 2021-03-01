@@ -14,6 +14,7 @@ import {File as BabelFile, Node as BabelNode} from '@babel/types';
 import * as parser from '@babel/parser';
 import type {ParsedNodeType} from './parser_nodes';
 import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
+import {parseOptions} from './helper';
 
 export const UNRESOLVED_FUNCTION_NAME = '__function__';
 export const UNSUPPORTED_TEST_NAME = '__unsupported__';
@@ -25,7 +26,7 @@ const _getASTfor = (file: string, data: ?string, options: ?parser.ParserOptions)
 };
 
 export const getASTfor = (file: string, data: ?string): BabelFile => {
-  const [bFile] = _getASTfor(file, data);
+  const [bFile] = _getASTfor(file, data, parseOptions(file));
   return bFile;
 };
 
@@ -198,36 +199,3 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
 
   return parseResult;
 };
-
-export const plugins = [
-  'asyncGenerators',
-  'bigInt',
-  'classPrivateMethods',
-  'classPrivateProperties',
-  'classProperties',
-  'doExpressions',
-  'dynamicImport',
-  'estree',
-  'exportDefaultFrom',
-  'exportNamespaceFrom', // deprecated
-  'functionBind',
-  'functionSent',
-  'importMeta',
-  'jsx',
-  'logicalAssignment',
-  'nullishCoalescingOperator',
-  'numericSeparator',
-  'objectRestSpread',
-  'optionalCatchBinding',
-  'optionalChaining',
-  'partialApplication',
-  'throwExpressions',
-  'topLevelAwait',
-  ['decorators', {decoratorsBeforeExport: true}],
-  ['pipelineOperator', {proposal: 'smart'}],
-];
-
-// Its not possible to use the parser with flow and typescript active at the same time
-export const parseJs = (file: string, data: ?string): ParseResult => parse(file, data, {plugins: [...plugins, 'flow']});
-export const parseTs = (file: string, data: ?string): ParseResult =>
-  parse(file, data, {plugins: [...plugins, 'typescript']});

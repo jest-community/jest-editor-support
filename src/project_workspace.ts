@@ -14,6 +14,7 @@ export interface ProjectWorkspaceConfig {
   outputFileSuffix?: string;
   collectCoverage?: boolean;
   debug?: boolean;
+  nodeEnv?: {[key: string]: string | undefined};
 }
 
 /**
@@ -93,6 +94,11 @@ export default class ProjectWorkspace {
    */
   outputFileSuffix?: string;
 
+  /**
+   * optional additional node env variables
+   */
+  nodeEnv?: {[key: string]: string | undefined};
+
   constructor(
     rootPath: string,
     jestCommandLine: string,
@@ -100,7 +106,8 @@ export default class ProjectWorkspace {
     localJestMajorVersion: number,
     outputFileSuffix?: string,
     collectCoverage?: boolean,
-    debug?: boolean
+    debug?: boolean,
+    nodeEnv?: {[key: string]: string | undefined}
   ) {
     this.rootPath = rootPath;
     this.jestCommandLine = jestCommandLine;
@@ -109,6 +116,7 @@ export default class ProjectWorkspace {
     this.outputFileSuffix = outputFileSuffix ? outputFileSuffix.replace(/[^a-z0-9]/gi, '_').toLowerCase() : undefined;
     this.collectCoverage = collectCoverage;
     this.debug = debug;
+    this.nodeEnv = nodeEnv;
   }
 }
 
@@ -126,6 +134,7 @@ export const createProjectWorkspace = (config: ProjectWorkspaceConfig): ProjectW
     config.localJestMajorVersion,
     config.outputFileSuffix,
     config.collectCoverage,
-    config.debug
+    config.debug,
+    config.nodeEnv
   );
 };

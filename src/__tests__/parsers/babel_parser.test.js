@@ -7,7 +7,9 @@
  * @flow
  */
 
-const {parseJs} = require('../../parsers/babel_parser');
+const {parseOptions} = require('../../parsers/helper');
+const {parse} = require('../../parsers/babel_parser');
 const {parserTests} = require('../../../fixtures/parser_tests');
 
+const parseJs = (file: string, data?: string) => parse(file, data, parseOptions('always.js'));
 parserTests(parseJs);
