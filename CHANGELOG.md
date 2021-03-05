@@ -4,13 +4,14 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
-- Identify todo tests, which are distinct from pending/skip tests - @pmcelhaney
-- split exit and close runner event for correct/finer control; provide better event types. - @connectdotz
-- adding ability to pass explicit, extra arguments and node_env for runner process - @connectdotz
-- fix snapshot parsing for flow and typescript files - @connectdotz
 
 -->
 
+### 28.2.0
+- Identify todo tests, which are distinct from pending/skip tests - @pmcelhaney (#61)
+- split exit and close runner event for correct/finer control; provide better event types. - @connectdotz (#62)
+- adding ability to pass explicit, extra arguments and node_env for runner process - @connectdotz (#63)
+- fix snapshot parsing for flow and typescript files - @connectdotz (#63)
 ### 28.1.0
 
 - make parser missing name a warning instead of error (#55) - @connectdotz
