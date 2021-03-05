@@ -299,22 +299,20 @@ describe('Runner', () => {
       const lastIndex = args.lastIndexOf('--reporters');
       expect(args[lastIndex + 1]).toBe(expected[1]);
     });
-    it('calls createProcess with explicit args supercede the auto arguments', () => {
-      const workspace: any = {};
-      const options = {args: ['--whatever']};
-      const sut = new Runner(workspace, options);
-      sut.start(false);
+    describe('RunArgs', () => {
+      it.each`
+        runArgs                                   | containedArgs
+        ${{args: ['--whatever']}}                 | ${['--no-color', '--whatever']}
+        ${{args: ['--whatever'], replace: false}} | ${['--no-color', '--whatever']}
+        ${{args: ['--whatever'], replace: true}}  | ${['--whatever']}
+      `('supports $runArg', ({runArgs, containedArgs}) => {
+        const workspace: any = {};
+        const options = {noColor: true, args: runArgs};
+        const sut = new Runner(workspace, options);
+        sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
-      expect(args).toEqual(options.args);
-    });
-    it('calls createProcess with extra args appended to the auto arguments', () => {
-      const workspace: any = {};
-      const options = {noColor: true, extraArgs: ['--whatever']};
-      const sut = new Runner(workspace, options);
-      sut.start(false);
-
-      expect(createProcess).toBeCalledWith(workspace, expect.arrayContaining(['--no-color', '--whatever']));
+        expect(createProcess).toBeCalledWith(workspace, expect.arrayContaining(containedArgs));
+      });
     });
   });
 

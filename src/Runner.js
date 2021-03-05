@@ -50,7 +50,11 @@ export default class Runner extends EventEmitter {
     this._exited = false;
   }
 
-  _getArgs() {
+  _getArgs(): string[] {
+    if (this.options.args && this.options.args.replace) {
+      return this.options.args.args;
+    }
+
     // Handle the arg change on v18
     const belowEighteen = this.workspace.localJestMajorVersion < 18;
     const outputArg = belowEighteen ? '--jsonOutputFile' : '--outputFile';
@@ -78,8 +82,8 @@ export default class Runner extends EventEmitter {
         args.push('--reporters', reporter);
       });
     }
-    if (this.options.extraArgs) {
-      args.push(...this.options.extraArgs);
+    if (this.options.args) {
+      args.push(...this.options.args.args);
     }
     return args;
   }
@@ -92,7 +96,7 @@ export default class Runner extends EventEmitter {
     this.watchMode = watchMode;
     this.watchAll = watchAll;
 
-    const args = this.options.args ?? this._getArgs();
+    const args = this._getArgs();
     this.debugprocess = this._createProcess(this.workspace, args);
     this.debugprocess.stdout.on('data', (data: Buffer) => {
       this._parseOutput(data, false);

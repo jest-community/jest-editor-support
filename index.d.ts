@@ -10,6 +10,10 @@ import {ChildProcess} from 'child_process';
 import {Config as JestConfig} from '@jest/types';
 import { CoverageMap, CoverageMapData } from 'istanbul-lib-coverage';
 
+export interface RunArgs {
+  args: string[];
+  replace?: boolean; // default is false
+}
 export interface Options {
   createProcess?: (
     workspace: ProjectWorkspace,
@@ -19,10 +23,8 @@ export interface Options {
   testNamePattern?: string;
   testFileNamePattern?: string;
   reporters?: string[];
-  // extra args if specified will be appended to auto arguments
-  extraArgs?: string[];
-  // custom args if specified will supercede any auto arguement logic
-  args?: string[];
+  /** either to append or replace the Runner process arguments */
+  args?: RunArgs;
 }
 
 export type RunnerEvent = 'processClose' | 'processExit' | 'executableJSON' | 'executableStdErr' | 'executableOutput' | 'terminalError';
