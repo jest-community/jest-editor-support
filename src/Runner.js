@@ -37,6 +37,8 @@ export default class Runner extends EventEmitter {
 
   prevMessageTypes: MessageType[];
 
+  _exited: boolean;
+
   constructor(workspace: ProjectWorkspace, options?: Options) {
     super();
 
@@ -45,9 +47,14 @@ export default class Runner extends EventEmitter {
     this.workspace = workspace;
     this.outputPath = path.join(tmpdir(), `jest_runner_${this.workspace.outputFileSuffix || ''}.json`);
     this.prevMessageTypes = [];
+    this._exited = false;
   }
 
-  _getArgs() {
+  _getArgs(): string[] {
+    if (this.options.args && this.options.args.replace) {
+      return this.options.args.args;
+    }
+
     // Handle the arg change on v18
     const belowEighteen = this.workspace.localJestMajorVersion < 18;
     const outputArg = belowEighteen ? '--jsonOutputFile' : '--outputFile';
@@ -75,6 +82,9 @@ export default class Runner extends EventEmitter {
         args.push('--reporters', reporter);
       });
     }
+    if (this.options.args) {
+      args.push(...this.options.args.args);
+    }
     return args;
   }
 
@@ -86,7 +96,7 @@ export default class Runner extends EventEmitter {
     this.watchMode = watchMode;
     this.watchAll = watchAll;
 
-    const args = this.options.args ?? this._getArgs();
+    const args = this._getArgs();
     this.debugprocess = this._createProcess(this.workspace, args);
     this.debugprocess.stdout.on('data', (data: Buffer) => {
       this._parseOutput(data, false);
@@ -97,11 +107,13 @@ export default class Runner extends EventEmitter {
       // see https://github.com/facebook/jest/pull/4858
       this._parseOutput(data, true);
     });
-    this.debugprocess.on('exit', () => {
+    this.debugprocess.on('exit', (code: number | null, signal: string | null) => {
+      this._exited = true;
+
       // this is mainly for backward compatibility, should be deprecated soon
       this.emit('debuggerProcessExit');
 
-      this.emit('processExit');
+      this.emit('processExit', code, signal);
       this.prevMessageTypes.length = 0;
     });
 
@@ -110,11 +122,11 @@ export default class Runner extends EventEmitter {
       this.prevMessageTypes.length = 0;
     });
 
-    this.debugprocess.on('close', () => {
+    this.debugprocess.on('close', (code: number | null, signal: string | null) => {
       // this is mainly for backward compatibility, should be deprecated soon
       this.emit('debuggerProcessExit');
 
-      this.emit('processClose');
+      this.emit('processClose', code, signal);
       this.prevMessageTypes.length = 0;
     });
   }
@@ -182,7 +194,9 @@ export default class Runner extends EventEmitter {
   }
 
   closeProcess() {
-    if (!this.debugprocess) {
+    if (!this.debugprocess || this._exited) {
+      // eslint-disable-next-line no-console
+      console.log(`process has not started or already exited`);
       return;
     }
     if (process.platform === 'win32') {

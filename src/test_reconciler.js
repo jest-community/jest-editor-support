@@ -50,6 +50,14 @@ export default class TestReconciler {
     return statusList;
   }
 
+  /**
+   * remove jest status of the test file from the cached results
+   * @param {string} fileName
+   */
+  removeTestFile(fileName: string) {
+    delete this.fileStatuses[fileName];
+  }
+
   // A failed test also contains the stack trace for an `expect`
   // we don't get this as structured data, but what we get
   // is useful enough to make it for ourselves

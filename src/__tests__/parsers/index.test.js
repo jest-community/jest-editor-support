@@ -3,53 +3,53 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ *  @flow
  */
 
 import parse from '../../parsers';
-import {parseJs, parseTs} from '../../parsers/babel_parser';
 
-jest.mock('../../parsers/babel_parser', () => {
-  return {parseJs: jest.fn(), parseTs: jest.fn()};
-});
+jest.mock('../../parsers/babel_parser');
 
-describe('select parser', () => {
+const babelParser = require('../../parsers/babel_parser');
+// const mockBabelParser = jest.fn();
+// const babelParser = jest.createMockFromModule('../../parsers/babel_parser');
+// jest.mock('../../parsers/babel_parser', () => {
+//   return {parse: jest.fn()};
+// });
+
+describe('parse', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  it('for .js or .jsx or .mjs file', () => {
-    const files = ['abc.js', 'abc.jsx', 'abc.mjs'];
-    files.forEach(file => {
-      parse(file, undefined, true);
-      expect(parseJs).toHaveBeenCalled();
-      expect(parseTs).not.toHaveBeenCalled();
-      jest.clearAllMocks();
-    });
+  it.each([['js'], ['.jsx'], ['.mjs']])('for file extension "%s" => parse with flow options', ext => {
+    const file = `file.${ext}`;
+    parse(file, undefined, true);
+    expect(babelParser.parse).toHaveBeenCalledWith(
+      file,
+      undefined,
+      expect.objectContaining({plugins: expect.arrayContaining(['flow'])})
+    );
   });
-  it('for .ts or .tsx file', () => {
-    const files = ['abc.ts', 'abc.tsx'];
-    files.forEach(file => {
-      parse(file, undefined, true);
-      expect(parseJs).not.toHaveBeenCalled();
-      expect(parseTs).toHaveBeenCalled();
-      jest.clearAllMocks();
-    });
+  it.each([['ts'], ['.tsx']])('for file extension "%s" => parse with typescript options', ext => {
+    const file = `file.${ext}`;
+    parse(file, undefined, true);
+    expect(babelParser.parse).toHaveBeenCalledWith(
+      file,
+      undefined,
+      expect.objectContaining({plugins: expect.arrayContaining(['typescript'])})
+    );
   });
-  describe('when unrecognized file type', () => {
+  describe.each([['abc'], ['abc.ttsx']])('when unrecognized file type $s', file => {
     it('fall back to js parser in non-strict mode', () => {
-      const files = ['abc', 'abc.ttsx'];
-      files.forEach(file => {
-        expect(() => parse(file, undefined, false)).not.toThrow();
-        expect(parseJs).toHaveBeenCalled();
-        expect(parseTs).not.toHaveBeenCalled();
-        jest.clearAllMocks();
-      });
+      expect(() => parse(file, undefined, false)).not.toThrow();
+      expect(babelParser.parse).toHaveBeenCalledWith(
+        file,
+        undefined,
+        expect.objectContaining({plugins: expect.arrayContaining(['flow'])})
+      );
     });
     it('throw exception in strict mode', () => {
-      const files = ['abc', 'abc.ttsx'];
-      files.forEach(file => {
-        expect(() => parse(file, undefined, true)).toThrow();
-        jest.clearAllMocks();
-      });
+      expect(() => parse(file, undefined, true)).toThrow();
     });
   });
 });

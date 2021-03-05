@@ -70,6 +70,15 @@ describe('createProcess', () => {
 
     expect(spawn.mock.calls[0][2].env).toEqual(expected);
   });
+  it('allow customize node environment variable', () => {
+    const workspace: any = {
+      nodeEnv: {NODE_ENV: 'test', CI: 'false'},
+    };
+    const expected = Object.assign({}, process.env, workspace.nodeEnv, {CI: 'true'});
+    createProcess(workspace, []);
+
+    expect(spawn.mock.calls[0][2].env).toEqual(expected);
+  });
 
   it('sets the current working directory of the child process', () => {
     const workspace: any = {

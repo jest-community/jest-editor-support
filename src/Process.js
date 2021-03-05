@@ -28,8 +28,7 @@ export const createProcess = (workspace: ProjectWorkspace, args: Array<string>):
 
   // To use our own commands in create-react, we need to tell the command that
   // we're in a CI environment, or it will always append --watch
-  const {env} = process;
-  env.CI = 'true';
+  const env = {...process.env, ...(workspace.nodeEnv ?? {}), CI: 'true'};
 
   const spawnOptions = {
     cwd: workspace.rootPath,

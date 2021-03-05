@@ -299,14 +299,20 @@ describe('Runner', () => {
       const lastIndex = args.lastIndexOf('--reporters');
       expect(args[lastIndex + 1]).toBe(expected[1]);
     });
-    it('calls createProcess with explicit args supercede the auto arguments', () => {
-      const workspace: any = {};
-      const options = {args: ['--whatever']};
-      const sut = new Runner(workspace, options);
-      sut.start(false);
+    describe('RunArgs', () => {
+      it.each`
+        runArgs                                   | containedArgs
+        ${{args: ['--whatever']}}                 | ${['--no-color', '--whatever']}
+        ${{args: ['--whatever'], replace: false}} | ${['--no-color', '--whatever']}
+        ${{args: ['--whatever'], replace: true}}  | ${['--whatever']}
+      `('supports $runArg', ({runArgs, containedArgs}) => {
+        const workspace: any = {};
+        const options = {noColor: true, args: runArgs};
+        const sut = new Runner(workspace, options);
+        sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
-      expect(args).toEqual(options.args);
+        expect(createProcess).toBeCalledWith(workspace, expect.arrayContaining(containedArgs));
+      });
     });
   });
 
@@ -434,15 +440,15 @@ describe('Runner', () => {
     it('emits processExit when process exits', () => {
       const close = jest.fn();
       runner.on('processExit', close);
-      fakeProcess.emit('exit');
-      expect(close).toBeCalled();
+      fakeProcess.emit('exit', 0, null);
+      expect(close).toBeCalledWith(0, null);
     });
 
     it('emits processExit when process close', () => {
       const close = jest.fn();
       runner.on('processClose', close);
-      fakeProcess.emit('close');
-      expect(close).toBeCalled();
+      fakeProcess.emit('close', null, 'SIGKILL');
+      expect(close).toBeCalledWith(null, 'SIGKILL');
     });
     it('support to-be-deprecated debuggerProcessExit when process closes and exits', () => {
       const close = jest.fn();

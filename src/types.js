@@ -15,14 +15,20 @@ export type Location = {
   line: number,
 };
 
+export type RunArgs = {
+  args: Array<string>,
+  replace?: boolean, // default is false
+};
+
 export type Options = {
   createProcess?: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess,
   noColor?: boolean,
   testNamePattern?: string,
   testFileNamePattern?: string,
   reporters?: string[],
-  // custom args if specified will supercede any auto arguement logic
-  args?: Array<string>,
+
+  /** either to append or replace the Runner process arguments */
+  args?: RunArgs,
 };
 
 /**

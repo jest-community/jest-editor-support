@@ -6,7 +6,9 @@ Bug-fixes within the same version aren't needed
 ## Master
 - Identify todo tests, which are distinct from pending/skip tests - @pmcelhaney
 - split exit and close runner event for correct/finer control; provide better event types. - @connectdotz
-- adding ability to pass explicit args for runner process - @connectdotz
+- adding ability to pass explicit, extra arguments and node_env for runner process - @connectdotz
+- fix snapshot parsing for flow and typescript files - @connectdotz
+
 -->
 
 ### 28.1.0
