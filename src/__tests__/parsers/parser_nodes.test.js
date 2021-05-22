@@ -39,6 +39,15 @@ describe('ParsedNode', () => {
     filtered = c1_1.filter((n) => n.type === 'it', true);
     expect(filtered.length).toEqual(1);
   });
+  it('can attach lastProperty for NamedBlock', () => {
+    const itBlock = new ItBlock('abc.js', 'a test', 'each');
+    expect(itBlock.lastProperty).toEqual('each');
+    expect(itBlock.name).toEqual('a test');
+
+    const descBlock = new DescribeBlock('abc.js', 'a describe', 'only');
+    expect(descBlock.lastProperty).toEqual('only');
+    expect(descBlock.name).toEqual('a describe');
+  });
 });
 
 describe('ParseResult', () => {

@@ -344,13 +344,17 @@ describe('parsers', () => {
       startLine: number,
       startCol: number,
       endLine: number,
-      endCol: number
+      endCol: number,
+      lastProperty: string = null
     ) => {
       expect(nBlock.name).toEqual(name);
       expect(nBlock.nameRange.start.line).toEqual(startLine);
       expect(nBlock.nameRange.start.column).toEqual(startCol);
       expect(nBlock.nameRange.end.line).toEqual(endLine);
       expect(nBlock.nameRange.end.column).toEqual(endCol);
+      if (lastProperty !== null) {
+        expect(nBlock.lastProperty).toEqual(lastProperty);
+      }
     };
 
     describe('name range', () => {
@@ -429,7 +433,21 @@ describe('parsers', () => {
 
         const itBlock = parseResult.itBlocks[0];
         assertBlock2(itBlock, 2, 7, 4, 9, 'each test %p');
-        assertNameInfo(itBlock, 'each test %p', 2, 33, 2, 44);
+        assertNameInfo(itBlock, 'each test %p', 2, 33, 2, 44, 'each');
+      });
+      it('should be able to detect it.skip.each', () => {
+        const data = `
+      it.skip.each(['a', 'b', 'c'])('each test %p', (v) => {
+        expect(v).not.toBeUndefined();
+      });
+          `;
+        const parseResult = parseFunction('whatever', data);
+        expect(parseResult.itBlocks.length).toEqual(1);
+        expect(parseResult.expects.length).toEqual(1);
+
+        const itBlock = parseResult.itBlocks[0];
+        assertBlock2(itBlock, 2, 7, 4, 9, 'each test %p');
+        assertNameInfo(itBlock, 'each test %p', 2, 38, 2, 49, 'each');
       });
 
       it('For the simplest it.each cases', () => {
@@ -785,6 +803,31 @@ describe('parsers', () => {
         // Make sure there are no extras
         expect(parseResult.itBlocks.length).toBe(8);
         expect(parseResult.describeBlocks.length).toBe(3);
+      });
+    });
+    describe('lastProperty', () => {
+      it.each`
+        data                                                     | lastProperty | isItBlock
+        ${'it("abc", ()=> {});'}                                 | ${undefined} | ${true}
+        ${'describe("abc", ()=> {});'}                           | ${undefined} | ${false}
+        ${'it.each([[1],[2]])("abc", ()=> {});'}                 | ${'each'}    | ${true}
+        ${'it.concurrent.skip.each([[1],[2]])("abc", ()=> {});'} | ${'each'}    | ${true}
+        ${'describe.each([[1],[2]])("abc", ()=> {});'}           | ${'each'}    | ${false}
+        ${'it.skip("abc", ()=> {});'}                            | ${'skip'}    | ${true}
+      `('check lastProperty in $data', ({data, lastProperty, isItBlock}) => {
+        const parseResult = parseFunction('whatever', data);
+        const nBlock = isItBlock ? parseResult.itBlocks[0] : parseResult.describeBlocks[0];
+        expect(nBlock.lastProperty).toEqual(lastProperty);
+      });
+      it('lastProperty for tagged test', () => {
+        const data = `
+          it.concurrent.skip.each\`
+            a|b
+            ${1}|${2}
+          \`('$a, $b', () => {});
+        `;
+        const parseResult = parseFunction('whatever', data);
+        expect(parseResult.itBlocks[0].lastProperty).toEqual('each');
       });
     });
     describe('typescript specific', () => {

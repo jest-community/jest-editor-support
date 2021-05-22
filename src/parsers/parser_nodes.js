@@ -102,24 +102,27 @@ export class Expect extends ParsedNode {
 export class NamedBlock extends ParsedNode {
   name: string;
 
+  lastProperty: ?string;
+
   nameRange: ParsedRange;
 
-  constructor(type: ParsedNodeType, file: string, name?: string) {
+  constructor(type: ParsedNodeType, file: string, name?: string, lastProperty?: string) {
     super(type, file);
     if (name) {
       this.name = name;
     }
+    this.lastProperty = lastProperty;
   }
 }
 
 export class ItBlock extends NamedBlock {
-  constructor(file: string, name?: string) {
-    super(ParsedNodeTypes.it, file, name);
+  constructor(file: string, name?: string, lastProperty?: string) {
+    super(ParsedNodeTypes.it, file, name, lastProperty);
   }
 }
 export class DescribeBlock extends NamedBlock {
-  constructor(file: string, name?: string) {
-    super(ParsedNodeTypes.describe, file, name);
+  constructor(file: string, name?: string, lastProperty?: string) {
+    super(ParsedNodeTypes.describe, file, name, lastProperty);
   }
 }
 
