@@ -19,24 +19,24 @@ describe('ParsedNode', () => {
     const c1_2 = c1.addChild('describe');
     const c1_2_1 = c1_2.addChild('it');
 
-    let filtered = root.filter(n => n.type === 'it');
+    let filtered = root.filter((n) => n.type === 'it');
     expect(filtered.length).toEqual(3);
     expect(filtered).toEqual(expect.arrayContaining([c2, c1_1, c1_2_1]));
 
-    filtered = root.filter(n => n.type === 'describe');
+    filtered = root.filter((n) => n.type === 'describe');
     expect(filtered.length).toEqual(2);
     expect(filtered).toEqual(expect.arrayContaining([c1, c1_2]));
 
-    filtered = c1.filter(n => n.type === 'it');
+    filtered = c1.filter((n) => n.type === 'it');
     expect(filtered.length).toEqual(2);
 
-    filtered = c1_2.filter(n => n.type === 'it');
+    filtered = c1_2.filter((n) => n.type === 'it');
     expect(filtered.length).toEqual(1);
 
-    filtered = c1_1.filter(n => n.type === 'it');
+    filtered = c1_1.filter((n) => n.type === 'it');
     expect(filtered.length).toEqual(0);
 
-    filtered = c1_1.filter(n => n.type === 'it', true);
+    filtered = c1_1.filter((n) => n.type === 'it', true);
     expect(filtered.length).toEqual(1);
   });
 });
@@ -66,20 +66,20 @@ describe('ParseResult', () => {
 
     const start = {column: 11, line: 10};
     const allNodes = [d1, d2, e1, e2];
-    allNodes.forEach(n => {
+    allNodes.forEach((n) => {
       n.start = start;
     });
 
     // without dedup, anything goes
     let result = new ParseResult('a/b/c');
-    allNodes.forEach(n => result.addNode(n));
+    allNodes.forEach((n) => result.addNode(n));
     expect(result.describeBlocks.length).toEqual(2);
     expect(result.itBlocks.length).toEqual(0);
     expect(result.expects.length).toEqual(2);
 
     // enable dedup, only impact expect blocks
     result = new ParseResult('a/b/c');
-    allNodes.forEach(n => result.addNode(n, true));
+    allNodes.forEach((n) => result.addNode(n, true));
     expect(result.describeBlocks.length).toEqual(2);
     expect(result.itBlocks.length).toEqual(0);
     expect(result.expects.length).toEqual(1);

@@ -83,14 +83,14 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
     }
   };
 
-  const isFunctionCall = node =>
+  const isFunctionCall = (node) =>
     node && node.type === 'ExpressionStatement' && node.expression && node.expression.type === 'CallExpression';
 
   const isFunctionDeclaration = (nodeType: string) =>
     nodeType === 'ArrowFunctionExpression' || nodeType === 'FunctionExpression';
 
   // Pull out the name of a CallExpression (describe/it)
-  const getNameForNode = node => {
+  const getNameForNode = (node) => {
     if (isFunctionCall(node) && node.expression.callee) {
       // Get root callee in case it's a chain of higher-order functions (e.g. .each(table)(name, fn))
       const rootCallee = deepGet(node.expression, 'callee');
@@ -108,19 +108,19 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
 
   // When given a node in the AST, does this represent
   // the start of an it/test block?
-  const isAnIt = node => {
+  const isAnIt = (node) => {
     const name = getNameForNode(node);
     return name === 'it' || name === 'fit' || name === 'test';
   };
 
-  const isAnDescribe = node => {
+  const isAnDescribe = (node) => {
     const name = getNameForNode(node);
     return name === 'describe';
   };
 
   // When given a node in the AST, does this represent
   // the start of an expect expression?
-  const isAnExpect = node => {
+  const isAnExpect = (node) => {
     if (!isFunctionCall(node)) {
       return false;
     }
@@ -156,7 +156,7 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
       return;
     }
 
-    babylonParent.body.forEach(element => {
+    babylonParent.body.forEach((element) => {
       child = undefined;
       // Pull out the node
       // const element = babylonParent.body[node];
@@ -169,8 +169,8 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
         child = addNode('expect', parent, element);
       } else if (element && element.type === 'VariableDeclaration') {
         element.declarations
-          .filter(declaration => declaration.init && isFunctionDeclaration(declaration.init.type))
-          .forEach(declaration => searchNodes(declaration.init.body, parent));
+          .filter((declaration) => declaration.init && isFunctionDeclaration(declaration.init.type))
+          .forEach((declaration) => searchNodes(declaration.init.body, parent));
       } else if (
         element &&
         element.type === 'ExpressionStatement' &&
@@ -182,14 +182,14 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
         searchNodes(element.expression.right.body, parent);
       } else if (element.type === 'ReturnStatement' && element.argument?.arguments) {
         element.argument.arguments
-          .filter(argument => isFunctionDeclaration(argument.type))
-          .forEach(argument => searchNodes(argument.body, parent));
+          .filter((argument) => isFunctionDeclaration(argument.type))
+          .forEach((argument) => searchNodes(argument.body, parent));
       }
 
       if (isFunctionCall(element)) {
         element.expression.arguments
-          .filter(argument => isFunctionDeclaration(argument.type))
-          .forEach(argument => searchNodes(argument.body, child || parent));
+          .filter((argument) => isFunctionDeclaration(argument.type))
+          .forEach((argument) => searchNodes(argument.body, child || parent));
       }
     });
   };

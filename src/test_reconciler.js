@@ -34,7 +34,7 @@ export default class TestReconciler {
   updateFileWithJestStatus(results: FormattedTestResults): TestFileAssertionStatus[] {
     // Loop through all files inside the report from Jest
     const statusList: TestFileAssertionStatus[] = [];
-    results.testResults.forEach(file => {
+    results.testResults.forEach((file) => {
       // Did the file pass/fail?
       const status = this.statusToReconcilationState(file.status);
       // Create our own simpler representation
@@ -77,7 +77,7 @@ export default class TestReconciler {
     }
 
     // Change all failing assertions into structured data
-    return assertions.map(assertion => {
+    return assertions.map((assertion) => {
       // Failure messages seems to always be an array of one item
       const message = assertion.failureMessages && assertion.failureMessages[0];
       let short = null;
@@ -164,7 +164,7 @@ export default class TestReconciler {
     if (!results || !results.assertions) {
       return null;
     }
-    const assertion = results.assertions.find(a => a.title === name);
+    const assertion = results.assertions.find((a) => a.title === name);
     if (!assertion) {
       return null;
     }

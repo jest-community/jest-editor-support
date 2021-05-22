@@ -39,7 +39,7 @@ describe('setup', () => {
       ['with Space', 'with_space'],
       ['WITH?special ? character\n', 'with_special___character_'],
     ];
-    suffixStrings.forEach(pair => {
+    suffixStrings.forEach((pair) => {
       const workspace = new ProjectWorkspace('root_path', 'jest_command_line', 'path_to_config', 1000, pair[0]);
       expect(workspace.outputFileSuffix).toEqual(pair[1]);
     });

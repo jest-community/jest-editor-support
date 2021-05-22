@@ -21,7 +21,7 @@ describe('parse', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  it.each([['js'], ['.jsx'], ['.mjs']])('for file extension "%s" => parse with flow options', ext => {
+  it.each([['js'], ['.jsx'], ['.mjs']])('for file extension "%s" => parse with flow options', (ext) => {
     const file = `file.${ext}`;
     parse(file, undefined, true);
     expect(babelParser.parse).toHaveBeenCalledWith(
@@ -30,7 +30,7 @@ describe('parse', () => {
       expect.objectContaining({plugins: expect.arrayContaining(['flow'])})
     );
   });
-  it.each([['ts'], ['.tsx']])('for file extension "%s" => parse with typescript options', ext => {
+  it.each([['ts'], ['.tsx']])('for file extension "%s" => parse with typescript options', (ext) => {
     const file = `file.${ext}`;
     parse(file, undefined, true);
     expect(babelParser.parse).toHaveBeenCalledWith(
@@ -39,7 +39,7 @@ describe('parse', () => {
       expect.objectContaining({plugins: expect.arrayContaining(['typescript'])})
     );
   });
-  describe.each([['abc'], ['abc.ttsx']])('when unrecognized file type $s', file => {
+  describe.each([['abc'], ['abc.ttsx']])('when unrecognized file type $s', (file) => {
     it('fall back to js parser in non-strict mode', () => {
       expect(() => parse(file, undefined, false)).not.toThrow();
       expect(babelParser.parse).toHaveBeenCalledWith(

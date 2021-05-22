@@ -19,7 +19,7 @@ describe('supportedFileType', () => {
   });
   it('for .js or .jsx or .mjs file', () => {
     const files = ['abc.js', 'abc.jsx', 'abc.mjs'];
-    files.forEach(file => {
+    files.forEach((file) => {
       expect(helper.supportedFileType(file)).toEqual('js');
       jest.clearAllMocks();
     });

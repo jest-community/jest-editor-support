@@ -130,7 +130,7 @@ export const createProjectWorkspace = (config: ProjectWorkspaceConfig): ProjectW
   return new ProjectWorkspace(
     config.rootPath,
     config.jestCommandLine,
-    (config.pathToConfig as unknown) as string,
+    config.pathToConfig as unknown as string,
     config.localJestMajorVersion,
     config.outputFileSuffix,
     config.collectCoverage,

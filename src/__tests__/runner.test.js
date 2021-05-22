@@ -75,7 +75,7 @@ describe('Runner', () => {
 
       const suffix = ['runner-test', undefined];
 
-      suffix.forEach(s => {
+      suffix.forEach((s) => {
         const workspace: any = {outputFileSuffix: s};
         path.join.mockImplementation((...paths: string[]) => paths.join('/'));
         const sut = new Runner(workspace);
