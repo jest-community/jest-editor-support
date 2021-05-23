@@ -49,16 +49,16 @@ const validParents = Object.assign(
   })
 );
 
-const isValidMemberExpression = node =>
+const isValidMemberExpression = (node) =>
   node.object && base[node.object.name] && node.property && decorators[node.property.name];
 
-const isDescribe = node =>
+const isDescribe = (node) =>
   describeVariants[node.name] || (isValidMemberExpression(node) && node.object.name === 'describe');
 
-const isValidParent = parent =>
+const isValidParent = (parent) =>
   parent.callee && (validParents[parent.callee.name] || isValidMemberExpression(parent.callee));
 
-const getArrayOfParents = path => {
+const getArrayOfParents = (path) => {
   const result = [];
   let parent = path.parentPath;
   while (parent) {
@@ -73,7 +73,7 @@ const buildName: (snapshotNode: Node, parents: Array<Node>, position: number) =>
   parents,
   position
 ) => {
-  const fullName = parents.map(parent => parent.arguments[0].value).join(' ');
+  const fullName = parents.map((parent) => parent.arguments[0].value).join(' ');
 
   return utils.testNameToKey(fullName, position);
 };
@@ -117,7 +117,7 @@ export default class Snapshot {
     };
 
     traverse(fileNode, {
-      enter: path => {
+      enter: (path) => {
         const visitor = Visitors[path.node.type];
         if (visitor != null) {
           visitor(path, state, this._matchers);
@@ -132,7 +132,7 @@ export default class Snapshot {
     let lastParent = null;
     let count = 1;
 
-    return state.found.map(snapshotNode => {
+    return state.found.map((snapshotNode) => {
       const parents = snapshotNode.parents.filter(isValidParent);
       const innerAssertion = parents[parents.length - 1];
 

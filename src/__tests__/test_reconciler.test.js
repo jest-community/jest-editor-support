@@ -125,20 +125,20 @@ Expected value to be falsy, instead received
 
     it('did processed all test suits including the suites failed to run', () => {
       expect(results.length).toEqual(8);
-      const failed = results.filter(r => r.status === 'KnownFail');
+      const failed = results.filter((r) => r.status === 'KnownFail');
       expect(failed.length).toEqual(4);
       // 2 of them is failed suite, i.e. no assertions
-      expect(failed.filter(r => !r.assertions || r.assertions.length === 0).length).toEqual(2);
+      expect(failed.filter((r) => !r.assertions || r.assertions.length === 0).length).toEqual(2);
     });
     it('did catch the passed tests', () => {
-      const succeededSuites = results.filter(r => r.status === 'KnownSuccess');
+      const succeededSuites = results.filter((r) => r.status === 'KnownSuccess');
       expect(succeededSuites.length).toEqual(4);
 
       const succeededTests = results
-        .map(r => r.assertions || [])
+        .map((r) => r.assertions || [])
         // $FlowFixMe: Flow thinks the type is array from above, not the number passed as initial value
         .reduce((sum: number, assertions: TestAssertionStatus[]) => {
-          const success = assertions.filter(a => a.status === 'KnownSuccess');
+          const success = assertions.filter((a) => a.status === 'KnownSuccess');
           return sum + success.length;
         }, 0);
       expect(succeededTests).toEqual(46);
@@ -211,7 +211,7 @@ describe('Terse Messages', () => {
   it('handles shrinking a snapshot message', () => {
     const file = '/Users/orta/dev/projects/artsy/js/libs/jest-snapshots-svg/src/_tests/example.test.ts';
 
-    const terseForTest = name => parser.stateForTestAssertion(file, name);
+    const terseForTest = (name) => parser.stateForTestAssertion(file, name);
 
     let message = 'Expected value to equal: 2, Received: 1';
     let testName = 'numbers';

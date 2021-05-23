@@ -4,7 +4,8 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
-
+* convert `parser-test.js` to a true jest test: `babel-parser.test.ts` and convert to typescript. - @connectdotz
+* upgrade prettier and @babel/preset-typescript, fix lint errors. - @connectdotz
 -->
 
 ### 28.2.0

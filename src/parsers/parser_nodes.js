@@ -84,7 +84,7 @@ export class ParsedNode {
       }
 
       if (node.children) {
-        node.children.forEach(c => _filter(c, true));
+        node.children.forEach((c) => _filter(c, true));
       }
     };
 
@@ -151,7 +151,7 @@ export class ParseResult {
     } else if (node instanceof ItBlock) {
       this.itBlocks.push(node);
     } else if (node instanceof Expect) {
-      if (dedup && this.expects.some(e => e.start.line === node.start.line && e.start.column === node.start.column)) {
+      if (dedup && this.expects.some((e) => e.start.line === node.start.line && e.start.column === node.start.column)) {
         // found dup, return
         return;
       }

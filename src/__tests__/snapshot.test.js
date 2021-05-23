@@ -20,7 +20,7 @@ test('nodescribe.example', () => {
   const allAssertion = ['fit', 'it', 'it.only', 'it.skip', 'test', 'test.only', 'test.skip', 'xit', 'xtest'];
 
   const expectations = Object.create(null);
-  allAssertion.forEach(assertion => {
+  allAssertion.forEach((assertion) => {
     expectations[`${assertion} 1`] = {
       assertion,
       checked: false,
@@ -33,15 +33,15 @@ test('nodescribe.example', () => {
     };
   });
 
-  results.forEach(result => {
+  results.forEach((result) => {
     const check = expectations[result.name];
     check.checked = result.content === `${check.assertion} ${check.number}`;
   });
 
   expect(
     Object.keys(expectations)
-      .map(key => expectations[key])
-      .filter(expectation => !expectation.checked).length
+      .map((key) => expectations[key])
+      .filter((expectation) => !expectation.checked).length
   ).toBe(0);
 });
 
@@ -53,8 +53,8 @@ test('describe.example', () => {
 
   const expectations = Object.create(null);
 
-  allDescribe.forEach(describe => {
-    allAssertion.forEach(assertion => {
+  allDescribe.forEach((describe) => {
+    allAssertion.forEach((assertion) => {
       expectations[`${describe.toUpperCase()} ${assertion} 1`] = {
         assertion,
         checked: false,
@@ -71,14 +71,14 @@ test('describe.example', () => {
     });
   });
 
-  results.forEach(result => {
+  results.forEach((result) => {
     const check = expectations[result.name];
     check.checked = result.content === `${check.number} ${check.assertion} ${check.describe}`;
   });
   expect(
     Object.keys(expectations)
-      .map(key => expectations[key])
-      .filter(expectation => !expectation.checked).length
+      .map((key) => expectations[key])
+      .filter((expectation) => !expectation.checked).length
   ).toBe(0);
 });
 
