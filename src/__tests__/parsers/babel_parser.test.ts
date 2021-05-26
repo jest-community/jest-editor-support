@@ -10,7 +10,7 @@
 import * as path from 'path';
 import {NamedBlock, ParseResult} from '../..';
 import {UNRESOLVED_FUNCTION_NAME, UNSUPPORTED_TEST_NAME, parse} from '../../parsers/babel_parser';
-import {parseOptions} from '../../parsers/helper';
+import {isReactFileType, parseOptions} from '../../parsers/helper';
 
 const fixtures = path.resolve('fixtures');
 
@@ -72,7 +72,7 @@ describe('parsers', () => {
       it('For the simplest it cases', () => {
         const data = parseFunction(`${fixtures}/global_its.example`);
 
-        expect(data.itBlocks.length).toEqual(8);
+        expect(data.itBlocks.length).toEqual(7);
 
         const firstIt = data.itBlocks[0];
         expect(firstIt.name).toEqual('works with old functions');
@@ -89,30 +89,39 @@ describe('parsers', () => {
         expect(thirdIt.start).toEqual({column: 1, line: 10});
         expect(thirdIt.end).toEqual({column: 3, line: 12});
 
-        const fourthIt = data.itBlocks[2];
-        expect(fourthIt.name).toEqual('works with flow functions');
-        expect(fourthIt.start).toEqual({column: 1, line: 10});
-        expect(fourthIt.end).toEqual({column: 3, line: 12});
-
-        const fifthIt = data.itBlocks[4];
+        const fifthIt = data.itBlocks[3];
         expect(fifthIt.name).toEqual('works with it.only');
-        expect(fifthIt.start).toEqual({column: 1, line: 18});
-        expect(fifthIt.end).toEqual({column: 3, line: 20});
+        expect(fifthIt.start).toEqual({column: 1, line: 14});
+        expect(fifthIt.end).toEqual({column: 3, line: 16});
 
-        const sixthIt = data.itBlocks[5];
+        const sixthIt = data.itBlocks[4];
         expect(sixthIt.name).toEqual('works with fit');
-        expect(sixthIt.start).toEqual({column: 1, line: 22});
-        expect(sixthIt.end).toEqual({column: 3, line: 24});
+        expect(sixthIt.start).toEqual({column: 1, line: 18});
+        expect(sixthIt.end).toEqual({column: 3, line: 20});
 
-        const seventhIt = data.itBlocks[6];
+        const seventhIt = data.itBlocks[5];
         expect(seventhIt.name).toEqual('works with test');
-        expect(seventhIt.start).toEqual({column: 1, line: 26});
-        expect(seventhIt.end).toEqual({column: 3, line: 28});
+        expect(seventhIt.start).toEqual({column: 1, line: 22});
+        expect(seventhIt.end).toEqual({column: 3, line: 24});
 
-        const eigthIt = data.itBlocks[7];
+        const eigthIt = data.itBlocks[6];
         expect(eigthIt.name).toEqual('works with test.only');
-        expect(eigthIt.start).toEqual({column: 1, line: 30});
-        expect(eigthIt.end).toEqual({column: 3, line: 32});
+        expect(eigthIt.start).toEqual({column: 1, line: 26});
+        expect(eigthIt.end).toEqual({column: 3, line: 28});
+      });
+
+      it('For the jsx/tsx it cases', () => {
+        if (!isReactFileType(fileName)){
+          return;
+        }
+        const data = parseFunction(`${fixtures}/global_its_for_jsx.example`);
+
+        expect(data.itBlocks.length).toEqual(1);
+
+        const firstIt = data.itBlocks[0];
+        expect(firstIt.name).toEqual('works with JSX');
+        expect(firstIt.start).toEqual({column: 1, line: 1});
+        expect(firstIt.end).toEqual({column: 3, line: 3});
       });
 
       it('For its inside describes', () => {
@@ -453,61 +462,74 @@ describe('parsers', () => {
               end: {line: 12, column: 3},
             },
             {
-              name: 'works with JSX',
+              name: 'works with it.only',
               start: {line: 14, column: 1},
               end: {line: 16, column: 3},
             },
             {
-              name: 'works with it.only',
+              name: 'works with it.concurrent',
               start: {line: 18, column: 1},
               end: {line: 20, column: 3},
             },
             {
-              name: 'works with it.concurrent',
+              name: 'works with it.concurrent.only',
               start: {line: 22, column: 1},
               end: {line: 24, column: 3},
             },
             {
-              name: 'works with it.concurrent.only',
+              name: 'works with it.concurrent.skip',
               start: {line: 26, column: 1},
               end: {line: 28, column: 3},
             },
             {
-              name: 'works with it.concurrent.skip',
+              name: 'works with fit',
               start: {line: 30, column: 1},
               end: {line: 32, column: 3},
             },
             {
-              name: 'works with fit',
+              name: 'works with test',
               start: {line: 34, column: 1},
               end: {line: 36, column: 3},
             },
             {
-              name: 'works with test',
+              name: 'works with test.only',
               start: {line: 38, column: 1},
               end: {line: 40, column: 3},
             },
             {
-              name: 'works with test.only',
+              name: 'works with test.concurrent',
               start: {line: 42, column: 1},
               end: {line: 44, column: 3},
             },
             {
-              name: 'works with test.concurrent',
+              name: 'works with test.concurrent.only',
               start: {line: 46, column: 1},
               end: {line: 48, column: 3},
             },
             {
-              name: 'works with test.concurrent.only',
+              name: 'works with test.concurrent.skip',
               start: {line: 50, column: 1},
               end: {line: 52, column: 3},
-            },
-            {
-              name: 'works with test.concurrent.skip',
-              start: {line: 54, column: 1},
-              end: {line: 56, column: 3},
-            },
+            }
           ],
+          describeBlocks: [
+            // No describes
+          ],
+        });
+      });
+      it('For the additional it.each cases for tsx/jsx file', () => {
+        if (!isReactFileType(fileName)){
+          return;
+        }
+        const parseResult = parseFunction(`${fixtures}/global_it_eaches_for_jsx.example`);
+
+        assertParseResultSimple(parseResult, {
+          itBlocks: [
+          {
+            name: 'works with JSX',
+            start: {line: 1, column: 1},
+            end: {line: 3, column: 3},
+          }],
           describeBlocks: [
             // No describes
           ],
@@ -538,30 +560,44 @@ describe('parsers', () => {
               end: {line: 12, column: 3},
             },
             {
-              name: 'works with JSX',
+              name: 'works with describe.only',
               start: {line: 14, column: 1},
               end: {line: 16, column: 3},
             },
             {
-              name: 'works with describe.only',
+              name: 'works with describe.concurrent',
               start: {line: 18, column: 1},
               end: {line: 20, column: 3},
             },
             {
-              name: 'works with describe.concurrent',
+              name: 'works with describe.concurrent.only',
               start: {line: 22, column: 1},
               end: {line: 24, column: 3},
             },
             {
-              name: 'works with describe.concurrent.only',
+              name: 'works with describe.concurrent.skip',
               start: {line: 26, column: 1},
               end: {line: 28, column: 3},
-            },
+            }
+          ],
+        });
+      });
+      it('For the additional describe.each cases for tsx/jsx file', () => {
+        if (!isReactFileType(fileName)){
+          return;
+        }
+
+        const parseResult = parseFunction(`${fixtures}/describe_eaches_for_jsx.example`);
+
+        assertParseResultSimple(parseResult, {
+          itBlocks: [
+          ],
+          describeBlocks: [
             {
-              name: 'works with describe.concurrent.skip',
-              start: {line: 30, column: 1},
-              end: {line: 32, column: 3},
-            },
+              name: 'works with JSX',
+              start: {line: 1, column: 1},
+              end: {line: 3, column: 3},
+            }
           ],
         });
       });
@@ -795,6 +831,24 @@ describe('parsers', () => {
         const parseResult = parseFunction(`${fixtures}/typescript/parse-error.example`);
         expect(parseResult.describeBlocks.length).toEqual(0);
         expect(parseResult.itBlocks.length).toEqual(0);
+        expect(parseResult.expects.length).toEqual(0);
+      });
+
+      it('parser should not crash on angle-bracket type assertion syntax for ts file', () => {
+        if (!fileName.match(/ts$/)) {
+          return;
+        }
+        const data = `
+          describe(functionDotName.name, () => {
+            it('should parse', () => {
+              let someValue = '1';
+              let str = <string> someValue;
+            });
+          });
+        `;
+        const parseResult = parseFunction(fileName, data);
+        expect(parseResult.describeBlocks.length).toEqual(1);
+        expect(parseResult.itBlocks.length).toEqual(1);
         expect(parseResult.expects.length).toEqual(0);
       });
     });

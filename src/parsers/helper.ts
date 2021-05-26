@@ -23,6 +23,18 @@ export const supportedFileType = (filePath: string): 'ts' | 'js' | undefined => 
   return undefined;
 };
 
+/**
+ * determine if the file is a react file(jsx, tsx);
+ * @param filepath
+ * @returns true or false
+ */
+export const isReactFileType = (filePath: string): boolean => {
+  if (filePath.match(/\.[jt]sx$/)) {
+    return true;
+  }
+  return false;
+};
+
 export const plugins: ParserPlugin[] = [
   'asyncGenerators',
   'bigInt',
@@ -37,7 +49,6 @@ export const plugins: ParserPlugin[] = [
   'functionBind',
   'functionSent',
   'importMeta',
-  'jsx',
   'logicalAssignment',
   'nullishCoalescingOperator',
   'numericSeparator',
@@ -53,10 +64,17 @@ export const plugins: ParserPlugin[] = [
 
 export const parseOptions = (filePath: string, strictMode = false): ParserOptions | null => {
   const fileType = supportedFileType(filePath);
-  if (fileType === 'ts') {
-    return {plugins: [...plugins, 'typescript']};
+
+  let parserPlugins = plugins;
+  //only add jsx plugin if file is react type.
+  if (fileType && isReactFileType(filePath)) {
+    parserPlugins = [...plugins, 'jsx'];
   }
-  const jsOptions: ParserOptions = {plugins: [...plugins, 'flow']};
+
+  if (fileType === 'ts') {
+    return {plugins: [...parserPlugins, 'typescript']};
+  }
+  const jsOptions: ParserOptions = {plugins: [...parserPlugins, 'flow']};
   if (fileType === 'js') {
     return jsOptions;
   }

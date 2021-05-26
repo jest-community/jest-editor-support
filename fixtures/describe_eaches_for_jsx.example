@@ -1,0 +1,3 @@
+describe.each(['a', 'b', 'c'])('works with JSX', () => {
+  const foo = () => <div></div>;
+});
