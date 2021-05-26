@@ -42,7 +42,7 @@ export const createProcess = (workspace: ProjectWorkspace, args: Array<string>):
 
   if (workspace.debug) {
     // eslint-disable-next-line no-console
-    console.log(`spawning process with command=${runtimeExecutable.join(' ')}`);
+    console.log(`spawning process with command=${runtimeExecutable.join(' ')}`, 'options:', spawnOptions);
   }
 
   return spawn(runtimeExecutable.join(' '), [], spawnOptions);
