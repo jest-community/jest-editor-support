@@ -66,7 +66,7 @@ export const parseOptions = (filePath: string, strictMode = false): ParserOption
   const fileType = supportedFileType(filePath);
 
   let parserPlugins = plugins;
-  //only add jsx plugin if file is react type.
+  // only add jsx plugin if file is react type.
   if (fileType && isReactFileType(filePath)) {
     parserPlugins = [...plugins, 'jsx'];
   }

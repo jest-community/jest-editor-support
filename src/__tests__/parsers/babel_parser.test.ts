@@ -111,7 +111,7 @@ describe('parsers', () => {
       });
 
       it('For the jsx/tsx it cases', () => {
-        if (!isReactFileType(fileName)){
+        if (!isReactFileType(fileName)) {
           return;
         }
         const data = parseFunction(`${fixtures}/global_its_for_jsx.example`);
@@ -510,7 +510,7 @@ describe('parsers', () => {
               name: 'works with test.concurrent.skip',
               start: {line: 50, column: 1},
               end: {line: 52, column: 3},
-            }
+            },
           ],
           describeBlocks: [
             // No describes
@@ -518,18 +518,19 @@ describe('parsers', () => {
         });
       });
       it('For the additional it.each cases for tsx/jsx file', () => {
-        if (!isReactFileType(fileName)){
+        if (!isReactFileType(fileName)) {
           return;
         }
         const parseResult = parseFunction(`${fixtures}/global_it_eaches_for_jsx.example`);
 
         assertParseResultSimple(parseResult, {
           itBlocks: [
-          {
-            name: 'works with JSX',
-            start: {line: 1, column: 1},
-            end: {line: 3, column: 3},
-          }],
+            {
+              name: 'works with JSX',
+              start: {line: 1, column: 1},
+              end: {line: 3, column: 3},
+            },
+          ],
           describeBlocks: [
             // No describes
           ],
@@ -578,26 +579,25 @@ describe('parsers', () => {
               name: 'works with describe.concurrent.skip',
               start: {line: 26, column: 1},
               end: {line: 28, column: 3},
-            }
+            },
           ],
         });
       });
       it('For the additional describe.each cases for tsx/jsx file', () => {
-        if (!isReactFileType(fileName)){
+        if (!isReactFileType(fileName)) {
           return;
         }
 
         const parseResult = parseFunction(`${fixtures}/describe_eaches_for_jsx.example`);
 
         assertParseResultSimple(parseResult, {
-          itBlocks: [
-          ],
+          itBlocks: [],
           describeBlocks: [
             {
               name: 'works with JSX',
               start: {line: 1, column: 1},
               end: {line: 3, column: 3},
-            }
+            },
           ],
         });
       });
