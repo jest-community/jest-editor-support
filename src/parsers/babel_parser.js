@@ -16,9 +16,6 @@ import type {ParsedNodeType} from './parser_nodes';
 import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
 import {parseOptions} from './helper';
 
-export const UNRESOLVED_FUNCTION_NAME = '__function__';
-export const UNSUPPORTED_TEST_NAME = '__unsupported__';
-
 const _getASTfor = (file: string, data: ?string, options: ?parser.ParserOptions): [BabelFile, string] => {
   const _data = data || readFileSync(file).toString();
   const config = {...options, sourceType: 'module'};
@@ -45,25 +42,21 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   const updateNameInfo = (nBlock: NamedBlock, bNode: BabelNode, lastProperty?: string) => {
     const arg = bNode.expression.arguments[0];
     let name = arg.value;
+    const hasDynamicName = !arg.value;
 
     if (!name) {
       switch (arg.type) {
         case 'TemplateLiteral':
           name = _data.substring(arg.start + 1, arg.end - 1);
           break;
-        case 'CallExpression':
-          // a dynamic function: use a placeholder
-          name = UNRESOLVED_FUNCTION_NAME;
-          break;
         default:
-          // eslint-disable-next-line no-console
-          console.warn(`failed to extract name for type "${arg.type}" in node:`, bNode);
-          name = UNSUPPORTED_TEST_NAME;
+          name = _data.substring(arg.start, arg.end);
           break;
       }
     }
 
     nBlock.name = name;
+    nBlock.hasDynamicName = hasDynamicName;
     nBlock.lastProperty = lastProperty;
     nBlock.nameRange = new ParsedRange(
       arg.loc.start.line,

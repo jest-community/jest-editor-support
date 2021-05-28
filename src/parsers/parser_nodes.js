@@ -102,9 +102,12 @@ export class Expect extends ParsedNode {
 export class NamedBlock extends ParsedNode {
   name: string;
 
+  nameRange: ParsedRange;
+
   lastProperty: ?string;
 
-  nameRange: ParsedRange;
+  /** indicate if the name of the block is plain string or dynamically named, such as template-literal, other function */
+  hasDynamicName: ?boolean;
 
   constructor(type: ParsedNodeType, file: string, name?: string, lastProperty?: string) {
     super(type, file);

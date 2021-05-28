@@ -128,8 +128,9 @@ export declare class ParsedNode {
 
 export declare class NamedBlock extends ParsedNode {
   name: string;
-  lastProperty?: string;
   nameRange: ParsedRange;
+  lastProperty?: string;
+  hasDynamicName?: Boolean;
   constructor(type: ParsedNodeType, file: string, name?: string);
 }
 
