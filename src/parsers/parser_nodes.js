@@ -109,23 +109,22 @@ export class NamedBlock extends ParsedNode {
   /** indicate if the name of the block is plain string or dynamically named, such as template-literal, other function */
   hasDynamicName: ?boolean;
 
-  constructor(type: ParsedNodeType, file: string, name?: string, lastProperty?: string) {
+  constructor(type: ParsedNodeType, file: string, name?: string) {
     super(type, file);
     if (name) {
       this.name = name;
     }
-    this.lastProperty = lastProperty;
   }
 }
 
 export class ItBlock extends NamedBlock {
-  constructor(file: string, name?: string, lastProperty?: string) {
-    super(ParsedNodeTypes.it, file, name, lastProperty);
+  constructor(file: string, name?: string) {
+    super(ParsedNodeTypes.it, file, name);
   }
 }
 export class DescribeBlock extends NamedBlock {
-  constructor(file: string, name?: string, lastProperty?: string) {
-    super(ParsedNodeTypes.describe, file, name, lastProperty);
+  constructor(file: string, name?: string) {
+    super(ParsedNodeTypes.describe, file, name);
   }
 }
 

@@ -130,15 +130,15 @@ export declare class NamedBlock extends ParsedNode {
   name: string;
   nameRange: ParsedRange;
   lastProperty?: string;
-  hasDynamicName?: Boolean;
+  hasDynamicName?: boolean;
   constructor(type: ParsedNodeType, file: string, name?: string);
 }
 
 export declare class ItBlock extends NamedBlock {
-  constructor(file: string, name?: string, lastProperty?: string);
+  constructor(file: string, name?: string);
 }
 export declare class DescribeBlock extends NamedBlock {
-  constructor(file: string, name?: string, lastProperty?: string);
+  constructor(file: string, name?: string);
 }
 
 export declare class Expect extends ParsedNode {

@@ -40,11 +40,13 @@ describe('ParsedNode', () => {
     expect(filtered.length).toEqual(1);
   });
   it('can attach lastProperty for NamedBlock', () => {
-    const itBlock = new ItBlock('abc.js', 'a test', 'each');
+    const itBlock = new ItBlock('abc.js', 'a test');
+    itBlock.lastProperty = 'each';
     expect(itBlock.lastProperty).toEqual('each');
     expect(itBlock.name).toEqual('a test');
 
-    const descBlock = new DescribeBlock('abc.js', 'a describe', 'only');
+    const descBlock = new DescribeBlock('abc.js', 'a describe');
+    descBlock.lastProperty = 'only';
     expect(descBlock.lastProperty).toEqual('only');
     expect(descBlock.name).toEqual('a describe');
   });
