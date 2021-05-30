@@ -6,8 +6,8 @@ Bug-fixes within the same version aren't needed
 ## Master
 * convert `parser-test.js` to a true jest test: `babel-parser.test.ts` and convert to typescript. - @connectdotz
 * upgrade prettier and @babel/preset-typescript, fix lint errors. - @connectdotz
-* adding lastProperty and hasDynamicName attributes to NamedNode - @connectdotz
-* preserve test/describe block names regardless of its types, i.e. string or template-literal or function etc - @connectdotz
+* adding lastProperty and nameType attributes to NamedNode - @connectdotz
+* preserve test/describe block name argument instead of using a type-marker - @connectdotz
 -->
 
 ### 28.2.0
