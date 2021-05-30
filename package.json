@@ -62,9 +62,9 @@
     "typescript": "^3.8.2"
   },
   "dependencies": {
-    "@babel/parser": "^7.8.3",
+    "@babel/parser": "^7.14.4",
     "@babel/traverse": "^7.6.2",
-    "@babel/types": "^7.8.3",
+    "@babel/types": "^7.14.4",
     "@jest/types": "^26.6.2",
     "core-js": "^3.2.1",
     "jest-snapshot": "^26.6.2"

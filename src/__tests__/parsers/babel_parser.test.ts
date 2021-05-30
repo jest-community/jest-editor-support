@@ -345,7 +345,7 @@ describe('parsers', () => {
       startCol: number,
       endLine: number,
       endCol: number,
-      hasDynamicName = false,
+      nameType = 'Literal',
       lastProperty: string = null
     ) => {
       expect(nBlock.name).toEqual(name);
@@ -353,7 +353,7 @@ describe('parsers', () => {
       expect(nBlock.nameRange.start.column).toEqual(startCol);
       expect(nBlock.nameRange.end.line).toEqual(endLine);
       expect(nBlock.nameRange.end.column).toEqual(endCol);
-      expect(nBlock.hasDynamicName).toEqual(hasDynamicName);
+      expect(nBlock.nameType).toEqual(nameType);
       if (lastProperty !== null) {
         expect(nBlock.lastProperty).toEqual(lastProperty);
       }
@@ -370,9 +370,9 @@ describe('parsers', () => {
       it('name range for template literals', () => {
         const parseResult = parseFunction(`${fixtures}/template-literal.example`);
         let itBlock = parseResult.itBlocks[0];
-        assertNameInfo(itBlock, 'test has no expression either', 2, 7, 2, 35, true);
+        assertNameInfo(itBlock, 'test has no expression either', 2, 7, 2, 35, 'TemplateLiteral');
         itBlock = parseResult.itBlocks[1];
-        assertNameInfo(itBlock, '${expression} up front', 8, 12, 8, 33, true);
+        assertNameInfo(itBlock, '${expression} up front', 8, 12, 8, 33, 'TemplateLiteral');
         itBlock = parseResult.itBlocks[5];
         assertNameInfo(
           itBlock,
@@ -382,7 +382,7 @@ describe('parsers', () => {
           7,
           23,
           18,
-          true
+          'TemplateLiteral'
         );
       });
     });
@@ -436,7 +436,7 @@ describe('parsers', () => {
 
         const itBlock = parseResult.itBlocks[0];
         assertBlock2(itBlock, 2, 7, 4, 9, 'each test %p');
-        assertNameInfo(itBlock, 'each test %p', 2, 33, 2, 44, false, 'each');
+        assertNameInfo(itBlock, 'each test %p', 2, 33, 2, 44, 'Literal', 'each');
       });
       it('should be able to detect it.skip.each', () => {
         const data = `
@@ -450,7 +450,7 @@ describe('parsers', () => {
 
         const itBlock = parseResult.itBlocks[0];
         assertBlock2(itBlock, 2, 7, 4, 9, 'each test %p');
-        assertNameInfo(itBlock, 'each test %p', 2, 38, 2, 49, false, 'each');
+        assertNameInfo(itBlock, 'each test %p', 2, 38, 2, 49, 'Literal', 'each');
       });
 
       it('For the simplest it.each cases', () => {
@@ -816,7 +816,7 @@ describe('parsers', () => {
         ${'it.each([[1],[2]])("abc", ()=> {});'}                 | ${'each'}    | ${true}
         ${'it.concurrent.skip.each([[1],[2]])("abc", ()=> {});'} | ${'each'}    | ${true}
         ${'describe.each([[1],[2]])("abc", ()=> {});'}           | ${'each'}    | ${false}
-        ${'it.skip("abc", ()=> {});'}                            | ${'skip'}    | ${true}
+        ${'it.skip(5, ()=> {});'}                                | ${'skip'}    | ${true}
         ${'it.skip(`a ${dynamic} name`, ()=> {});'}              | ${'skip'}    | ${true}
       `('check lastProperty in $data', ({data, lastProperty, isItBlock}) => {
         const parseResult = parseFunction('whatever', data);
@@ -863,7 +863,7 @@ describe('parsers', () => {
 
         const itBlock = parseResult.itBlocks[0];
         assertBlock2(itBlock, 5, 11, 7, 13, 'String(item)');
-        assertNameInfo(itBlock, 'String(item)', 5, 17, 5, 26, true);
+        assertNameInfo(itBlock, 'String(item)', 5, 17, 5, 26, 'CallExpression');
       });
       it('return statement without arguments should not crash', () => {
         const data = `
@@ -887,7 +887,7 @@ describe('parsers', () => {
         expect(parseResult.itBlocks.length).toEqual(1);
 
         const dBlock = parseResult.describeBlocks[0];
-        assertNameInfo(dBlock, 'functionDotName.name', 2, 19, 2, 36, true);
+        assertNameInfo(dBlock, 'functionDotName.name', 2, 19, 2, 36, 'MemberExpression');
 
         const itBlock = parseResult.itBlocks[0];
         assertBlock2(itBlock, 3, 11, 3, 39, 'should parse');

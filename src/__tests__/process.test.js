@@ -15,7 +15,7 @@ jest.mock('child_process');
 describe('createProcess', () => {
   let mockConsoleLog;
   beforeEach(() => {
-    mockConsoleLog = jest.spyOn(console, 'log');
+    mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
   });
   afterEach(() => {
     jest.resetAllMocks();

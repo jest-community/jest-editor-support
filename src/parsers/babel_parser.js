@@ -42,7 +42,6 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   const updateNameInfo = (nBlock: NamedBlock, bNode: BabelNode, lastProperty?: string) => {
     const arg = bNode.expression.arguments[0];
     let name = arg.value;
-    const hasDynamicName = arg.type !== 'Literal';
 
     if (!name) {
       switch (arg.type) {
@@ -56,7 +55,7 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
     }
 
     nBlock.name = name;
-    nBlock.hasDynamicName = hasDynamicName;
+    nBlock.nameType = arg.type;
     nBlock.lastProperty = lastProperty;
     nBlock.nameRange = new ParsedRange(
       arg.loc.start.line,

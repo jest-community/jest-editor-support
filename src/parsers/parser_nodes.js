@@ -106,8 +106,12 @@ export class NamedBlock extends ParsedNode {
 
   lastProperty: ?string;
 
-  /** indicate if the name of the block is plain string or dynamically named, such as template-literal, other function */
-  hasDynamicName: ?boolean;
+  /**
+   * type of the name, it's the babel Node["type"], such as "Literal", "TemplateLiteral" etc
+   *
+   * TODO babel parser currently returns "Literal" for the it/describe name argument, which is not part of its "type" definition, therefore declare a string type for now until it is fixed in babel.
+   * */
+  nameType: ?string;
 
   constructor(type: ParsedNodeType, file: string, name?: string) {
     super(type, file);
