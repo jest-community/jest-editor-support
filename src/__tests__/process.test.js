@@ -13,8 +13,13 @@ import {createProcess} from '../Process';
 jest.mock('child_process');
 
 describe('createProcess', () => {
+  let mockConsoleLog;
+  beforeEach(() => {
+    mockConsoleLog = jest.spyOn(console, 'log');
+  });
   afterEach(() => {
     jest.resetAllMocks();
+    mockConsoleLog.mockRestore();
   });
 
   it('spawns the process', () => {
@@ -117,5 +122,13 @@ describe('createProcess', () => {
     expect(spawn.mock.calls[1][2].detached).toBe(false);
 
     global.process = savedProcess;
+  });
+  it('in debug mode, it will log spawn message', () => {
+    const workspace: any = {rootPath: 'abc', debug: true};
+    const args = [];
+
+    createProcess(workspace, args);
+    expect(spawn).toBeCalled();
+    expect(mockConsoleLog).toHaveBeenCalled();
   });
 });

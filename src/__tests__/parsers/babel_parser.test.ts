@@ -9,7 +9,7 @@
 
 import * as path from 'path';
 import {NamedBlock, ParseResult} from '../..';
-import {UNRESOLVED_FUNCTION_NAME, UNSUPPORTED_TEST_NAME, parse} from '../../parsers/babel_parser';
+import {parse} from '../../parsers/babel_parser';
 import {parseOptions} from '../../parsers/helper';
 
 const fixtures = path.resolve('fixtures');
