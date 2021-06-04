@@ -91,29 +91,24 @@ describe('parsers', () => {
               end: {column: 3, line: 12},
             },
             {
-              name: 'works with JSX',
+              name: 'works with it.only',
               start: {column: 1, line: 14},
               end: {column: 3, line: 16},
             },
             {
-              name: 'works with it.only',
+              name: 'works with fit',
               start: {column: 1, line: 18},
               end: {column: 3, line: 20},
             },
             {
-              name: 'works with fit',
+              name: 'works with test',
               start: {column: 1, line: 22},
               end: {column: 3, line: 24},
             },
             {
-              name: 'works with test',
+              name: 'works with test.only',
               start: {column: 1, line: 26},
               end: {column: 3, line: 28},
-            },
-            {
-              name: 'works with test.only',
-              start: {column: 1, line: 30},
-              end: {column: 3, line: 32},
             },
           ],
         });
@@ -153,6 +148,28 @@ describe('parsers', () => {
               name: '6',
               start: {column: 3, line: 24},
               end: {column: 5, line: 25},
+            },
+          ],
+        });
+      });
+
+      it('For it with JSX', () => {
+        if (fileName.match(/ts$/)) {
+          return;
+        }
+        const data = `
+          it('works with JSX', ()=> {
+            const foo = () => <div></div>;
+          });
+        `;
+        const parseResult = parseFunction(fileName, data);
+
+        expect(parseResult).toMatchObject({
+          itBlocks: [
+            {
+              name: 'works with JSX',
+              start: {column: 11, line: 2},
+              end: {column: 13, line: 4},
             },
           ],
         });
@@ -460,63 +477,80 @@ describe('parsers', () => {
               end: {line: 12, column: 3},
             },
             {
-              name: 'works with JSX',
+              name: 'works with it.only',
               start: {line: 14, column: 1},
               end: {line: 16, column: 3},
             },
             {
-              name: 'works with it.only',
+              name: 'works with it.concurrent',
               start: {line: 18, column: 1},
               end: {line: 20, column: 3},
             },
             {
-              name: 'works with it.concurrent',
+              name: 'works with it.concurrent.only',
               start: {line: 22, column: 1},
               end: {line: 24, column: 3},
             },
             {
-              name: 'works with it.concurrent.only',
+              name: 'works with it.concurrent.skip',
               start: {line: 26, column: 1},
               end: {line: 28, column: 3},
             },
             {
-              name: 'works with it.concurrent.skip',
+              name: 'works with fit',
               start: {line: 30, column: 1},
               end: {line: 32, column: 3},
             },
             {
-              name: 'works with fit',
+              name: 'works with test',
               start: {line: 34, column: 1},
               end: {line: 36, column: 3},
             },
             {
-              name: 'works with test',
+              name: 'works with test.only',
               start: {line: 38, column: 1},
               end: {line: 40, column: 3},
             },
             {
-              name: 'works with test.only',
+              name: 'works with test.concurrent',
               start: {line: 42, column: 1},
               end: {line: 44, column: 3},
             },
             {
-              name: 'works with test.concurrent',
+              name: 'works with test.concurrent.only',
               start: {line: 46, column: 1},
               end: {line: 48, column: 3},
             },
             {
-              name: 'works with test.concurrent.only',
+              name: 'works with test.concurrent.skip',
               start: {line: 50, column: 1},
               end: {line: 52, column: 3},
-            },
-            {
-              name: 'works with test.concurrent.skip',
-              start: {line: 54, column: 1},
-              end: {line: 56, column: 3},
             },
           ],
           describeBlocks: [
             // No describes
+          ],
+        });
+      });
+
+      it('For it.each with JSX', () => {
+        if (fileName.match(/ts$/)) {
+          return;
+        }
+        const data = `
+          it.each(['a', 'b', 'c'])('works with JSX', () => {
+            const foo = () => <div></div>;
+          });
+        `;
+        const parseResult = parseFunction(fileName, data);
+
+        expect(parseResult).toMatchObject({
+          itBlocks: [
+            {
+              name: 'works with JSX',
+              start: {column: 11, line: 2},
+              end: {column: 13, line: 4},
+            },
           ],
         });
       });
@@ -545,29 +579,71 @@ describe('parsers', () => {
               end: {line: 12, column: 3},
             },
             {
-              name: 'works with JSX',
+              name: 'works with describe.only',
               start: {line: 14, column: 1},
               end: {line: 16, column: 3},
             },
             {
-              name: 'works with describe.only',
+              name: 'works with describe.concurrent',
               start: {line: 18, column: 1},
               end: {line: 20, column: 3},
             },
             {
-              name: 'works with describe.concurrent',
+              name: 'works with describe.concurrent.only',
               start: {line: 22, column: 1},
               end: {line: 24, column: 3},
             },
             {
-              name: 'works with describe.concurrent.only',
+              name: 'works with describe.concurrent.skip',
               start: {line: 26, column: 1},
               end: {line: 28, column: 3},
             },
+          ],
+        });
+      });
+
+      it('For describe.each with JSX', () => {
+        if (fileName.match(/ts$/)) {
+          return;
+        }
+        const data = `
+          describe.each(['a', 'b', 'c'])('works with JSX', () => {
+            const foo = () => <div></div>;
+          });
+        `;
+        const parseResult = parseFunction(fileName, data);
+
+        expect(parseResult).toMatchObject({
+          itBlocks: [
+            // No tests
+          ],
+          describeBlocks: [
             {
-              name: 'works with describe.concurrent.skip',
-              start: {line: 30, column: 1},
-              end: {line: 32, column: 3},
+              name: 'works with JSX',
+              start: {column: 11, line: 2},
+              end: {column: 13, line: 4},
+            },
+          ],
+        });
+      });
+
+      it('For it.each with JSX', () => {
+        if (fileName.match(/ts$/)) {
+          return;
+        }
+        const data = `
+          it.each(['a', 'b', 'c'])('works with JSX', () => {
+            const foo = () => <div></div>;
+          });
+        `;
+        const parseResult = parseFunction(fileName, data);
+
+        expect(parseResult).toMatchObject({
+          itBlocks: [
+            {
+              name: 'works with JSX',
+              start: {column: 11, line: 2},
+              end: {column: 13, line: 4},
             },
           ],
         });
@@ -707,6 +783,7 @@ describe('parsers', () => {
           ],
         });
       });
+
       it('should be able to detect test.each with a bit different layout', () => {
         const data = `
       test.each(['a','b', 'c'])(
