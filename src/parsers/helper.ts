@@ -23,18 +23,6 @@ export const supportedFileType = (filePath: string): 'ts' | 'js' | undefined => 
   return undefined;
 };
 
-/**
- * determine if the file is a react file(jsx, tsx);
- * @param filepath
- * @returns true or false
- */
-export const isReactFileType = (filePath: string): boolean => {
-  if (filePath.match(/\.[jt]sx$/)) {
-    return true;
-  }
-  return false;
-};
-
 export const plugins: ParserPlugin[] = [
   'asyncGenerators',
   'bigInt',
@@ -66,8 +54,10 @@ export const parseOptions = (filePath: string, strictMode = false): ParserOption
   const fileType = supportedFileType(filePath);
 
   let parserPlugins = plugins;
-  // only add jsx plugin if file is react type.
-  if (fileType && isReactFileType(filePath)) {
+
+  // Add jsx plugin for jsx, js and tsx file, but exclude it for ts file since jsx syntax is not surppoted in ts file.
+  // https://github.com/microsoft/TypeScript/issues/26489
+  if (fileType && !filePath.match(/\.ts$/i)) {
     parserPlugins = [...plugins, 'jsx'];
   }
 

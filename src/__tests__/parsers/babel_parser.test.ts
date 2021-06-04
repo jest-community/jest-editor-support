@@ -10,7 +10,7 @@
 import * as path from 'path';
 import {NamedBlock, ParseResult} from '../..';
 import {UNRESOLVED_FUNCTION_NAME, UNSUPPORTED_TEST_NAME, parse} from '../../parsers/babel_parser';
-import {isReactFileType, parseOptions} from '../../parsers/helper';
+import {parseOptions} from '../../parsers/helper';
 
 const fixtures = path.resolve('fixtures');
 
@@ -110,8 +110,9 @@ describe('parsers', () => {
         expect(eigthIt.end).toEqual({column: 3, line: 28});
       });
 
-      it('For the jsx/tsx it cases', () => {
-        if (!isReactFileType(fileName)) {
+      it('For the jsx it cases', () => {
+        if (fileName.match(/ts$/)) {
+          // ts file doesn't support jsx syntax.
           return;
         }
         const data = parseFunction(`${fixtures}/global_its_for_jsx.example`);
@@ -517,8 +518,9 @@ describe('parsers', () => {
           ],
         });
       });
-      it('For the additional it.each cases for tsx/jsx file', () => {
-        if (!isReactFileType(fileName)) {
+      it('For the additional it.each cases for jsx syntax', () => {
+        if (fileName.match(/ts$/)) {
+          // ts file doesn't support jsx syntax.
           return;
         }
         const parseResult = parseFunction(`${fixtures}/global_it_eaches_for_jsx.example`);
@@ -583,8 +585,9 @@ describe('parsers', () => {
           ],
         });
       });
-      it('For the additional describe.each cases for tsx/jsx file', () => {
-        if (!isReactFileType(fileName)) {
+      it('For the additional describe.each cases for jsx syntax', () => {
+        if (fileName.match(/ts$/)) {
+          // ts file doesn't support jsx syntax.
           return;
         }
 

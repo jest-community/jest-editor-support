@@ -4,8 +4,8 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
-* convert `parser-test.js` to a true jest test: `babel-parser.test.ts` and convert to typescript. - @connectdotz
-* upgrade prettier and @babel/preset-typescript, fix lint errors. - @connectdotz
+- Updated helper function, exclude jsx plugin for ts file since ts file doesn't support jsx syntax
+- Added new test case to cover ts angular bracket type assertion, updated and saparated jsx syntax test cases from general test cases into its own file, so ts tests won't hit jsx test case.
 -->
 
 ### 28.2.0
