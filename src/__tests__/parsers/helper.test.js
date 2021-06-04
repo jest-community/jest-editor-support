@@ -26,10 +26,18 @@ describe('supportedFileType', () => {
   });
   describe('parseOption', () => {
     it('js file should contain "flow" plugin', () => {
-      expect(helper.parseOptions('abc.js')).toEqual({plugins: [...helper.plugins, 'flow']});
+      expect(helper.parseOptions('abc.js')?.plugins).toContain('flow');
     });
     it('ts file should contain "typescript" plugin', () => {
       expect(helper.parseOptions('abc.ts')).toEqual({plugins: [...helper.plugins, 'typescript']});
+    });
+    it('tsx/js/jsx file should contain "jsx" plugin', () => {
+      expect(helper.parseOptions('abc.tsx').plugins).toContain('jsx');
+      expect(helper.parseOptions('abc.js').plugins).toContain('jsx');
+      expect(helper.parseOptions('abc.jsx').plugins).toContain('jsx');
+    });
+    it('ts file should not contain "jsx" plugin', () => {
+      expect(helper.parseOptions('abc.ts').plugins).not.toContain('jsx');
     });
     describe('for unrecognized file type', () => {
       it('in strict mode, throw error', () => {
