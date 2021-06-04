@@ -13,7 +13,7 @@ it('works with flow functions', () => {
 
 it('works with JSX', ()=> {
   const foo = () => <div></div>;
-})
+});
 
 it.only('works with it.only', () => {
 
