@@ -9,13 +9,17 @@
 import {ParserOptions, ParserPlugin} from '@babel/parser';
 
 /**
- * determine if the file is a typescript (ts), javascript (js) otherwise returns undefined.
+ * determine if the file is a javascript (js), typescript (ts), or typescript JSX (tsx),
+ * otherwise returns undefined.
  * @param filepath
- * @returns 'js'|'ts' or undefined
+ * @returns 'js'|'ts'|'tsx' or undefined
  */
-export const supportedFileType = (filePath: string): 'ts' | 'js' | undefined => {
-  if (filePath.match(/\.tsx?$/)) {
+export const getFileType = (filePath: string): 'js' | 'ts' | 'tsx' | undefined => {
+  if (filePath.match(/\.ts$/)) {
     return 'ts';
+  }
+  if (filePath.match(/\.tsx$/)) {
+    return 'tsx';
   }
   if (filePath.match(/\.m?jsx?$/)) {
     return 'js';
@@ -37,7 +41,6 @@ export const plugins: ParserPlugin[] = [
   'functionBind',
   'functionSent',
   'importMeta',
-  'jsx',
   'logicalAssignment',
   'nullishCoalescingOperator',
   'numericSeparator',
@@ -52,11 +55,14 @@ export const plugins: ParserPlugin[] = [
 ];
 
 export const parseOptions = (filePath: string, strictMode = false): ParserOptions | null => {
-  const fileType = supportedFileType(filePath);
+  const fileType = getFileType(filePath);
   if (fileType === 'ts') {
     return {plugins: [...plugins, 'typescript']};
   }
-  const jsOptions: ParserOptions = {plugins: [...plugins, 'flow']};
+  if (fileType === 'tsx') {
+    return {plugins: [...plugins, 'typescript', 'jsx']};
+  }
+  const jsOptions: ParserOptions = {plugins: [...plugins, 'flow', 'jsx']};
   if (fileType === 'js') {
     return jsOptions;
   }
