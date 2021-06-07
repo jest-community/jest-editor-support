@@ -948,6 +948,21 @@ describe('parsers', () => {
         assertBlock2(itBlock, 2, 9, 9, 11, name);
         assertNameInfo(itBlock, name, 7, 12, 7, 48);
       });
+      it('https://github.com/jest-community/jest-editor-support/issues/68', () => {
+        // if (!fileName.match(/ts$/)) {
+        if (!fileName.match(/ts$/)) {
+          return;
+        }
+        const data = `
+          it('should parse', () => {
+            const value = <number> num;
+          });
+        `;
+        const parseResult = parseFunction(fileName, data);
+        expect(parseResult.itBlocks.length).toEqual(1);
+        const itBlock = parseResult.itBlocks[0];
+        assertBlock2(itBlock, 2, 11, 4, 13, 'should parse');
+      });
     });
   });
 });
