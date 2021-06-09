@@ -11,10 +11,6 @@ describe.each(['a', 'b', 'c'])('works with flow functions', () => {
   function foo(x: string): string { return x; }
 });
 
-describe.each(['a', 'b', 'c'])('works with JSX', () => {
-  const foo = () => <div></div>;
-});
-
 describe.only.each(['a', 'b', 'c'])('works with describe.only', () => {
 
 });

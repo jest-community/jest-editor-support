@@ -8,22 +8,7 @@
 
 import {ParserOptions, ParserPlugin} from '@babel/parser';
 
-/**
- * determine if the file is a typescript (ts), javascript (js) otherwise returns undefined.
- * @param filepath
- * @returns 'js'|'ts' or undefined
- */
-export const supportedFileType = (filePath: string): 'ts' | 'js' | undefined => {
-  if (filePath.match(/\.tsx?$/)) {
-    return 'ts';
-  }
-  if (filePath.match(/\.m?jsx?$/)) {
-    return 'js';
-  }
-  return undefined;
-};
-
-export const plugins: ParserPlugin[] = [
+const commonPlugins: ParserPlugin[] = [
   'asyncGenerators',
   'bigInt',
   'classPrivateMethods',
@@ -37,7 +22,6 @@ export const plugins: ParserPlugin[] = [
   'functionBind',
   'functionSent',
   'importMeta',
-  'jsx',
   'logicalAssignment',
   'nullishCoalescingOperator',
   'numericSeparator',
@@ -51,20 +35,23 @@ export const plugins: ParserPlugin[] = [
   ['pipelineOperator', {proposal: 'smart'}],
 ];
 
-export const parseOptions = (filePath: string, strictMode = false): ParserOptions | null => {
-  const fileType = supportedFileType(filePath);
-  if (fileType === 'ts') {
-    return {plugins: [...plugins, 'typescript']};
-  }
-  const jsOptions: ParserOptions = {plugins: [...plugins, 'flow']};
-  if (fileType === 'js') {
-    return jsOptions;
+export const jsPlugins: ParserPlugin[] = [...commonPlugins, 'flow', 'jsx'];
+export const tsPlugins: ParserPlugin[] = [...commonPlugins, 'typescript'];
+export const tsxPlugins: ParserPlugin[] = [...commonPlugins, 'typescript', 'jsx'];
+
+export const parseOptions = (filePath: string, strictMode = false): ParserOptions => {
+  if (filePath.match(/\.ts$/i)) {
+    return {plugins: [...tsPlugins]};
   }
 
-  // unexpected file extension, for backward compatibility, will use js parser
-  if (strictMode) {
-    throw new TypeError(`unable to find parser options for unrecognized file extension: ${filePath}`);
+  if (filePath.match(/\.tsx$/i)) {
+    return {plugins: [...tsxPlugins]};
   }
 
-  return jsOptions;
+  // for backward compatibility, use js parser as default unless in strict mode
+  if (!strictMode || filePath.match(/\.m?jsx?$/i)) {
+    return {plugins: [...jsPlugins]};
+  }
+
+  throw new TypeError(`unable to find parser options for unrecognized file extension: ${filePath}`);
 };

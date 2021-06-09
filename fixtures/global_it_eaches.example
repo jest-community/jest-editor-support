@@ -11,10 +11,6 @@ it.each(['a', 'b', 'c'])('works with flow functions', () => {
   function foo(x: string): string { return x; }
 });
 
-it.each(['a', 'b', 'c'])('works with JSX', () => {
-  const foo = () => <div></div>;
-});
-
 it.only.each(['a', 'b', 'c'])('works with it.only', () => {
 
 });
