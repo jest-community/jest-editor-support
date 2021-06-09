@@ -949,7 +949,6 @@ describe('parsers', () => {
         assertNameInfo(itBlock, name, 7, 12, 7, 48);
       });
       it('https://github.com/jest-community/jest-editor-support/issues/68', () => {
-        // if (!fileName.match(/ts$/)) {
         if (!fileName.match(/ts$/)) {
           return;
         }
