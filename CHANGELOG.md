@@ -7,6 +7,7 @@ Bug-fixes within the same version aren't needed
 * convert `parser-test.js` to a true jest test: `babel-parser.test.ts` and convert to typescript. - @connectdotz
 * upgrade prettier and @babel/preset-typescript, fix lint errors. - @connectdotz
 * remove JSX plugin for `.ts` files
+* upgrade lint-staged to address security vulnerability - @connectdotz
 -->
 
 ### 28.2.0

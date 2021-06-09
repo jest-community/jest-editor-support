@@ -9,13 +9,10 @@
   "main": "build/index.js",
   "lint-staged": {
     "*.json": [
-      "yarn prettier-write --parser json",
-      "git add"
-    ],
-    "*.js": [
       "yarn prettier-write",
       "git add"
-    ]
+    ],
+    "*.js": "eslint --cache --fix"
   },
   "scripts": {
     "build": "babel src/ -d build/ --extensions \".js,.ts\" --source-maps inline",
@@ -30,7 +27,8 @@
     "prettier-write": "prettier --write",
     "prettier-project": "yarn prettier-write \"?(__mocks__|src|tests)/**/*.+(js|ts)\" ",
     "type-check": "tsc --noEmit",
-    "type-check:watch": "yarn type-check -- --watch"
+    "type-check:watch": "yarn type-check -- --watch",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.2",
@@ -56,8 +54,9 @@
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-prettier": "^3.0.1",
     "flow-bin": "^0.97.0",
+    "husky": ">=6",
     "jest": "^26.6.3",
-    "lint-staged": "^8.1.5",
+    "lint-staged": ">=10",
     "prettier": "^2.3.0",
     "typescript": "^3.8.2"
   },
