@@ -70,85 +70,109 @@ describe('parsers', () => {
     // actual tests
     describe('File Parsing for it blocks', () => {
       it('For the simplest it cases', () => {
-        const data = parseFunction(`${fixtures}/global_its.example`);
+        const parseResult = parseFunction(`${fixtures}/global_its.example`);
 
-        expect(data.itBlocks.length).toEqual(8);
+        expect(parseResult).toMatchObject({
+          itBlocks: [
+            {
+              name: 'works with old functions',
+              start: {column: 1, line: 2},
+              end: {column: 3, line: 4},
+            },
 
-        const firstIt = data.itBlocks[0];
-        expect(firstIt.name).toEqual('works with old functions');
-        expect(firstIt.start).toEqual({column: 1, line: 2});
-        expect(firstIt.end).toEqual({column: 3, line: 4});
-
-        const secondIt = data.itBlocks[1];
-        expect(secondIt.name).toEqual('works with new functions');
-        expect(secondIt.start).toEqual({column: 1, line: 6});
-        expect(secondIt.end).toEqual({column: 3, line: 8});
-
-        const thirdIt = data.itBlocks[2];
-        expect(thirdIt.name).toEqual('works with flow functions');
-        expect(thirdIt.start).toEqual({column: 1, line: 10});
-        expect(thirdIt.end).toEqual({column: 3, line: 12});
-
-        const fourthIt = data.itBlocks[2];
-        expect(fourthIt.name).toEqual('works with flow functions');
-        expect(fourthIt.start).toEqual({column: 1, line: 10});
-        expect(fourthIt.end).toEqual({column: 3, line: 12});
-
-        const fifthIt = data.itBlocks[4];
-        expect(fifthIt.name).toEqual('works with it.only');
-        expect(fifthIt.start).toEqual({column: 1, line: 18});
-        expect(fifthIt.end).toEqual({column: 3, line: 20});
-
-        const sixthIt = data.itBlocks[5];
-        expect(sixthIt.name).toEqual('works with fit');
-        expect(sixthIt.start).toEqual({column: 1, line: 22});
-        expect(sixthIt.end).toEqual({column: 3, line: 24});
-
-        const seventhIt = data.itBlocks[6];
-        expect(seventhIt.name).toEqual('works with test');
-        expect(seventhIt.start).toEqual({column: 1, line: 26});
-        expect(seventhIt.end).toEqual({column: 3, line: 28});
-
-        const eigthIt = data.itBlocks[7];
-        expect(eigthIt.name).toEqual('works with test.only');
-        expect(eigthIt.start).toEqual({column: 1, line: 30});
-        expect(eigthIt.end).toEqual({column: 3, line: 32});
+            {
+              name: 'works with new functions',
+              start: {column: 1, line: 6},
+              end: {column: 3, line: 8},
+            },
+            {
+              name: 'works with flow functions',
+              start: {column: 1, line: 10},
+              end: {column: 3, line: 12},
+            },
+            {
+              name: 'works with it.only',
+              start: {column: 1, line: 14},
+              end: {column: 3, line: 16},
+            },
+            {
+              name: 'works with fit',
+              start: {column: 1, line: 18},
+              end: {column: 3, line: 20},
+            },
+            {
+              name: 'works with test',
+              start: {column: 1, line: 22},
+              end: {column: 3, line: 24},
+            },
+            {
+              name: 'works with test.only',
+              start: {column: 1, line: 26},
+              end: {column: 3, line: 28},
+            },
+          ],
+        });
       });
 
       it('For its inside describes', () => {
-        const data = parse(`${fixtures}/nested_its.example`);
+        const parseResult = parse(`${fixtures}/nested_its.example`);
 
-        expect(data.itBlocks.length).toEqual(6);
+        expect(parseResult).toMatchObject({
+          itBlocks: [
+            {
+              name: '1',
+              start: {column: 3, line: 2},
+              end: {column: 5, line: 3},
+            },
+            {
+              name: '2',
+              start: {column: 3, line: 4},
+              end: {column: 5, line: 5},
+            },
+            {
+              name: '3',
+              start: {column: 3, line: 9},
+              end: {column: 5, line: 10},
+            },
+            {
+              name: '4',
+              start: {column: 3, line: 14},
+              end: {column: 5, line: 15},
+            },
+            {
+              name: '5',
+              start: {column: 3, line: 19},
+              end: {column: 5, line: 20},
+            },
+            {
+              name: '6',
+              start: {column: 3, line: 24},
+              end: {column: 5, line: 25},
+            },
+          ],
+        });
+      });
 
-        const firstIt = data.itBlocks[0];
-        expect(firstIt.name).toEqual('1');
-        expect(firstIt.start).toEqual({column: 3, line: 2});
-        expect(firstIt.end).toEqual({column: 5, line: 3});
+      it('For it with JSX', () => {
+        if (fileName.match(/ts$/)) {
+          return;
+        }
+        const data = `
+          it('works with JSX', ()=> {
+            const foo = () => <div></div>;
+          });
+        `;
+        const parseResult = parseFunction(fileName, data);
 
-        const secondIt = data.itBlocks[1];
-        expect(secondIt.name).toEqual('2');
-        expect(secondIt.start).toEqual({column: 3, line: 4});
-        expect(secondIt.end).toEqual({column: 5, line: 5});
-
-        const thirdIt = data.itBlocks[2];
-        expect(thirdIt.name).toEqual('3');
-        expect(thirdIt.start).toEqual({column: 3, line: 9});
-        expect(thirdIt.end).toEqual({column: 5, line: 10});
-
-        const fourthIt = data.itBlocks[3];
-        expect(fourthIt.name).toEqual('4');
-        expect(fourthIt.start).toEqual({column: 3, line: 14});
-        expect(fourthIt.end).toEqual({column: 5, line: 15});
-
-        const fifthIt = data.itBlocks[4];
-        expect(fifthIt.name).toEqual('5');
-        expect(fifthIt.start).toEqual({column: 3, line: 19});
-        expect(fifthIt.end).toEqual({column: 5, line: 20});
-
-        const sixthIt = data.itBlocks[5];
-        expect(sixthIt.name).toEqual('6');
-        expect(sixthIt.start).toEqual({column: 3, line: 24});
-        expect(sixthIt.end).toEqual({column: 5, line: 25});
+        expect(parseResult).toMatchObject({
+          itBlocks: [
+            {
+              name: 'works with JSX',
+              start: {column: 11, line: 2},
+              end: {column: 13, line: 4},
+            },
+          ],
+        });
       });
 
       // These tests act more like linters that we don't raise on
@@ -474,63 +498,80 @@ describe('parsers', () => {
               end: {line: 12, column: 3},
             },
             {
-              name: 'works with JSX',
+              name: 'works with it.only',
               start: {line: 14, column: 1},
               end: {line: 16, column: 3},
             },
             {
-              name: 'works with it.only',
+              name: 'works with it.concurrent',
               start: {line: 18, column: 1},
               end: {line: 20, column: 3},
             },
             {
-              name: 'works with it.concurrent',
+              name: 'works with it.concurrent.only',
               start: {line: 22, column: 1},
               end: {line: 24, column: 3},
             },
             {
-              name: 'works with it.concurrent.only',
+              name: 'works with it.concurrent.skip',
               start: {line: 26, column: 1},
               end: {line: 28, column: 3},
             },
             {
-              name: 'works with it.concurrent.skip',
+              name: 'works with fit',
               start: {line: 30, column: 1},
               end: {line: 32, column: 3},
             },
             {
-              name: 'works with fit',
+              name: 'works with test',
               start: {line: 34, column: 1},
               end: {line: 36, column: 3},
             },
             {
-              name: 'works with test',
+              name: 'works with test.only',
               start: {line: 38, column: 1},
               end: {line: 40, column: 3},
             },
             {
-              name: 'works with test.only',
+              name: 'works with test.concurrent',
               start: {line: 42, column: 1},
               end: {line: 44, column: 3},
             },
             {
-              name: 'works with test.concurrent',
+              name: 'works with test.concurrent.only',
               start: {line: 46, column: 1},
               end: {line: 48, column: 3},
             },
             {
-              name: 'works with test.concurrent.only',
+              name: 'works with test.concurrent.skip',
               start: {line: 50, column: 1},
               end: {line: 52, column: 3},
-            },
-            {
-              name: 'works with test.concurrent.skip',
-              start: {line: 54, column: 1},
-              end: {line: 56, column: 3},
             },
           ],
           describeBlocks: [
             // No describes
+          ],
+        });
+      });
+
+      it('For it.each with JSX', () => {
+        if (fileName.match(/ts$/)) {
+          return;
+        }
+        const data = `
+          it.each(['a', 'b', 'c'])('works with JSX', () => {
+            const foo = () => <div></div>;
+          });
+        `;
+        const parseResult = parseFunction(fileName, data);
+
+        expect(parseResult).toMatchObject({
+          itBlocks: [
+            {
+              name: 'works with JSX',
+              start: {column: 11, line: 2},
+              end: {column: 13, line: 4},
+            },
           ],
         });
       });
@@ -559,29 +600,71 @@ describe('parsers', () => {
               end: {line: 12, column: 3},
             },
             {
-              name: 'works with JSX',
+              name: 'works with describe.only',
               start: {line: 14, column: 1},
               end: {line: 16, column: 3},
             },
             {
-              name: 'works with describe.only',
+              name: 'works with describe.concurrent',
               start: {line: 18, column: 1},
               end: {line: 20, column: 3},
             },
             {
-              name: 'works with describe.concurrent',
+              name: 'works with describe.concurrent.only',
               start: {line: 22, column: 1},
               end: {line: 24, column: 3},
             },
             {
-              name: 'works with describe.concurrent.only',
+              name: 'works with describe.concurrent.skip',
               start: {line: 26, column: 1},
               end: {line: 28, column: 3},
             },
+          ],
+        });
+      });
+
+      it('For describe.each with JSX', () => {
+        if (fileName.match(/ts$/)) {
+          return;
+        }
+        const data = `
+          describe.each(['a', 'b', 'c'])('works with JSX', () => {
+            const foo = () => <div></div>;
+          });
+        `;
+        const parseResult = parseFunction(fileName, data);
+
+        expect(parseResult).toMatchObject({
+          itBlocks: [
+            // No tests
+          ],
+          describeBlocks: [
             {
-              name: 'works with describe.concurrent.skip',
-              start: {line: 30, column: 1},
-              end: {line: 32, column: 3},
+              name: 'works with JSX',
+              start: {column: 11, line: 2},
+              end: {column: 13, line: 4},
+            },
+          ],
+        });
+      });
+
+      it('For it.each with JSX', () => {
+        if (fileName.match(/ts$/)) {
+          return;
+        }
+        const data = `
+          it.each(['a', 'b', 'c'])('works with JSX', () => {
+            const foo = () => <div></div>;
+          });
+        `;
+        const parseResult = parseFunction(fileName, data);
+
+        expect(parseResult).toMatchObject({
+          itBlocks: [
+            {
+              name: 'works with JSX',
+              start: {column: 11, line: 2},
+              end: {column: 13, line: 4},
             },
           ],
         });
@@ -721,10 +804,11 @@ describe('parsers', () => {
           ],
         });
       });
+
       it('should be able to detect test.each with a bit different layout', () => {
         const data = `
       test.each(['a','b', 'c'])(
-        'each test %p', 
+        'each test %p',
         (v) => {
         expect(v).not.toBeUndefined();
       });
@@ -910,6 +994,20 @@ describe('parsers', () => {
         const itBlock = parseResult.itBlocks[0];
         assertBlock2(itBlock, 2, 9, 9, 11, name);
         assertNameInfo(itBlock, name, 7, 12, 7, 48);
+      });
+      it('https://github.com/jest-community/jest-editor-support/issues/68', () => {
+        if (!fileName.match(/ts$/)) {
+          return;
+        }
+        const data = `
+          it('should parse', () => {
+            const value = <number> num;
+          });
+        `;
+        const parseResult = parseFunction(fileName, data);
+        expect(parseResult.itBlocks.length).toEqual(1);
+        const itBlock = parseResult.itBlocks[0];
+        assertBlock2(itBlock, 2, 11, 4, 13, 'should parse');
       });
     });
   });

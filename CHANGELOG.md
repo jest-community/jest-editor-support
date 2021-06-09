@@ -8,6 +8,7 @@ Bug-fixes within the same version aren't needed
 * upgrade prettier and @babel/preset-typescript, fix lint errors. - @connectdotz
 * adding lastProperty and nameType attributes to NamedNode - @connectdotz
 * preserve test/describe block name argument instead of using a type-marker - @connectdotz
+* remove JSX plugin for `.ts` files
 -->
 
 ### 28.2.0

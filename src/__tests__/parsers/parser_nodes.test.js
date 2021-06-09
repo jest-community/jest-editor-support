@@ -50,6 +50,12 @@ describe('ParsedNode', () => {
     expect(descBlock.lastProperty).toEqual('only');
     expect(descBlock.name).toEqual('a describe');
   });
+  it('throws an error when adding an unknown child', async () => {
+    const root = new ParsedNode('describe', 'a/b/c');
+    expect(() => {
+      root.addChild('unknown');
+    }).toThrow(TypeError);
+  });
 });
 
 describe('ParseResult', () => {
@@ -94,5 +100,12 @@ describe('ParseResult', () => {
     expect(result.describeBlocks.length).toEqual(2);
     expect(result.itBlocks.length).toEqual(0);
     expect(result.expects.length).toEqual(1);
+  });
+  it('throws an error on unknown node type', async () => {
+    const result = new ParseResult('a/b/c');
+    expect(() => {
+      const node = new ParsedNode('root', '');
+      result.addNode(node);
+    }).toThrow(TypeError);
   });
 });

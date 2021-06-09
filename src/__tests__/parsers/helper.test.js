@@ -9,35 +9,31 @@
 
 import * as helper from '../../parsers/helper';
 
-jest.mock('../../parsers/babel_parser', () => {
-  return {parse: jest.fn()};
-});
-
-describe('supportedFileType', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-  it('for .js or .jsx or .mjs file', () => {
-    const files = ['abc.js', 'abc.jsx', 'abc.mjs'];
+describe('parseOptions', () => {
+  it('returns jsOptions for .js or .jsx or .mjs file', () => {
+    const files = ['abc.js', 'abc.jsx', 'abc.mjs', 'abc.JS', 'abc.JSX', 'abc.MJS'];
     files.forEach((file) => {
-      expect(helper.supportedFileType(file)).toEqual('js');
-      jest.clearAllMocks();
+      expect(helper.parseOptions(file)).toEqual({plugins: helper.jsPlugins});
     });
   });
-  describe('parseOption', () => {
-    it('js file should contain "flow" plugin', () => {
-      expect(helper.parseOptions('abc.js')).toEqual({plugins: [...helper.plugins, 'flow']});
+  it('returns tsOptions for .ts', () => {
+    const files = ['abc.ts', 'abc.TS'];
+    files.forEach((file) => {
+      expect(helper.parseOptions(file)).toEqual({plugins: helper.tsPlugins});
     });
-    it('ts file should contain "typescript" plugin', () => {
-      expect(helper.parseOptions('abc.ts')).toEqual({plugins: [...helper.plugins, 'typescript']});
+  });
+  it('returns tsxOptions for .tsx', () => {
+    const files = ['abc.tsx', 'abc.TSX'];
+    files.forEach((file) => {
+      expect(helper.parseOptions(file)).toEqual({plugins: helper.tsxPlugins});
     });
-    describe('for unrecognized file type', () => {
-      it('in strict mode, throw error', () => {
-        expect(() => helper.parseOptions('abc.json', true)).toThrow();
-      });
-      it('in non-strict mode, use js options', () => {
-        expect(helper.parseOptions('abc.json', false)).toEqual({plugins: [...helper.plugins, 'flow']});
-      });
+  });
+  describe('for unrecognized file type', () => {
+    it('in strict mode, throw error', () => {
+      expect(() => helper.parseOptions('abc.json', true)).toThrow();
+    });
+    it('in non-strict mode, use js options', () => {
+      expect(helper.parseOptions('abc.json', false)).toEqual({plugins: helper.jsPlugins});
     });
   });
 });
