@@ -9,7 +9,7 @@
 
 import * as path from 'path';
 import {NamedBlock, ParseResult} from '../..';
-import {UNRESOLVED_FUNCTION_NAME, UNSUPPORTED_TEST_NAME, parse} from '../../parsers/babel_parser';
+import {parse} from '../../parsers/babel_parser';
 import {parseOptions} from '../../parsers/helper';
 
 const fixtures = path.resolve('fixtures');
@@ -368,13 +368,19 @@ describe('parsers', () => {
       startLine: number,
       startCol: number,
       endLine: number,
-      endCol: number
+      endCol: number,
+      nameType = 'Literal',
+      lastProperty: string = null
     ) => {
       expect(nBlock.name).toEqual(name);
       expect(nBlock.nameRange.start.line).toEqual(startLine);
       expect(nBlock.nameRange.start.column).toEqual(startCol);
       expect(nBlock.nameRange.end.line).toEqual(endLine);
       expect(nBlock.nameRange.end.column).toEqual(endCol);
+      expect(nBlock.nameType).toEqual(nameType);
+      if (lastProperty !== null) {
+        expect(nBlock.lastProperty).toEqual(lastProperty);
+      }
     };
 
     describe('name range', () => {
@@ -388,9 +394,9 @@ describe('parsers', () => {
       it('name range for template literals', () => {
         const parseResult = parseFunction(`${fixtures}/template-literal.example`);
         let itBlock = parseResult.itBlocks[0];
-        assertNameInfo(itBlock, 'test has no expression either', 2, 7, 2, 35);
+        assertNameInfo(itBlock, 'test has no expression either', 2, 7, 2, 35, 'TemplateLiteral');
         itBlock = parseResult.itBlocks[1];
-        assertNameInfo(itBlock, '${expression} up front', 8, 12, 8, 33);
+        assertNameInfo(itBlock, '${expression} up front', 8, 12, 8, 33, 'TemplateLiteral');
         itBlock = parseResult.itBlocks[5];
         assertNameInfo(
           itBlock,
@@ -399,7 +405,8 @@ describe('parsers', () => {
           22,
           7,
           23,
-          18
+          18,
+          'TemplateLiteral'
         );
       });
     });
@@ -453,7 +460,21 @@ describe('parsers', () => {
 
         const itBlock = parseResult.itBlocks[0];
         assertBlock2(itBlock, 2, 7, 4, 9, 'each test %p');
-        assertNameInfo(itBlock, 'each test %p', 2, 33, 2, 44);
+        assertNameInfo(itBlock, 'each test %p', 2, 33, 2, 44, 'Literal', 'each');
+      });
+      it('should be able to detect it.skip.each', () => {
+        const data = `
+      it.skip.each(['a', 'b', 'c'])('each test %p', (v) => {
+        expect(v).not.toBeUndefined();
+      });
+          `;
+        const parseResult = parseFunction('whatever', data);
+        expect(parseResult.itBlocks.length).toEqual(1);
+        expect(parseResult.expects.length).toEqual(1);
+
+        const itBlock = parseResult.itBlocks[0];
+        assertBlock2(itBlock, 2, 7, 4, 9, 'each test %p');
+        assertNameInfo(itBlock, 'each test %p', 2, 38, 2, 49, 'Literal', 'each');
       });
 
       it('For the simplest it.each cases', () => {
@@ -871,6 +892,32 @@ describe('parsers', () => {
         expect(parseResult.describeBlocks.length).toBe(3);
       });
     });
+    describe('lastProperty', () => {
+      it.each`
+        data                                                     | lastProperty | isItBlock
+        ${'it("abc", ()=> {});'}                                 | ${undefined} | ${true}
+        ${'describe("abc", ()=> {});'}                           | ${undefined} | ${false}
+        ${'it.each([[1],[2]])("abc", ()=> {});'}                 | ${'each'}    | ${true}
+        ${'it.concurrent.skip.each([[1],[2]])("abc", ()=> {});'} | ${'each'}    | ${true}
+        ${'describe.each([[1],[2]])("abc", ()=> {});'}           | ${'each'}    | ${false}
+        ${'it.skip(5, ()=> {});'}                                | ${'skip'}    | ${true}
+        ${'it.skip(`a ${dynamic} name`, ()=> {});'}              | ${'skip'}    | ${true}
+      `('check lastProperty in $data', ({data, lastProperty, isItBlock}) => {
+        const parseResult = parseFunction('whatever', data);
+        const nBlock = isItBlock ? parseResult.itBlocks[0] : parseResult.describeBlocks[0];
+        expect(nBlock.lastProperty).toEqual(lastProperty);
+      });
+      it('lastProperty for tagged test', () => {
+        const data = `
+          it.concurrent.skip.each\`
+            a|b
+            ${1}|${2}
+          \`('$a, $b', () => {});
+        `;
+        const parseResult = parseFunction('whatever', data);
+        expect(parseResult.itBlocks[0].lastProperty).toEqual('each');
+      });
+    });
     describe('typescript specific', () => {
       it('parser should not crash on ArrowFunctionExpression', () => {
         if (!fileName.match(/tsx?$/)) {
@@ -899,8 +946,8 @@ describe('parsers', () => {
         expect(parseResult.expects.length).toEqual(1);
 
         const itBlock = parseResult.itBlocks[0];
-        assertBlock2(itBlock, 5, 11, 7, 13, UNRESOLVED_FUNCTION_NAME);
-        assertNameInfo(itBlock, UNRESOLVED_FUNCTION_NAME, 5, 17, 5, 26);
+        assertBlock2(itBlock, 5, 11, 7, 13, 'String(item)');
+        assertNameInfo(itBlock, 'String(item)', 5, 17, 5, 26, 'CallExpression');
       });
       it('return statement without arguments should not crash', () => {
         const data = `
@@ -924,7 +971,7 @@ describe('parsers', () => {
         expect(parseResult.itBlocks.length).toEqual(1);
 
         const dBlock = parseResult.describeBlocks[0];
-        assertNameInfo(dBlock, UNSUPPORTED_TEST_NAME, 2, 19, 2, 36);
+        assertNameInfo(dBlock, 'functionDotName.name', 2, 19, 2, 36, 'MemberExpression');
 
         const itBlock = parseResult.itBlocks[0];
         assertBlock2(itBlock, 3, 11, 3, 39, 'should parse');

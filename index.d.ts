@@ -8,7 +8,7 @@
 import {EventEmitter} from 'events';
 import {ChildProcess} from 'child_process';
 import {Config as JestConfig} from '@jest/types';
-import { CoverageMap, CoverageMapData } from 'istanbul-lib-coverage';
+import { CoverageMapData } from 'istanbul-lib-coverage';
 
 export interface RunArgs {
   args: string[];
@@ -125,10 +125,16 @@ export declare class ParsedNode {
   filter(f: (parsedNode: ParsedNode) => boolean): Array<ParsedNode>;
   addChild(type: ParsedNodeType): ParsedNode;
 }
-
 export declare class NamedBlock extends ParsedNode {
   name: string;
   nameRange: ParsedRange;
+  lastProperty?: string;
+  /**
+   * type of the name, it's the babel Node["type"], such as "Literal", "TemplateLiteral" etc
+   *
+   * TODO babel parser currently returns "Literal" for the it/describe name argument, which is not part of its "type" definition, therefore declare a string type for now until it is fixed in babel.
+   * */
+  nameType?: string;
   constructor(type: ParsedNodeType, file: string, name?: string);
 }
 

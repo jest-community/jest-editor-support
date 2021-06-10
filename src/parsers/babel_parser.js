@@ -16,9 +16,6 @@ import type {ParsedNodeType} from './parser_nodes';
 import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
 import {parseOptions} from './helper';
 
-export const UNRESOLVED_FUNCTION_NAME = '__function__';
-export const UNSUPPORTED_TEST_NAME = '__unsupported__';
-
 const _getASTfor = (file: string, data: ?string, options: ?parser.ParserOptions): [BabelFile, string] => {
   const _data = data || readFileSync(file).toString();
   const config = {...options, sourceType: 'module'};
@@ -42,7 +39,7 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
       return rootForType;
     }, node);
 
-  const updateNameInfo = (nBlock: NamedBlock, bNode: BabelNode) => {
+  const updateNameInfo = (nBlock: NamedBlock, bNode: BabelNode, lastProperty?: string) => {
     const arg = bNode.expression.arguments[0];
     let name = arg.value;
 
@@ -51,19 +48,15 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
         case 'TemplateLiteral':
           name = _data.substring(arg.start + 1, arg.end - 1);
           break;
-        case 'CallExpression':
-          // a dynamic function: use a placeholder
-          name = UNRESOLVED_FUNCTION_NAME;
-          break;
         default:
-          // eslint-disable-next-line no-console
-          console.warn(`failed to extract name for type "${arg.type}" in node:`, bNode);
-          name = UNSUPPORTED_TEST_NAME;
+          name = _data.substring(arg.start, arg.end);
           break;
       }
     }
 
     nBlock.name = name;
+    nBlock.nameType = arg.type;
+    nBlock.lastProperty = lastProperty;
     nBlock.nameRange = new ParsedRange(
       arg.loc.start.line,
       arg.loc.start.column + 2,
@@ -72,14 +65,14 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
     );
   };
 
-  const updateNode = (node: ParsedNode, babylonNode: BabelNode) => {
+  const updateNode = (node: ParsedNode, babylonNode: BabelNode, lastProperty?: string) => {
     node.start = babylonNode.loc.start;
     node.end = babylonNode.loc.end;
     node.start.column += 1;
 
     parseResult.addNode(node);
     if (node instanceof NamedBlock) {
-      updateNameInfo(node, babylonNode);
+      updateNameInfo(node, babylonNode, lastProperty);
     }
   };
 
@@ -89,11 +82,12 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   const isFunctionDeclaration = (nodeType: string) =>
     nodeType === 'ArrowFunctionExpression' || nodeType === 'FunctionExpression';
 
-  // Pull out the name of a CallExpression (describe/it)
+  // Pull out the name of a CallExpression (describe/it) and the last property (each, skip etc)
   const getNameForNode = (node) => {
     if (isFunctionCall(node) && node.expression.callee) {
       // Get root callee in case it's a chain of higher-order functions (e.g. .each(table)(name, fn))
       const rootCallee = deepGet(node.expression, 'callee');
+      const property = rootCallee.property?.name || deepGet(rootCallee, 'tag').property?.name;
       const name =
         rootCallee.name ||
         // handle cases where it's a member expression (e.g .only or .concurrent.only)
@@ -101,20 +95,18 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
         // handle cases where it's part of a tag (e.g. .each`table`)
         deepGet(rootCallee, 'tag', 'object').name;
 
-      return name;
+      return [name, property];
     }
-    return undefined;
+    return [];
   };
 
   // When given a node in the AST, does this represent
   // the start of an it/test block?
-  const isAnIt = (node) => {
-    const name = getNameForNode(node);
+  const isAnIt = (name?: string) => {
     return name === 'it' || name === 'fit' || name === 'test';
   };
 
-  const isAnDescribe = (node) => {
-    const name = getNameForNode(node);
+  const isAnDescribe = (name?: string) => {
     return name === 'describe';
   };
 
@@ -136,9 +128,14 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
     return name === 'expect';
   };
 
-  const addNode = (type: ParsedNodeType, parent: ParsedNode, babylonNode: BabelNode): ParsedNode => {
+  const addNode = (
+    type: ParsedNodeType,
+    parent: ParsedNode,
+    babylonNode: BabelNode,
+    lastProperty?: string
+  ): ParsedNode => {
     const child = parent.addChild(type);
-    updateNode(child, babylonNode);
+    updateNode(child, babylonNode, lastProperty);
 
     if (child instanceof NamedBlock && child.name == null) {
       // eslint-disable-next-line no-console
@@ -161,10 +158,11 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
       // Pull out the node
       // const element = babylonParent.body[node];
 
-      if (isAnDescribe(element)) {
-        child = addNode('describe', parent, element);
-      } else if (isAnIt(element)) {
-        child = addNode('it', parent, element);
+      const [name, lastProperty] = getNameForNode(element);
+      if (isAnDescribe(name)) {
+        child = addNode('describe', parent, element, lastProperty);
+      } else if (isAnIt(name)) {
+        child = addNode('it', parent, element, lastProperty);
       } else if (isAnExpect(element)) {
         child = addNode('expect', parent, element);
       } else if (element && element.type === 'VariableDeclaration') {
