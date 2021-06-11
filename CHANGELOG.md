@@ -4,14 +4,17 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
-* convert `parser-test.js` to a true jest test: `babel-parser.test.ts` and convert to typescript. - @connectdotz
-* upgrade prettier and @babel/preset-typescript, fix lint errors. - @connectdotz
-* adding lastProperty and nameType attributes to NamedNode - @connectdotz
-* preserve test/describe block name argument instead of using a type-marker - @connectdotz
-* remove JSX plugin for `.ts` files
-* upgrade lint-staged to address security vulnerability - @connectdotz
+
 -->
 
+### 29.0.0
+* convert `parser-test.js` to a true jest test: `babel-parser.test.ts` and convert to typescript. - @connectdotz (#69)
+* upgrade prettier and @babel/preset-typescript, fix lint errors. - @connectdotz (#69)
+* adding lastProperty and nameType attributes to NamedNode - @connectdotz (#71)
+* preserve test/describe block name argument instead of using a type-marker - @connectdotz (#71)
+* remove JSX plugin for `.ts` files - @ehaynes99 @@gregoryzh (#75)
+* upgrade lint-staged to address security vulnerability - @connectdotz (#76)
+  
 ### 28.2.0
 - Identify todo tests, which are distinct from pending/skip tests - @pmcelhaney (#61)
 - split exit and close runner event for correct/finer control; provide better event types. - @connectdotz (#62)
