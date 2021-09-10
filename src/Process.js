@@ -26,14 +26,12 @@ export const createProcess = (workspace: ProjectWorkspace, args: Array<string>):
     runtimeExecutable.push(workspace.pathToConfig);
   }
 
-  // To use our own commands in create-react, we need to tell the command that
-  // we're in a CI environment, or it will always append --watch
-  const env = {...process.env, ...(workspace.nodeEnv ?? {}), CI: 'true'};
+  const env = {...process.env, ...(workspace.nodeEnv ?? {})};
 
   const spawnOptions = {
     cwd: workspace.rootPath,
     env,
-    shell: true,
+    shell: typeof workspace.shell === 'string' && workspace.shell ? workspace.shell : true,
     // for non-windows: run in detached mode so the process will be the group leader and any subsequent process spawned
     // within can be later killed as a group to prevent orphan processes.
     // see https://nodejs.org/api/child_process.html#child_process_options_detached

@@ -66,8 +66,8 @@ describe('createProcess', () => {
     expect(spawn.mock.calls[0][0]).toEqual('npm test -- --option value --config non-standard.jest.js');
   });
 
-  it('defines the "CI" environment variable', () => {
-    const expected = Object.assign({}, process.env, {CI: 'true'});
+  it('does not defines the "CI" environment variable', () => {
+    const expected = process.env;
 
     const workspace: any = {jestCommandLine: ''};
     const args = [];
@@ -77,12 +77,27 @@ describe('createProcess', () => {
   });
   it('allow customize node environment variable', () => {
     const workspace: any = {
-      nodeEnv: {NODE_ENV: 'test', CI: 'false'},
+      nodeEnv: {NODE_ENV: 'test'},
     };
-    const expected = Object.assign({}, process.env, workspace.nodeEnv, {CI: 'true'});
+    const expected = Object.assign({}, process.env, workspace.nodeEnv);
     createProcess(workspace, []);
 
     expect(spawn.mock.calls[0][2].env).toEqual(expected);
+  });
+  it.each`
+    shell               | expected
+    ${undefined}        | ${true}
+    ${false}            | ${true}
+    ${''}               | ${true}
+    ${'powerShell.exe'} | ${'powerShell.exe'}
+    ${'/bin/bash'}      | ${'/bin/bash'}
+  `('allow customize shell: $shell', ({shell, expected}) => {
+    const workspace: any = {
+      shell,
+    };
+    createProcess(workspace, []);
+
+    expect(spawn.mock.calls[0][2].shell).toEqual(expected);
   });
 
   it('sets the current working directory of the child process', () => {
