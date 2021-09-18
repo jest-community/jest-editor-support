@@ -64,7 +64,7 @@ module.exports = {
         'prettier/@typescript-eslint',
       ],
       rules: {
-        'prettier/prettier': 'error',
+        'prettier/prettier': ["error", { "endOfLine": "auto" }],
         'no-underscore-dangle': 'off',
         'camelcase': 'off',
         'no-param-reassign': ['error', { 'props': false }],
