@@ -12,12 +12,12 @@ module.exports = {
   settings: {
     'import/parsers': {
       'babel-eslint': ['.js'],
-      '@typescript-eslint/parser': ['.ts']
+      '@typescript-eslint/parser': ['.ts'],
     },
     'import/resolver': {
-      'node': true,
-      'eslint-import-resolver-typescript': true
-    }
+      node: true,
+      'eslint-import-resolver-typescript': true,
+    },
   },
   parser: 'babel-eslint',
   parserOptions: {
@@ -27,7 +27,7 @@ module.exports = {
       configFile: 'babel.config.js',
     },
     // configuration for @typescript-eslint
-    project: 'tsconfig.json'
+    project: 'tsconfig.json',
   },
   overrides: [
     // linting setup for JS files.
@@ -38,9 +38,9 @@ module.exports = {
       rules: {
         'prettier/prettier': 'error',
         'no-underscore-dangle': 'off',
-        'camelcase': 'off',
-        'no-param-reassign': ['error', { 'props': false }],
-        'import/extensions': [0, 'never', { 'ts': 'never' }],
+        camelcase: 'off',
+        'no-param-reassign': ['error', {props: false}],
+        'import/extensions': [0, 'never', {ts: 'never'}],
         'import/named': 'off',
         'import/namespace': 'off',
         'import/default': 'off',
@@ -61,14 +61,13 @@ module.exports = {
         'plugin:@typescript-eslint/recommended-requiring-type-checking',
         'prettier',
         'plugin:prettier/recommended',
-        'prettier/@typescript-eslint',
       ],
       rules: {
         'prettier/prettier': 'error',
         'no-underscore-dangle': 'off',
-        'camelcase': 'off',
-        'no-param-reassign': ['error', { 'props': false }],
-        'import/extensions': [0, 'never', { 'ts': 'never' }],
+        camelcase: 'off',
+        'no-param-reassign': ['error', {props: false}],
+        'import/extensions': [0, 'never', {ts: 'never'}],
         'import/named': 'off',
         'import/namespace': 'off',
         'import/default': 'off',
@@ -78,11 +77,14 @@ module.exports = {
         // TS specific
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/prefer-regexp-exec': 'off',
-        '@typescript-eslint/array-type': ['error', {
-          'default': 'array',
-          'readonly': 'array'
-        }],
+        '@typescript-eslint/array-type': [
+          'error',
+          {
+            default: 'array',
+            readonly: 'array',
+          },
+        ],
       },
     },
-  ]
+  ],
 };

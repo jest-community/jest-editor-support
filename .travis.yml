@@ -4,5 +4,4 @@ node_js:
 script:
   - yarn ci
   - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage
-  - yarn danger ci
   - yarn prepublish

@@ -9,7 +9,7 @@
  */
 
 import traverse from '@babel/traverse';
-import {buildSnapshotResolver, utils} from 'jest-snapshot';
+import {buildSnapshotResolver, SnapshotResolver, utils} from 'jest-snapshot';
 import type {ProjectConfig} from '../types/Config';
 
 import {getASTfor} from './parsers/babel_parser';
@@ -85,13 +85,34 @@ export default class Snapshot {
 
   _projectConfig: ?ProjectConfig;
 
+  snapshotResolver: ?SnapshotResolver;
+
+  _resolverPromise: Promise<SnapshotResolver>;
+
   constructor(parser: any, customMatchers?: Array<string>, projectConfig?: ProjectConfig) {
     this._parser = parser || getASTfor;
     this._matchers = ['toMatchSnapshot', 'toThrowErrorMatchingSnapshot'].concat(customMatchers || []);
     this._projectConfig = projectConfig;
+    this._resolverPromise = buildSnapshotResolver(this._projectConfig || {}, () => Promise.resolve()).then(
+      (resolver) => {
+        this.snapshotResolver = resolver;
+      }
+    );
+  }
+
+  async getMetadataAsync(filePath: string, verbose: boolean = false): Promise<Array<SnapshotMetadata>> {
+    if (!this.snapshotResolver) {
+      await this._resolverPromise;
+    }
+    return this.getMetadata(filePath, verbose);
   }
 
   getMetadata(filePath: string, verbose: boolean = false): Array<SnapshotMetadata> {
+    if (!this.snapshotResolver) {
+      throw new Error('snapshotResolver is not ready yet, consider migrating to "getMetadataAsync" instead');
+    }
+    const snapshotPath = this.snapshotResolver.resolveSnapshotPath(filePath);
+
     let fileNode;
     try {
       fileNode = this._parser(filePath);
@@ -126,8 +147,7 @@ export default class Snapshot {
     });
 
     // NOTE if no projectConfig is given the default resolver will be used
-    const snapshotResolver = buildSnapshotResolver(this._projectConfig || {});
-    const snapshotPath = snapshotResolver.resolveSnapshotPath(filePath);
+
     const snapshots = utils.getSnapshotData(snapshotPath, 'none').data;
     let lastParent = null;
     let count = 1;
