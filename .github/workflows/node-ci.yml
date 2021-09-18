@@ -34,7 +34,7 @@ jobs:
     name: Testing on ${{ matrix.os }} with Node v${{ matrix.node-version }} 
     strategy:
       matrix:
-        node-version: [10.x]
+        node-version: [14.x]
         os: [ubuntu-latest, macOS-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     needs: prepare-yarn-cache
