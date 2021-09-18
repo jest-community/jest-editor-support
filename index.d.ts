@@ -9,6 +9,7 @@ import {EventEmitter} from 'events';
 import {ChildProcess} from 'child_process';
 import {Config as JestConfig} from '@jest/types';
 import { CoverageMapData } from 'istanbul-lib-coverage';
+import ProjectWorkspace, {ProjectWorkspaceConfig, createProjectWorkspace} from './src/project_workspace';
 
 export interface RunArgs {
   args: string[];
@@ -46,38 +47,8 @@ export interface JestSettings {
 
 export function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<JestSettings>;
 
-export function createProjectWorkspace(config: ProjectWorkspaceConfig): ProjectWorkspace;
+export {createProjectWorkspace, ProjectWorkspaceConfig, ProjectWorkspace};
 
-export interface ProjectWorkspaceConfig {
-  jestCommandLine: string;
-  pathToConfig?: string;
-  rootPath: string;
-  localJestMajorVersion: number;
-  outputFileSuffix?: string;
-  collectCoverage?: boolean;
-  debug?: boolean;
-}
-
-export class ProjectWorkspace {
-  constructor(
-    rootPath: string,
-    jestCommandLine: string,
-    pathToConfig: string,
-    localJestMajorVersion: number,
-    outputFileSuffix?: string,
-    collectCoverage?: boolean,
-    debug?: boolean,
-    nodeEnv?: {[key: string]: string | undefined},
-  );
-  jestCommandLine: string;
-  pathToConfig: string;
-  rootPath: string;
-  localJestMajorVersion: number;
-  outputFileSuffix?: string;
-  collectCoverage?: boolean;
-  debug?: boolean;
-  nodeEnv?: {[key: string]: string | undefined};
-}
 
 export interface IParseResults {
   describeBlocks: Array<DescribeBlock>;
