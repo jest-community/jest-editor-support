@@ -36,7 +36,7 @@ module.exports = {
       plugins: ['babel', 'flowtype', 'prettier', 'import'],
       extends: ['airbnb-base', 'plugin:flowtype/recommended', 'prettier', 'plugin:prettier/recommended'],
       rules: {
-        'prettier/prettier': 'error',
+        'prettier/prettier': ["error", { "endOfLine": "auto" }],
         'no-underscore-dangle': 'off',
         'camelcase': 'off',
         'no-param-reassign': ['error', { 'props': false }],
