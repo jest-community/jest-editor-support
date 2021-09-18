@@ -15,6 +15,7 @@ export interface ProjectWorkspaceConfig {
   collectCoverage?: boolean;
   debug?: boolean;
   nodeEnv?: {[key: string]: string | undefined};
+  shell?: string;
 }
 
 /**
@@ -99,6 +100,12 @@ export default class ProjectWorkspace {
    */
   nodeEnv?: {[key: string]: string | undefined};
 
+  /**
+   * optional custom shell for node child_process spawn() call. Default is '/bin/sh' on Unix, and process.env.ComSpec on Windows.
+   * see https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options
+   */
+  shell?: string;
+
   constructor(
     rootPath: string,
     jestCommandLine: string,
@@ -107,7 +114,8 @@ export default class ProjectWorkspace {
     outputFileSuffix?: string,
     collectCoverage?: boolean,
     debug?: boolean,
-    nodeEnv?: {[key: string]: string | undefined}
+    nodeEnv?: {[key: string]: string | undefined},
+    shell?: string
   ) {
     this.rootPath = rootPath;
     this.jestCommandLine = jestCommandLine;
@@ -117,6 +125,7 @@ export default class ProjectWorkspace {
     this.collectCoverage = collectCoverage;
     this.debug = debug;
     this.nodeEnv = nodeEnv;
+    this.shell = shell;
   }
 }
 
@@ -135,6 +144,7 @@ export const createProjectWorkspace = (config: ProjectWorkspaceConfig): ProjectW
     config.outputFileSuffix,
     config.collectCoverage,
     config.debug,
-    config.nodeEnv
+    config.nodeEnv,
+    config.shell
   );
 };

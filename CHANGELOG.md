@@ -4,6 +4,8 @@ Please add your own contribution below inside the Master section
 Bug-fixes within the same version aren't needed
 
 ## Master
+* added `shell` argument to workspace config to allow users override spawn() child_process default shell - @connectdotz
+* remove `CI: true` env for spawned process, a better way to ensure non-watch mode run will be to explicitly add `--watchAll=false` jest option in the commadLine. - @connectdotz
 
 -->
 
