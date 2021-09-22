@@ -30,11 +30,11 @@ jobs:
       - name: Validate cache
         run: yarn --immutable
       
-  lin-and-test:
+  lint-and-test:
     name: Testing on ${{ matrix.os }} with Node v${{ matrix.node-version }} 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [12.x, 14.x, 16.x]
         os: [ubuntu-latest, macOS-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     needs: prepare-yarn-cache
