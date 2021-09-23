@@ -46,7 +46,7 @@ export default class ProjectWorkspace {
    *
    * @type {string?}
    */
-  get pathToJest() {
+  get pathToJest(): string {
     // eslint-disable-next-line no-console
     console.warn('Use of ProjectWorkspace.pathToJest is deprecated.  Please use jestCommandLine instead.');
     return this.jestCommandLine;

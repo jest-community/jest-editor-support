@@ -14,9 +14,9 @@ import Snapshot from '../Snapshot';
 const snapshotHelper = new Snapshot();
 const snapshotFixturePath = path.resolve(__dirname, 'fixtures/snapshots');
 
-test('nodescribe.example', () => {
+test('nodescribe.example', async () => {
   const filePath = path.join(snapshotFixturePath, 'nodescribe.example');
-  const results = snapshotHelper.getMetadata(filePath);
+  const results = await snapshotHelper.getMetadataAsync(filePath);
   const allAssertion = ['fit', 'it', 'it.only', 'it.skip', 'test', 'test.only', 'test.skip', 'xit', 'xtest'];
 
   const expectations = Object.create(null);
