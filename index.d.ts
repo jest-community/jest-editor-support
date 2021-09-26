@@ -9,7 +9,7 @@ import {EventEmitter} from 'events';
 import {ChildProcess} from 'child_process';
 import {Config as JestConfig} from '@jest/types';
 import { CoverageMapData } from 'istanbul-lib-coverage';
-import ProjectWorkspace, {ProjectWorkspaceConfig, createProjectWorkspace} from './src/project_workspace';
+import ProjectWorkspace, {ProjectWorkspaceConfig, createProjectWorkspace} from './build/project_workspace';
 
 export interface RunArgs {
   args: string[];
@@ -227,6 +227,7 @@ export interface SnapshotMetadata {
 export class Snapshot {
   constructor(parser?: any, customMatchers?: string[]);
   getMetadata(filepath: string, verbose?: boolean): SnapshotMetadata[];
+  getMetadataAsync(filePath: string, verbose?: boolean): Promise<Array<SnapshotMetadata>>; 
 }
 
 type FormattedTestResults = {
