@@ -1,6 +1,6 @@
 {
   "name": "jest-editor-support",
-  "version": "30.0.0",
+  "version": "30.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/jest-community/jest-editor-support"
@@ -16,8 +16,8 @@
   },
   "scripts": {
     "build": "babel src/ -d build/ --extensions \".js,.ts\" --source-maps inline",
-    "build:types": "tsc --emitDeclarationOnly",
-    "prepublish": "yarn run build",
+    "build:types": "tsc --emitDeclarationOnly && rm build/index.d.ts",
+    "prepublish": "yarn build:types && yarn build",
     "test": "jest",
     "flow": "flow",
     "lint": "eslint \"?(__mocks__|src|tests)/**/*.+(js|ts)\" ",
@@ -39,7 +39,6 @@
     "@types/jest": "^27.0.1",
     "@typescript-eslint/eslint-plugin": "^4.31.1",
     "@typescript-eslint/parser": "^4.31.1",
-    "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^27.2.0",
     "coveralls": "^3.1.1",
