@@ -1,6 +1,6 @@
 {
   "name": "jest-editor-support",
-  "version": "30.0.1",
+  "version": "30.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/jest-community/jest-editor-support"
@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "@babel/parser": "^7.15.7",
+    "@babel/runtime": "^7.15.4",
     "@babel/traverse": "^7.15.4",
     "@babel/types": "^7.15.6",
     "@jest/types": "^27.1.1",
