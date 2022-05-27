@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /**
@@ -157,28 +158,49 @@ describe('createProcess', () => {
     const jestCommandLine = 'whatever';
     const workspace: any = {jestCommandLine, shell: {path: '/bin/bash', args: ['-l']}};
     const mockWrite = jest.fn();
+    const savedProcess = process;
+    let processMock;
     beforeEach(() => {
+      processMock = {...savedProcess};
+      global.process = processMock;
+
       mockSpawn.mockClear();
       mockWrite.mockClear();
       mockSpawn.mockReturnValue({stdin: {write: mockWrite}});
     });
+    afterEach(() => {
+      global.process = savedProcess;
+    });
 
-    it('can spawn login shell', () => {
-      const expected = true;
+    it.each`
+      platform    | spawnLoginShell
+      ${'linux'}  | ${true}
+      ${'darwin'} | ${true}
+      ${'win32'}  | ${false}
+    `('can spawn login shell for $platform => $spawnLoginShell', ({platform, spawnLoginShell}) => {
       const args = [];
+      processMock.platform = platform;
 
       createProcess(workspace, args);
 
       expect(spawn).toBeCalled();
-      expect(mockSpawn.mock.calls[0][2].shell).not.toBe(expected);
-      expect(mockWrite).toBeCalledWith(expect.stringContaining(jestCommandLine));
-      expect(mockWrite).toBeCalledWith(expect.stringContaining('exit'));
+      if (spawnLoginShell) {
+        expect(mockSpawn.mock.calls[0][0]).toEqual(expect.stringContaining(workspace.shell.path));
+        expect(mockSpawn.mock.calls[0][2].shell).not.toBe(true);
+        expect(mockWrite).toBeCalledWith(expect.stringContaining(jestCommandLine));
+        expect(mockWrite).toBeCalledWith(expect.stringContaining('exit'));
 
-      expect(mockConsoleLog).not.toHaveBeenCalled();
+        expect(mockConsoleLog).not.toHaveBeenCalled();
+      } else {
+        expect(mockSpawn.mock.calls[0][0]).toEqual(expect.stringContaining(jestCommandLine));
+        expect(mockSpawn.mock.calls[0][2].shell).toBe(true);
+        expect(mockWrite).not.toBeCalled();
+      }
     });
     it('in debug mode, it will log spawn message', () => {
       workspace.debug = true;
       const args = [];
+      processMock.platform = 'linux';
 
       createProcess(workspace, args);
       expect(spawn).toBeCalled();

@@ -72,7 +72,11 @@ export const createProcess = (workspace: ProjectWorkspace, args: string[]): Chil
   };
 
   if (isLoginShell(workspace.shell)) {
-    return spawnLoginShell(workspace.shell);
+    if (process.platform === 'win32') {
+      console.error('currently login-shell is only supported for non-windown platforms');
+    } else {
+      return spawnLoginShell(workspace.shell);
+    }
   }
   return spawnShell();
 };
