@@ -1,20 +1,25 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
+
+jest.mock('child_process', () => ({spawn: jest.fn()}));
 
 import {spawn} from 'child_process';
 import {createProcess} from '../Process';
 
-jest.mock('child_process');
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const mockSpawn = spawn as jest.Mocked<any>;
 
 describe('createProcess', () => {
-  let mockConsoleLog;
+  let mockConsoleLog: jest.SpyInstance;
   beforeEach(() => {
+    mockSpawn.mockClear();
     mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
   });
   afterEach(() => {
@@ -24,10 +29,10 @@ describe('createProcess', () => {
 
   it('spawns the process', () => {
     const workspace: any = {jestCommandLine: ''};
-    const args = [];
+    const args: string[] = [];
     createProcess(workspace, args);
 
-    expect(spawn).toBeCalled();
+    expect(mockSpawn).toBeCalled();
   });
 
   it('spawns the command from workspace.jestCommandLine', () => {
@@ -35,8 +40,8 @@ describe('createProcess', () => {
     const args = [];
     createProcess(workspace, args);
 
-    expect(spawn.mock.calls[0][0]).toBe('jest');
-    expect(spawn.mock.calls[0][1]).toEqual([]);
+    expect(mockSpawn.mock.calls[0][0]).toBe('jest');
+    expect(mockSpawn.mock.calls[0][1]).toEqual([]);
   });
 
   it('spawns a command with spaces from workspace.jestCommandLine', () => {
@@ -44,7 +49,7 @@ describe('createProcess', () => {
     const args = [];
     createProcess(workspace, args);
 
-    expect(spawn.mock.calls[0][0]).toBe('npm test --');
+    expect(mockSpawn.mock.calls[0][0]).toBe('npm test --');
   });
 
   it('appends args', () => {
@@ -52,7 +57,7 @@ describe('createProcess', () => {
     const args = ['--option', 'value', '--another'];
     createProcess(workspace, args);
 
-    expect(spawn.mock.calls[0][0]).toEqual(['npm', 'test', '--', ...args].join(' '));
+    expect(mockSpawn.mock.calls[0][0]).toEqual(['npm', 'test', '--', ...args].join(' '));
   });
 
   it('sets the --config arg to workspace.pathToConfig', () => {
@@ -63,7 +68,7 @@ describe('createProcess', () => {
     const args = ['--option', 'value'];
     createProcess(workspace, args);
 
-    expect(spawn.mock.calls[0][0]).toEqual('npm test -- --option value --config non-standard.jest.js');
+    expect(mockSpawn.mock.calls[0][0]).toEqual('npm test -- --option value --config non-standard.jest.js');
   });
 
   it('does not defines the "CI" environment variable', () => {
@@ -73,16 +78,17 @@ describe('createProcess', () => {
     const args = [];
     createProcess(workspace, args);
 
-    expect(spawn.mock.calls[0][2].env).toEqual(expected);
+    expect(mockSpawn.mock.calls[0][2].env).toEqual(expected);
   });
   it('allow customize node environment variable', () => {
     const workspace: any = {
       nodeEnv: {NODE_ENV: 'test'},
     };
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const expected = Object.assign({}, process.env, workspace.nodeEnv);
     createProcess(workspace, []);
 
-    expect(spawn.mock.calls[0][2].env).toEqual(expected);
+    expect(mockSpawn.mock.calls[0][2].env).toEqual(expected);
   });
   it.each`
     shell               | expected
@@ -93,11 +99,12 @@ describe('createProcess', () => {
     ${'/bin/bash'}      | ${'/bin/bash'}
   `('allow customize shell: $shell', ({shell, expected}) => {
     const workspace: any = {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       shell,
     };
     createProcess(workspace, []);
 
-    expect(spawn.mock.calls[0][2].shell).toEqual(expected);
+    expect(mockSpawn.mock.calls[0][2].shell).toEqual(expected);
   });
 
   it('sets the current working directory of the child process', () => {
@@ -108,7 +115,7 @@ describe('createProcess', () => {
     const args = [];
     createProcess(workspace, args);
 
-    expect(spawn.mock.calls[0][2].cwd).toBe(workspace.rootPath);
+    expect(mockSpawn.mock.calls[0][2].cwd).toBe(workspace.rootPath);
   });
 
   it('should set the "shell" property', () => {
@@ -117,7 +124,7 @@ describe('createProcess', () => {
     const args = [];
     createProcess(workspace, args);
 
-    expect(spawn.mock.calls[0][2].shell).toBe(expected);
+    expect(mockSpawn.mock.calls[0][2].shell).toBe(expected);
   });
 
   it('should set "detached" to true for non-windows system', () => {
@@ -130,11 +137,11 @@ describe('createProcess', () => {
 
     processMock.platform = 'darwin';
     createProcess(workspace, args);
-    expect(spawn.mock.calls[0][2].detached).toBe(true);
+    expect(mockSpawn.mock.calls[0][2].detached).toBe(true);
 
     processMock.platform = 'win32';
     createProcess(workspace, args);
-    expect(spawn.mock.calls[1][2].detached).toBe(false);
+    expect(mockSpawn.mock.calls[1][2].detached).toBe(false);
 
     global.process = savedProcess;
   });
@@ -145,5 +152,40 @@ describe('createProcess', () => {
     createProcess(workspace, args);
     expect(spawn).toBeCalled();
     expect(mockConsoleLog).toHaveBeenCalled();
+  });
+  describe('login shell', () => {
+    const jestCommandLine = 'whatever';
+    const workspace: any = {jestCommandLine, shell: {path: '/bin/bash', args: ['-l']}};
+    const mockWrite = jest.fn();
+    beforeEach(() => {
+      mockSpawn.mockClear();
+      mockWrite.mockClear();
+      mockSpawn.mockReturnValue({stdin: {write: mockWrite}});
+    });
+
+    it('can spawn login shell', () => {
+      const expected = true;
+      const args = [];
+
+      createProcess(workspace, args);
+
+      expect(spawn).toBeCalled();
+      expect(mockSpawn.mock.calls[0][2].shell).not.toBe(expected);
+      expect(mockWrite).toBeCalledWith(expect.stringContaining(jestCommandLine));
+      expect(mockWrite).toBeCalledWith(expect.stringContaining('exit'));
+
+      expect(mockConsoleLog).not.toHaveBeenCalled();
+    });
+    it('in debug mode, it will log spawn message', () => {
+      workspace.debug = true;
+      const args = [];
+
+      createProcess(workspace, args);
+      expect(spawn).toBeCalled();
+      expect(mockSpawn.mock.calls[0][2].shell).not.toBe(true);
+      expect(mockWrite).toBeCalledWith(expect.stringContaining(jestCommandLine));
+      expect(mockWrite).toBeCalledWith(expect.stringContaining('exit'));
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
   });
 });

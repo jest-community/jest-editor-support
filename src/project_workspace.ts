@@ -6,6 +6,16 @@
  *
  */
 
+/**
+ * a LoginShell holds the shell path and arguments to
+ * start an login/interactive shell
+ */
+export interface LoginShell {
+  /** shell executable path */
+  path: string;
+  /** shell arguments */
+  args: string[];
+}
 export interface ProjectWorkspaceConfig {
   jestCommandLine: string;
   pathToConfig?: string;
@@ -15,7 +25,7 @@ export interface ProjectWorkspaceConfig {
   collectCoverage?: boolean;
   debug?: boolean;
   nodeEnv?: {[key: string]: string | undefined};
-  shell?: string;
+  shell?: string | LoginShell;
 }
 
 /**
@@ -103,8 +113,13 @@ export default class ProjectWorkspace {
   /**
    * optional custom shell for node child_process spawn() call. Default is '/bin/sh' on Unix, and process.env.ComSpec on Windows.
    * see https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options
+   *
+   * If a string is passed in, a non-login/non-interactive shell will be used to spawn the child_process
+   * If a terminal-shell is passed, a login/interactive shell will be used to spawn the child_process. This is not as efficient as
+   * the non-login/non-interactive shell, but might be needed if parent environment is not guarenteed to be properly initialized
+   * (see https://github.com/jest-community/vscode-jest/issues/741)
    */
-  shell?: string;
+  shell?: string | LoginShell;
 
   constructor(
     rootPath: string,
@@ -115,7 +130,7 @@ export default class ProjectWorkspace {
     collectCoverage?: boolean,
     debug?: boolean,
     nodeEnv?: {[key: string]: string | undefined},
-    shell?: string
+    shell?: string | LoginShell
   ) {
     this.rootPath = rootPath;
     this.jestCommandLine = jestCommandLine;

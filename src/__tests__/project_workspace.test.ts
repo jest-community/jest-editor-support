@@ -99,10 +99,12 @@ describe('setup', () => {
     const instance = createProjectWorkspace(config);
 
     instance.pathToJest = 'new value';
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(global.console.warn).toBeCalledTimes(1);
 
     // eslint-disable-next-line no-unused-vars
     const {pathToJest} = instance;
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(global.console.warn).toBeCalledTimes(2);
   });
   it('allow passing nodeEnv', () => {
