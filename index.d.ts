@@ -9,7 +9,8 @@ import {EventEmitter} from 'events';
 import {ChildProcess} from 'child_process';
 import {Config as JestConfig} from '@jest/types';
 import { CoverageMapData } from 'istanbul-lib-coverage';
-import ProjectWorkspace, {ProjectWorkspaceConfig, createProjectWorkspace} from './build/project_workspace';
+import ProjectWorkspace, {ProjectWorkspaceConfig, createProjectWorkspace,  LoginShell } from './build/project_workspace';
+export {createProjectWorkspace, ProjectWorkspaceConfig, ProjectWorkspace, LoginShell};
 
 export interface RunArgs {
   args: string[];
@@ -47,7 +48,6 @@ export interface JestSettings {
 
 export function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<JestSettings>;
 
-export {createProjectWorkspace, ProjectWorkspaceConfig, ProjectWorkspace};
 
 
 export interface IParseResults {
