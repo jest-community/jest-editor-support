@@ -148,6 +148,9 @@ export default class Runner extends EventEmitter {
     const msgType = this.findMessageType(data);
     switch (msgType) {
       case messageTypes.testResults:
+        this.emit('executableStdErr', data, {
+          type: msgType,
+        });
         readFile(this.outputPath, 'utf8', (err, _data) => {
           if (err) {
             const message = `JSON report not found at ${this.outputPath}`;
@@ -175,6 +178,7 @@ export default class Runner extends EventEmitter {
             type: msgType,
           });
         } else {
+          // remove clear screen escape sequence
           this.emit('executableOutput', data.toString().replace('[2J[H', ''));
         }
         this.prevMessageTypes.length = 0;

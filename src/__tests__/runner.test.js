@@ -450,6 +450,7 @@ describe('Runner', () => {
       fakeProcess.emit('close', null, 'SIGKILL');
       expect(close).toBeCalledWith(null, 'SIGKILL');
     });
+
     it('support to-be-deprecated debuggerProcessExit when process closes and exits', () => {
       const close = jest.fn();
       runner.on('debuggerProcessExit', close);
@@ -485,6 +486,31 @@ describe('Runner', () => {
 
         expect(runner.prevMessageTypes.length).toBe(0);
       });
+      it.each`
+        msgType                     | eventType
+        ${messageTypes.testResults} | ${'executableStdErr'}
+        ${messageTypes.watchUsage}  | ${'executableStdErr'}
+        ${messageTypes.noTests}     | ${'executableStdErr'}
+        ${messageTypes.unknown}     | ${'executableOutput'}
+      `('should always emit output event with type $msgType', ({msgType, eventType}) => {
+        const stderrListener = jest.fn();
+        const stdoutListener = jest.fn();
+        const data = Buffer.from('whatever');
+        const meta = {type: msgType};
+
+        runner.outputPath = `${fixtures}/failing-jsons/failing_jest_json.json`;
+        (runner: any).findMessageType = jest.fn().mockReturnValueOnce(msgType);
+
+        runner.on('executableStdErr', stderrListener);
+        runner.on('executableOutput', stdoutListener);
+        fakeProcess.stdout.emit('data', data, meta);
+
+        if (eventType === 'executableStdErr') {
+          expect(stderrListener).toBeCalledWith(data, meta);
+        } else {
+          expect(stdoutListener).toBeCalledWith(data.toString());
+        }
+      });
     });
 
     describe('stderr.on("data")', () => {
@@ -510,11 +536,18 @@ describe('Runner', () => {
         expect(runner.prevMessageTypes).toEqual([]);
       });
 
-      it('should emit an "executableStdErr" event with the type', () => {
+      it.each`
+        type
+        ${messageTypes.testResults}
+        ${messageTypes.watchUsage}
+        ${messageTypes.noTests}
+        ${messageTypes.unknown}
+      `('should always emit an "executableStdErr" event with type $type', ({type}) => {
         const listener = jest.fn();
         const data = Buffer.from('');
-        const type = {};
         const meta = {type};
+
+        runner.outputPath = `${fixtures}/failing-jsons/failing_jest_json.json`;
         (runner: any).findMessageType = jest.fn().mockReturnValueOnce(type);
 
         runner.on('executableStdErr', listener);
@@ -611,5 +644,6 @@ describe('Runner', () => {
         expect(runner.doResultsFollowNoTestsFoundMessage()).toBe(false);
       });
     });
+    test('should always emit output', () => {});
   });
 });
