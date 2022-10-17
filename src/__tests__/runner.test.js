@@ -159,12 +159,12 @@ describe('Runner', () => {
       expect((createProcess: any).mock.calls[0][1]).toContain('--json');
     });
 
-    it('calls createProcess with the --useStderr arg', () => {
+    it('calls createProcess with the --use-stderr arg', () => {
       const workspace: any = {};
       const sut = new Runner(workspace);
       sut.start(false);
 
-      expect((createProcess: any).mock.calls[0][1]).toContain('--useStderr');
+      expect((createProcess: any).mock.calls[0][1]).toContain('--use-stderr');
     });
 
     it('calls createProcess with the --jsonOutputFile arg for Jest 17 and below', () => {
@@ -173,7 +173,7 @@ describe('Runner', () => {
       sut.start(false);
 
       const args = (createProcess: any).mock.calls[0][1];
-      const index = args.indexOf('--jsonOutputFile');
+      const index = args.indexOf('--json-output-file');
       expect(index).not.toBe(-1);
       expect(args[index + 1]).toBe(sut.outputPath);
     });
@@ -184,7 +184,7 @@ describe('Runner', () => {
       sut.start(false);
 
       const args = (createProcess: any).mock.calls[0][1];
-      const index = args.indexOf('--outputFile');
+      const index = args.indexOf('--output-file');
       expect(index).not.toBe(-1);
       expect(args[index + 1]).toBe(sut.outputPath);
     });
@@ -245,7 +245,7 @@ describe('Runner', () => {
       sut.start(false);
 
       const args = (createProcess: any).mock.calls[0][1];
-      const index = args.indexOf('--testNamePattern');
+      const index = args.indexOf('--test-name-pattern');
       expect(index).not.toBe(-1);
       expect(args[index + 1]).toBe(expected);
     });

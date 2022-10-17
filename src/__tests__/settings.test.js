@@ -144,14 +144,14 @@ describe('getSettings', () => {
         jestCommandLine,
         rootPath,
       },
-      ['--showConfig']
+      ['--show-config']
     );
   });
 
   describe('parse config', () => {
     const workspace = new ProjectWorkspace('root_path', 'path_to_jest', 'test', 1000);
 
-    const json = `{ 
+    const json = `{
       "version": "23.2.0",
       "configs": [{
         "testRegex": "some-regex"

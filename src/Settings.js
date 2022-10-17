@@ -65,7 +65,7 @@ function parseSettings(text: string, debug: ?boolean = false): JestSettings {
 export default function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<JestSettings> {
   return new Promise((resolve, reject) => {
     const _createProcess = (options && options.createProcess) || createProcess;
-    const getConfigProcess = _createProcess(workspace, ['--showConfig']);
+    const getConfigProcess = _createProcess(workspace, ['--show-config']);
 
     let configString = '';
     getConfigProcess.stdout.on('data', (data: Buffer) => {

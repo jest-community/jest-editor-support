@@ -57,13 +57,13 @@ export default class Runner extends EventEmitter {
 
     // Handle the arg change on v18
     const belowEighteen = this.workspace.localJestMajorVersion < 18;
-    const outputArg = belowEighteen ? '--jsonOutputFile' : '--outputFile';
-    const args = ['--testLocationInResults', '--json', '--useStderr', outputArg, this.outputPath];
+    const outputArg = belowEighteen ? '--json-output-file' : '--output-file';
+    const args = ['--test-location-in-results', '--json', '--use-stderr', outputArg, this.outputPath];
     if (this.watchMode) {
-      args.push(this.watchAll ? '--watchAll' : '--watch');
+      args.push(this.watchAll ? '--watch-all' : '--watch');
     }
     if (this.options.testNamePattern) {
-      args.push('--testNamePattern', this.options.testNamePattern);
+      args.push('--test-name-pattern', this.options.testNamePattern);
     }
     if (this.options.testFileNamePattern) {
       args.push(this.options.testFileNamePattern);
@@ -189,7 +189,7 @@ export default class Runner extends EventEmitter {
   }
 
   runJestWithUpdateForSnapshots(completion: () => void, args?: string[]) {
-    const defaultArgs = ['--updateSnapshot'];
+    const defaultArgs = ['--update-snapshot'];
 
     const updateProcess = this._createProcess(this.workspace, [...defaultArgs, ...(args || [])]);
     updateProcess.on('close', () => {
