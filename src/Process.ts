@@ -31,7 +31,7 @@ export const createProcess = (workspace: ProjectWorkspace, args: string[]): Chil
   const env = {...process.env, ...(workspace.nodeEnv ?? {})};
   const cmd = runtimeExecutable.join(' ');
 
-  const spawnShell = () => {
+  const spawnCommandLine = () => {
     const spawnOptions = {
       cwd: workspace.rootPath,
       env,
@@ -50,7 +50,7 @@ export const createProcess = (workspace: ProjectWorkspace, args: string[]): Chil
     return spawn(cmd, [], spawnOptions);
   };
 
-  const spawnLoginShell = (tShell: LoginShell) => {
+  const spawnLoginShell = (shell: LoginShell) => {
     const spawnOptions = {
       cwd: workspace.rootPath,
       env,
@@ -60,14 +60,14 @@ export const createProcess = (workspace: ProjectWorkspace, args: string[]): Chil
     if (workspace.debug) {
       // eslint-disable-next-line no-console
       console.log(
-        `spawning login-shell "${tShell.path} ${tShell.args.join(' ')}" for command=${cmd}`,
+        `spawning login-shell "${shell.path} ${shell.args.join(' ')}" for command=${cmd}`,
         'options:',
         spawnOptions
       );
     }
 
-    const child = spawn(tShell.path, tShell.args, spawnOptions);
-    child.stdin.write(`${cmd} \n exit\n`);
+    const child = spawn(shell.path, shell.args, spawnOptions);
+    child.stdin.write(`${cmd} \nexit $?\n`);
     return child;
   };
 
@@ -78,5 +78,5 @@ export const createProcess = (workspace: ProjectWorkspace, args: string[]): Chil
       return spawnLoginShell(workspace.shell);
     }
   }
-  return spawnShell();
+  return spawnCommandLine();
 };

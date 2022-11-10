@@ -1,6 +1,6 @@
 {
   "name": "jest-editor-support",
-  "version": "30.2.0",
+  "version": "30.2.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/jest-community/jest-editor-support"
