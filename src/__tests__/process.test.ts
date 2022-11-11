@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -99,10 +100,7 @@ describe('createProcess', () => {
     ${'powerShell.exe'} | ${'powerShell.exe'}
     ${'/bin/bash'}      | ${'/bin/bash'}
   `('allow customize shell: $shell', ({shell, expected}) => {
-    const workspace: any = {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      shell,
-    };
+    const workspace: any = {shell};
     createProcess(workspace, []);
 
     expect(mockSpawn.mock.calls[0][2].shell).toEqual(expected);
@@ -188,7 +186,7 @@ describe('createProcess', () => {
         expect(mockSpawn.mock.calls[0][0]).toEqual(expect.stringContaining(workspace.shell.path));
         expect(mockSpawn.mock.calls[0][2].shell).not.toBe(true);
         expect(mockWrite).toBeCalledWith(expect.stringContaining(jestCommandLine));
-        expect(mockWrite).toBeCalledWith(expect.stringContaining('exit'));
+        expect(mockWrite).toBeCalledWith(expect.stringContaining('exit $?'));
 
         expect(mockConsoleLog).not.toHaveBeenCalled();
       } else {
