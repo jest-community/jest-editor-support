@@ -105,7 +105,7 @@ export default class Snapshot {
     );
   }
 
-  parse(filePath: string, verbose = false): SnapshotNode[] {
+  parse(filePath: string, verbose: boolean = false): SnapshotNode[] {
     let fileNode;
     try {
       fileNode = this._parser(filePath);
@@ -161,9 +161,14 @@ export default class Snapshot {
    * @returns the content of the snapshot, if exist. otherwise undefined.
    * @throws throws exception if the snapshot version mismatched or any other unexpected error.
    */
-  async getSnapshotContent(filePath: string, testFullName: string, autoPosition = true): Promise<string | undefined> {
-    await this._getSnapshotResolver();
-    const snapshotPath = this.snapshotResolver.resolveSnapshotPath(filePath);
+  async getSnapshotContent(
+    filePath: string,
+    testFullName: string,
+    autoPosition: boolean = true
+  ): Promise<string | null> {
+    const snapshotResolver = await this._getSnapshotResolver();
+
+    const snapshotPath = snapshotResolver.resolveSnapshotPath(filePath);
     const snapshots = utils.getSnapshotData(snapshotPath, 'none').data;
     const name = autoPosition ? `${testFullName} 1` : testFullName;
     return snapshots[name];
@@ -178,8 +183,8 @@ export default class Snapshot {
     if (!this.snapshotResolver) {
       throw new Error('snapshotResolver is not ready yet, consider migrating to "getMetadataAsync" instead');
     }
-    const snapshotNodes = this.parse(filePath, verbose);
     const snapshotPath = this.snapshotResolver.resolveSnapshotPath(filePath);
+    const snapshotNodes = this.parse(filePath, verbose);
     const snapshots = utils.getSnapshotData(snapshotPath, 'none').data;
 
     let lastParent = null;
