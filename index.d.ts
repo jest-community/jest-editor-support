@@ -11,7 +11,7 @@ import {Config as JestConfig} from '@jest/types';
 import { CoverageMapData } from 'istanbul-lib-coverage';
 import ProjectWorkspace, {ProjectWorkspaceConfig, createProjectWorkspace,  LoginShell } from './build/project_workspace';
 export {createProjectWorkspace, ProjectWorkspaceConfig, ProjectWorkspace, LoginShell};
-
+import {SourceLocation} from '@babel/types';
 export interface RunArgs {
   args: string[];
   replace?: boolean; // default is false
@@ -224,10 +224,20 @@ export interface SnapshotMetadata {
   content?: string;
 }
 
+export interface SnapshotNode{
+  name: string;
+  loc: SourceLocation;
+}
+export interface SnapshotBlock{
+  node: SnapshotNode;
+  parents: SnapshotNode[];
+} 
 export class Snapshot {
   constructor(parser?: any, customMatchers?: string[]);
   getMetadata(filepath: string, verbose?: boolean): SnapshotMetadata[];
   getMetadataAsync(filePath: string, verbose?: boolean): Promise<Array<SnapshotMetadata>>; 
+  parse(filePath: string, verbose?: boolean): SnapshotBlock[];
+  getSnapshotContent(filePath: string, testFullName: string): Promise<string | undefined>; 
 }
 
 type FormattedTestResults = {

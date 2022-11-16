@@ -118,3 +118,59 @@ describe('when metadata parse error', () => {
     expect(console.warn).toHaveBeenCalled();
   });
 });
+
+describe('parse', () => {
+  it('can parse and return matched nodes', () => {
+    const filePath = path.join(snapshotFixturePath, 'nested.example');
+    const snapshotNodes = snapshotHelper.parse(filePath);
+    expect(snapshotNodes).toHaveLength(2);
+    snapshotNodes.forEach((n) => expect(n.node.name).toEqual('toMatchSnapshot'));
+    snapshotNodes.forEach((n) => expect(n.parents).toHaveLength(4));
+    expect(snapshotNodes[0].node.loc.start).toEqual({column: 21, line: 5});
+    expect(snapshotNodes[0].node.loc.end).toEqual({column: 36, line: 5});
+    expect(snapshotNodes[1].node.loc.start).toEqual({column: 21, line: 6});
+    expect(snapshotNodes[1].node.loc.end).toEqual({column: 36, line: 6});
+  });
+  it('can parse inline snapshots', () => {
+    const filePath = path.join(snapshotFixturePath, 'inline-and-each.example');
+
+    let snapshot = new Snapshot();
+    let snapshotNodes = snapshot.parse(filePath);
+    let inlineSnapshotNodes = snapshotNodes.filter((sn) => sn.node.name === 'toMatchInlineSnapshot');
+    expect(inlineSnapshotNodes).toHaveLength(0);
+    let inlineThrowSnapshotNodes = snapshotNodes.filter((sn) => sn.node.name === 'toThrowErrorMatchingInlineSnapshot');
+    expect(inlineThrowSnapshotNodes).toHaveLength(0);
+
+    snapshot = new Snapshot(undefined, ['toMatchInlineSnapshot', 'toThrowErrorMatchingInlineSnapshot']);
+    snapshotNodes = snapshot.parse(filePath);
+    inlineSnapshotNodes = snapshotNodes.filter((sn) => sn.node.name === 'toMatchInlineSnapshot');
+    expect(inlineSnapshotNodes).toHaveLength(4);
+    inlineThrowSnapshotNodes = snapshotNodes.filter((sn) => sn.node.name === 'toThrowErrorMatchingInlineSnapshot');
+    expect(inlineThrowSnapshotNodes).toHaveLength(1);
+  });
+});
+describe('getSnapshotContent', () => {
+  it.each`
+    testName                                         | expected
+    ${'regular inline test'}                         | ${undefined}
+    ${'test.each %s'}                                | ${undefined}
+    ${'test.each a'}                                 | ${'a'}
+    ${'1 describe with each test.each a'}            | ${'1.a'}
+    ${'2 describe with each test.each b'}            | ${'2.b'}
+    ${'tests with each case %d test 1-D array each'} | ${undefined}
+    ${'tests with each case 3 test 1-D array each'}  | ${'3 1-D'}
+  `('', async ({testName, expected}) => {
+    const filePath = path.join(snapshotFixturePath, 'inline-and-each.example');
+    const snapshot = new Snapshot(undefined, ['toMatchInlineSnapshot', 'toThrowErrorMatchingInlineSnapshot']);
+    const content = await snapshot.getSnapshotContent(filePath, testName);
+    expect(content).toEqual(expected);
+  });
+  it('can take literal snapshot name', async () => {
+    const filePath = path.join(snapshotFixturePath, 'inline-and-each.example');
+    const snapshot = new Snapshot(undefined, ['toMatchInlineSnapshot', 'toThrowErrorMatchingInlineSnapshot']);
+    let content = await snapshot.getSnapshotContent(filePath, `literal test 2`);
+    expect(content).toBeUndefined();
+    content = await snapshot.getSnapshotContent(filePath, `literal test 2`, false);
+    expect(content).toEqual('literal test 2 content');
+  });
+});
