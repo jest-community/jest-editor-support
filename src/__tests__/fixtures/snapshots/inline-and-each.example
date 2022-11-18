@@ -1,0 +1,35 @@
+describe('tests with each', () => {
+  it.each`
+  case|whatever
+  ${1}|${'a'}
+  $(2)|${'b'}
+  `('case $case: test tabled each', ({whatever}) => {
+      expect(whatever).toMatchSnapshot();
+      expect(whatever).toMatchInlineSnapshot();
+  });
+  it.each([1,2,3])('case %d test 1-D array each', (n) => {
+      expect(n).toThrowErrorMatchingSnapshot();
+      expect(n).toMatchInlineSnapshot();
+
+  });
+});
+
+describe.each([1,2,3])('%d describe with each', (n) => {
+  it.each(['a', 'b', 'c'])('test.each %s', (char) => {
+      expect({n, char}).toMatchSnapshot();
+  });
+  it('a regular test', () => {
+    expect(n).toMatchInlineSnapshot();
+  });
+});
+
+it.each(['a', 'b', 'c'])('inline test.each %s', (char) => {
+  expect(char).toThrowErrorMatchingInlineSnapshot();
+});
+it.each(['a', 'b', 'c'])('test.each %s', (char) => {
+  expect(char).toMatchSnapshot();
+});
+it('regular inline test', () => {
+  expect(whatever).toMatchInlineSnapshot();
+});
+

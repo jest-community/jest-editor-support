@@ -78,6 +78,11 @@ const buildName: (snapshotNode: Node, parents: Array<Node>, position: number) =>
   return utils.testNameToKey(fullName, position);
 };
 
+export interface SnapshotNode {
+  node: Node;
+  parents: Node[];
+}
+
 export default class Snapshot {
   _parser: Function;
 
@@ -100,19 +105,7 @@ export default class Snapshot {
     );
   }
 
-  async getMetadataAsync(filePath: string, verbose: boolean = false): Promise<Array<SnapshotMetadata>> {
-    if (!this.snapshotResolver) {
-      await this._resolverPromise;
-    }
-    return this.getMetadata(filePath, verbose);
-  }
-
-  getMetadata(filePath: string, verbose: boolean = false): Array<SnapshotMetadata> {
-    if (!this.snapshotResolver) {
-      throw new Error('snapshotResolver is not ready yet, consider migrating to "getMetadataAsync" instead');
-    }
-    const snapshotPath = this.snapshotResolver.resolveSnapshotPath(filePath);
-
+  parse(filePath: string, verbose: boolean = false): SnapshotNode[] {
     let fileNode;
     try {
       fileNode = this._parser(filePath);
@@ -123,13 +116,11 @@ export default class Snapshot {
       }
       return [];
     }
-    const state = {
-      found: [],
-    };
+
     const Visitors = {
-      Identifier(path, _state, matchers) {
+      Identifier(path, found, matchers) {
         if (matchers.indexOf(path.node.name) >= 0) {
-          _state.found.push({
+          found.push({
             node: path.node,
             parents: getArrayOfParents(path),
           });
@@ -137,23 +128,70 @@ export default class Snapshot {
       },
     };
 
+    const found = [];
+
     traverse(fileNode, {
       enter: (path) => {
         const visitor = Visitors[path.node.type];
         if (visitor != null) {
-          visitor(path, state, this._matchers);
+          visitor(path, found, this._matchers);
         }
       },
     });
 
-    // NOTE if no projectConfig is given the default resolver will be used
+    return found.map((f) => ({
+      node: f.node,
+      parents: f.parents.filter(isValidParent),
+    }));
+  }
 
+  async _getSnapshotResolver(): Promise<SnapshotResolver> {
+    if (!this.snapshotResolver) {
+      await this._resolverPromise;
+    }
+    return this.snapshotResolver;
+  }
+
+  /**
+   * look for snapshot content for the given test.
+   * @param {*} filePath
+   * @param {*} testFullName
+   * @param autoPosition if true (the default), it will append position ("1") to the testFullName,
+   * otherwise, the testFullName should include the position in it.
+   * @returns the content of the snapshot, if exist. otherwise undefined.
+   * @throws throws exception if the snapshot version mismatched or any other unexpected error.
+   */
+  async getSnapshotContent(
+    filePath: string,
+    testFullName: string,
+    autoPosition: boolean = true
+  ): Promise<string | null> {
+    const snapshotResolver = await this._getSnapshotResolver();
+
+    const snapshotPath = snapshotResolver.resolveSnapshotPath(filePath);
     const snapshots = utils.getSnapshotData(snapshotPath, 'none').data;
+    const name = autoPosition ? `${testFullName} 1` : testFullName;
+    return snapshots[name];
+  }
+
+  async getMetadataAsync(filePath: string, verbose: boolean = false): Promise<Array<SnapshotMetadata>> {
+    await this._getSnapshotResolver();
+    return this.getMetadata(filePath, verbose);
+  }
+
+  getMetadata(filePath: string, verbose: boolean = false): Array<SnapshotMetadata> {
+    if (!this.snapshotResolver) {
+      throw new Error('snapshotResolver is not ready yet, consider migrating to "getMetadataAsync" instead');
+    }
+    const snapshotPath = this.snapshotResolver.resolveSnapshotPath(filePath);
+    const snapshotNodes = this.parse(filePath, verbose);
+    const snapshots = utils.getSnapshotData(snapshotPath, 'none').data;
+
     let lastParent = null;
     let count = 1;
 
-    return state.found.map((snapshotNode) => {
-      const parents = snapshotNode.parents.filter(isValidParent);
+    return snapshotNodes.map((snapshotNode) => {
+      const {parents} = snapshotNode;
       const innerAssertion = parents[parents.length - 1];
 
       if (lastParent !== innerAssertion) {

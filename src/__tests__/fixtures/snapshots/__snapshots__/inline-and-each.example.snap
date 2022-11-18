@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+exports[`test.each a 1`] = `a`;
+exports[`test.each b 1`] = `b`;
+exports[`test.each c 1`] = `c`;
+exports[`1 describe with each test.each a 1`] = `1.a`;
+exports[`1 describe with each test.each b 1`] = `1.b`;
+exports[`1 describe with each test.each c 1`] = `1.c`;
+exports[`2 describe with each test.each a 1`] = `2.a`;
+exports[`2 describe with each test.each b 1`] = `2.b`;
+exports[`2 describe with each test.each c 1`] = `2.c`;
+exports[`3 describe with each test.each a 1`] = `3.a`;
+exports[`3 describe with each test.each b 1`] = `3.b`;
+exports[`3 describe with each test.each c 1`] = `3.c`;
+exports[`tests with each case 1 test 1-D array each 1`] = `1 1-D`;
+exports[`tests with each case 2 test 1-D array each 1`] = `2 1-D`;
+exports[`tests with each case 3 test 1-D array each 1`] = `3 1-D`;
+exports[`literal test 1`] = `literal test 1 content`;
+exports[`literal test 2`] = `literal test 2 content`;
