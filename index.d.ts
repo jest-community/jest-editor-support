@@ -12,6 +12,7 @@ import { CoverageMapData } from 'istanbul-lib-coverage';
 import ProjectWorkspace, {ProjectWorkspaceConfig, createProjectWorkspace,  LoginShell } from './build/project_workspace';
 export {createProjectWorkspace, ProjectWorkspaceConfig, ProjectWorkspace, LoginShell};
 import {SourceLocation} from '@babel/types';
+import { SnapshotData } from 'jest-snapshot/build/types';
 export interface RunArgs {
   args: string[];
   replace?: boolean; // default is false
@@ -237,7 +238,7 @@ export class Snapshot {
   getMetadata(filepath: string, verbose?: boolean): SnapshotMetadata[];
   getMetadataAsync(filePath: string, verbose?: boolean): Promise<Array<SnapshotMetadata>>; 
   parse(filePath: string, verbose?: boolean): SnapshotBlock[];
-  getSnapshotContent(filePath: string, testFullName: string): Promise<string | undefined>; 
+  getSnapshotContent(filePath: string, name: string | RegExp): Promise<string | SnapshotData | undefined>; 
 }
 
 type FormattedTestResults = {

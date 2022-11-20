@@ -9,7 +9,7 @@
  */
 
 import traverse from '@babel/traverse';
-import {buildSnapshotResolver, SnapshotResolver, utils} from 'jest-snapshot';
+import {buildSnapshotResolver, SnapshotResolver, utils, SnapshotData} from 'jest-snapshot';
 import type {ProjectConfig} from '../types/Config';
 
 import {getASTfor} from './parsers/babel_parser';
@@ -155,23 +155,27 @@ export default class Snapshot {
   /**
    * look for snapshot content for the given test.
    * @param {*} filePath
-   * @param {*} testFullName
-   * @param autoPosition if true (the default), it will append position ("1") to the testFullName,
-   * otherwise, the testFullName should include the position in it.
-   * @returns the content of the snapshot, if exist. otherwise undefined.
+   * @param {*} name can be a literal string or a regex pattern.
+   * @returns the content of the snapshot, if exist. If name is a string, a string will be returned. If name is a RegExp,
+   * a SnapshotData object will be returned with all matched snapshots. If nothing matched, null will be returned.
    * @throws throws exception if the snapshot version mismatched or any other unexpected error.
    */
-  async getSnapshotContent(
-    filePath: string,
-    testFullName: string,
-    autoPosition: boolean = true
-  ): Promise<string | null> {
+  async getSnapshotContent(filePath: string, name: string | RegExp): Promise<string | SnapshotData | null> {
     const snapshotResolver = await this._getSnapshotResolver();
 
     const snapshotPath = snapshotResolver.resolveSnapshotPath(filePath);
     const snapshots = utils.getSnapshotData(snapshotPath, 'none').data;
-    const name = autoPosition ? `${testFullName} 1` : testFullName;
-    return snapshots[name];
+    if (typeof name === 'string') {
+      return snapshots[name];
+    }
+    const regex = name;
+    const data: SnapshotData = {};
+    Object.entries(snapshots).forEach(([key, value]) => {
+      if (regex.test(key)) {
+        data[key] = value;
+      }
+    });
+    return Object.entries(data).length > 0 ? data : null;
   }
 
   async getMetadataAsync(filePath: string, verbose: boolean = false): Promise<Array<SnapshotMetadata>> {
