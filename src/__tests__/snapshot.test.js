@@ -180,5 +180,10 @@ describe('getSnapshotContent', () => {
       'literal test 2': 'literal test 2 content',
     });
   });
-  // it('if nothing matched, returns null');
+  it('if nothing matched, returns null', async () => {
+    const filePath = path.join(snapshotFixturePath, 'inline-and-each.example');
+    const snapshot = new Snapshot(undefined, ['toMatchInlineSnapshot', 'toThrowErrorMatchingInlineSnapshot']);
+    const content = await snapshot.getSnapshotContent(filePath, /not existing test/);
+    expect(content).toEqual(null);
+  });
 });

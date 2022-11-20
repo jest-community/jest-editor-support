@@ -176,7 +176,7 @@ export default class Snapshot {
         data[key] = value;
       }
     });
-    return data === {} ? null : data;
+    return Object.entries(data).length <= 0 ? null : data;
   }
 
   async getMetadataAsync(filePath: string, verbose: boolean = false): Promise<Array<SnapshotMetadata>> {
