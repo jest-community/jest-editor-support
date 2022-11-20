@@ -151,14 +151,14 @@ describe('parse', () => {
 });
 describe('getSnapshotContent', () => {
   it.each`
-    testName                                         | expected
-    ${'regular inline test'}                         | ${undefined}
-    ${'test.each %s'}                                | ${undefined}
-    ${'test.each a'}                                 | ${'a'}
-    ${'1 describe with each test.each a'}            | ${'1.a'}
-    ${'2 describe with each test.each b'}            | ${'2.b'}
-    ${'tests with each case %d test 1-D array each'} | ${undefined}
-    ${'tests with each case 3 test 1-D array each'}  | ${'3 1-D'}
+    testName                                           | expected
+    ${'regular inline test 1'}                         | ${undefined}
+    ${'test.each %s 1'}                                | ${undefined}
+    ${'test.each a 1'}                                 | ${'a'}
+    ${'1 describe with each test.each a 1'}            | ${'1.a'}
+    ${'2 describe with each test.each b 1'}            | ${'2.b'}
+    ${'tests with each case %d test 1-D array each 1'} | ${undefined}
+    ${'tests with each case 3 test 1-D array each 1'}  | ${'3 1-D'}
   `('', async ({testName, expected}) => {
     const filePath = path.join(snapshotFixturePath, 'inline-and-each.example');
     const snapshot = new Snapshot(undefined, ['toMatchInlineSnapshot', 'toThrowErrorMatchingInlineSnapshot']);
@@ -168,9 +168,17 @@ describe('getSnapshotContent', () => {
   it('can take literal snapshot name', async () => {
     const filePath = path.join(snapshotFixturePath, 'inline-and-each.example');
     const snapshot = new Snapshot(undefined, ['toMatchInlineSnapshot', 'toThrowErrorMatchingInlineSnapshot']);
-    let content = await snapshot.getSnapshotContent(filePath, `literal test 2`);
-    expect(content).toBeUndefined();
-    content = await snapshot.getSnapshotContent(filePath, `literal test 2`, false);
+    const content = await snapshot.getSnapshotContent(filePath, `literal test 2`);
     expect(content).toEqual('literal test 2 content');
   });
+  it('can take regex', async () => {
+    const filePath = path.join(snapshotFixturePath, 'inline-and-each.example');
+    const snapshot = new Snapshot(undefined, ['toMatchInlineSnapshot', 'toThrowErrorMatchingInlineSnapshot']);
+    const content = await snapshot.getSnapshotContent(filePath, /literal test/);
+    expect(content).toEqual({
+      'literal test 1': 'literal test 1 content',
+      'literal test 2': 'literal test 2 content',
+    });
+  });
+  // it('if nothing matched, returns null');
 });
