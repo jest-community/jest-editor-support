@@ -155,8 +155,7 @@ export default class Snapshot {
   /**
    * look for snapshot content for the given test.
    * @param {*} filePath
-   * @param {*} name can be a literal string or a regex pattern
-   * otherwise, the testFullName should include the position in it.
+   * @param {*} name can be a literal string or a regex pattern.
    * @returns the content of the snapshot, if exist. If name is a string, a string will be returned. If name is a RegExp,
    * a SnapshotData object will be returned with all matched snapshots. If nothing matched, null will be returned.
    * @throws throws exception if the snapshot version mismatched or any other unexpected error.
@@ -176,7 +175,7 @@ export default class Snapshot {
         data[key] = value;
       }
     });
-    return Object.entries(data).length <= 0 ? null : data;
+    return Object.entries(data).length > 0 ? data : null;
   }
 
   async getMetadataAsync(filePath: string, verbose: boolean = false): Promise<Array<SnapshotMetadata>> {
