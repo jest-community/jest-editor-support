@@ -41,7 +41,7 @@ describe('parse', () => {
   });
   describe.each([['abc'], ['abc.ttsx']])('when unrecognized file type $s', (file) => {
     it('fall back to js parser in non-strict mode', () => {
-      expect(() => parse(file, undefined, false)).not.toThrow();
+      expect(() => parse(file, undefined, {strictMode: false})).not.toThrow();
       expect(babelParser.parse).toHaveBeenCalledWith(
         file,
         undefined,
@@ -49,7 +49,7 @@ describe('parse', () => {
       );
     });
     it('throw exception in strict mode', () => {
-      expect(() => parse(file, undefined, true)).toThrow();
+      expect(() => parse(file, undefined, {strictMode: true})).toThrow();
     });
   });
 });
