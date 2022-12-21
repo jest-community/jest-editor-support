@@ -21,12 +21,14 @@ import {createProcess} from './Process';
 // passes out events when it understands what data is being
 // pass sent out of the process
 export default class Runner extends EventEmitter {
-  debugprocess: ChildProcess;
+  debugprocess: ?ChildProcess;
 
   outputPath: string;
 
+  // $FlowIgnore[value-as-type]
   workspace: ProjectWorkspace;
 
+  // $FlowIgnore[value-as-type]
   _createProcess: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess;
 
   watchMode: boolean;
@@ -39,6 +41,7 @@ export default class Runner extends EventEmitter {
 
   _exited: boolean;
 
+  // $FlowIgnore[value-as-type]
   constructor(workspace: ProjectWorkspace, options?: Options) {
     super();
 
@@ -97,17 +100,18 @@ export default class Runner extends EventEmitter {
     this.watchAll = watchAll;
 
     const args = this._getArgs();
-    this.debugprocess = this._createProcess(this.workspace, args);
-    this.debugprocess.stdout.on('data', (data: Buffer) => {
+    const debugprocess = this._createProcess(this.workspace, args);
+    this.debugprocess = debugprocess;
+    debugprocess.stdout.on('data', (data: Buffer) => {
       this._parseOutput(data, false);
     });
 
-    this.debugprocess.stderr.on('data', (data: Buffer) => {
+    debugprocess.stderr.on('data', (data: Buffer) => {
       // jest 23 could send test results message to stderr
       // see https://github.com/facebook/jest/pull/4858
       this._parseOutput(data, true);
     });
-    this.debugprocess.on('exit', (code: number | null, signal: string | null) => {
+    debugprocess.on('exit', (code: number | null, signal: string | null) => {
       this._exited = true;
 
       // this is mainly for backward compatibility, should be deprecated soon
@@ -117,12 +121,12 @@ export default class Runner extends EventEmitter {
       this.prevMessageTypes.length = 0;
     });
 
-    this.debugprocess.on('error', (error: Error) => {
+    debugprocess.on('error', (error: Error) => {
       this.emit('terminalError', `Process failed: ${error.message}`);
       this.prevMessageTypes.length = 0;
     });
 
-    this.debugprocess.on('close', (code: number | null, signal: string | null) => {
+    debugprocess.on('close', (code: number | null, signal: string | null) => {
       // this is mainly for backward compatibility, should be deprecated soon
       this.emit('debuggerProcessExit');
 
@@ -216,13 +220,15 @@ export default class Runner extends EventEmitter {
         // knowing this could leave orphan process...
         // eslint-disable-next-line no-console
         console.warn(
-          `failed to kill process group, this could leave some orphan process whose ppid=${this.debugprocess.pid}. error=`,
+          `failed to kill process group, this could leave some orphan process whose ppid=${
+            this.debugprocess?.pid || 'process-non-exist'
+          }. error=`,
           e
         );
-        this.debugprocess.kill();
+        this.debugprocess?.kill();
       }
     }
-    delete this.debugprocess;
+    this.debugprocess = undefined;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -242,7 +248,7 @@ export default class Runner extends EventEmitter {
     return match ? match.messageType : messageTypes.unknown;
   }
 
-  doResultsFollowNoTestsFoundMessage() {
+  doResultsFollowNoTestsFoundMessage(): boolean {
     if (this.prevMessageTypes.length === 1) {
       return this.prevMessageTypes[0] === messageTypes.noTests;
     }

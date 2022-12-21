@@ -9,7 +9,7 @@
  */
 
 import traverse from '@babel/traverse';
-import {buildSnapshotResolver, SnapshotResolver, utils, SnapshotData} from 'jest-snapshot';
+import {buildSnapshotResolver, type SnapshotResolver, type SnapshotData, utils} from 'jest-snapshot';
 import type {ProjectConfig} from '../types/Config';
 
 import {getASTfor} from './parsers/babel_parser';
@@ -49,16 +49,16 @@ const validParents = Object.assign(
   })
 );
 
-const isValidMemberExpression = (node) =>
+const isValidMemberExpression = (node: any) =>
   node.object && base[node.object.name] && node.property && decorators[node.property.name];
 
-const isDescribe = (node) =>
+const isDescribe = (node: any) =>
   describeVariants[node.name] || (isValidMemberExpression(node) && node.object.name === 'describe');
 
-const isValidParent = (parent) =>
+const isValidParent = (parent: any) =>
   parent.callee && (validParents[parent.callee.name] || isValidMemberExpression(parent.callee));
 
-const getArrayOfParents = (path) => {
+const getArrayOfParents = (path: any) => {
   const result = [];
   let parent = path.parentPath;
   while (parent) {
@@ -90,8 +90,10 @@ export default class Snapshot {
 
   _projectConfig: ?ProjectConfig;
 
+  // $FlowIgnore[value-as-type]
   snapshotResolver: ?SnapshotResolver;
 
+  // $FlowIgnore[value-as-type]
   _resolverPromise: Promise<SnapshotResolver>;
 
   constructor(parser: any, customMatchers?: Array<string>, projectConfig?: ProjectConfig) {
@@ -118,7 +120,7 @@ export default class Snapshot {
     }
 
     const Visitors = {
-      Identifier(path, found, matchers) {
+      Identifier(path: any, found: any, matchers: any) {
         if (matchers.indexOf(path.node.name) >= 0) {
           found.push({
             node: path.node,
@@ -145,6 +147,7 @@ export default class Snapshot {
     }));
   }
 
+  // $FlowIgnore[value-as-type]
   async _getSnapshotResolver(): Promise<SnapshotResolver> {
     if (!this.snapshotResolver) {
       await this._resolverPromise;
@@ -160,6 +163,7 @@ export default class Snapshot {
    * a SnapshotData object will be returned with all matched snapshots. If nothing matched, null will be returned.
    * @throws throws exception if the snapshot version mismatched or any other unexpected error.
    */
+  // $FlowIgnore[value-as-type]
   async getSnapshotContent(filePath: string, name: string | RegExp): Promise<string | SnapshotData | null> {
     const snapshotResolver = await this._getSnapshotResolver();
 
@@ -169,6 +173,7 @@ export default class Snapshot {
       return snapshots[name];
     }
     const regex = name;
+    // $FlowIgnore[value-as-type]
     const data: SnapshotData = {};
     Object.entries(snapshots).forEach(([key, value]) => {
       if (regex.test(key)) {

@@ -8,7 +8,7 @@
  */
 
 import type {Options} from './types';
-import ProjectWorkspace from './project_workspace';
+import type ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
 type Glob = string;
@@ -30,7 +30,7 @@ type JestSettings = {
 };
 
 function parseSettings(text: string, debug: ?boolean = false): JestSettings {
-  const jsonPattern = new RegExp(/^[\s]*\{/gm);
+  const jsonPattern = /^[\s]*\{/gm;
   let settings = null;
 
   try {
@@ -62,6 +62,7 @@ function parseSettings(text: string, debug: ?boolean = false): JestSettings {
   };
 }
 
+// $FlowIgnore[value-as-type]
 export default function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<JestSettings> {
   return new Promise((resolve, reject) => {
     const _createProcess = (options && options.createProcess) || createProcess;

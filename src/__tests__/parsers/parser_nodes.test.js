@@ -53,6 +53,7 @@ describe('ParsedNode', () => {
   it('throws an error when adding an unknown child', async () => {
     const root = new ParsedNode('describe', 'a/b/c');
     expect(() => {
+      // $FlowIgnore[prop-missing]
       root.addChild('unknown');
     }).toThrow(TypeError);
   });

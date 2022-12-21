@@ -48,6 +48,7 @@ describe('Runner', () => {
   let originalProcessKill;
 
   beforeAll(() => {
+    // $FlowIgnore[method-unbinding]
     originalProcessKill = process.kill;
     (process: any).kill = processKill;
   });
@@ -71,12 +72,14 @@ describe('Runner', () => {
     });
 
     it('sets the output filepath', () => {
+      // $FlowIgnore[prop-missing]
       tmpdir.mockReturnValue('tmpdir');
 
       const suffix = ['runner-test', undefined];
 
       suffix.forEach((s) => {
         const workspace: any = {outputFileSuffix: s};
+        // $FlowIgnore[prop-missing]
         path.join.mockImplementation((...paths: string[]) => paths.join('/'));
         const sut = new Runner(workspace);
         expect(sut.outputPath).toEqual(`tmpdir/jest_runner_${s || ''}.json`);
@@ -324,6 +327,7 @@ describe('Runner', () => {
       platformPV = process.platform;
 
       // Remove the "process.platform" property descriptor so it can be writable.
+      // $FlowIgnore[incompatible-type]
       delete process.platform;
     });
 
@@ -395,7 +399,9 @@ describe('Runner', () => {
 
       fakeProcess = (new EventEmitter(): any);
       fakeProcess.stdout = new EventEmitter();
+      // $FlowIgnore[incompatible-type]
       fakeProcess.stderr = new EventEmitter();
+      // $FlowIgnore[cannot-write]
       fakeProcess.kill = () => {};
 
       (createProcess: any).mockImplementation(() => fakeProcess);
@@ -519,6 +525,7 @@ describe('Runner', () => {
         const expected = {};
         fakeProcess.stderr.emit('data', expected);
 
+        // $FlowIgnore[method-unbinding]
         expect(runner.findMessageType).toBeCalledWith(expected);
       });
 

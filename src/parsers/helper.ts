@@ -6,7 +6,7 @@
  *
  */
 
-import {ParserOptions, ParserPlugin} from '@babel/parser';
+import {ParserOptions, type ParserPlugin} from '@babel/parser';
 
 const commonPlugins: ParserPlugin[] = [
   'asyncGenerators',

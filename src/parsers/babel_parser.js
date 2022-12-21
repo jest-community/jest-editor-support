@@ -16,22 +16,27 @@ import type {ParsedNodeType} from './parser_nodes';
 import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
 import {parseOptions} from './helper';
 
+// $FlowIgnore[value-as-type]
 const _getASTfor = (file: string, data: ?string, options: ?parser.ParserOptions): [BabelFile, string] => {
   const _data = data || readFileSync(file).toString();
   const config = {...options, sourceType: 'module'};
   return [parser.parse(_data, config), _data];
 };
 
+// $FlowIgnore[value-as-type]
 export const getASTfor = (file: string, data: ?string): BabelFile => {
   const [bFile] = _getASTfor(file, data, parseOptions(file));
   return bFile;
 };
 
+// $FlowIgnore[value-as-type]
 export const parse = (file: string, data: ?string, options: ?parser.ParserOptions): ParseResult => {
   const parseResult = new ParseResult(file);
   const [ast, _data] = _getASTfor(file, data, options);
 
-  const deepGet = (node, ...types: string[]) =>
+  // $FlowIgnore[value-as-type]
+  const deepGet = (node: BabelNode, ...types: string[]) =>
+    // $FlowIgnore[value-as-type]
     types.reduce<BabelNode>((rootForType, type) => {
       while (rootForType[type]) {
         rootForType = rootForType[type];
@@ -39,6 +44,7 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
       return rootForType;
     }, node);
 
+  // $FlowIgnore[value-as-type]
   const updateNameInfo = (nBlock: NamedBlock, bNode: BabelNode, lastProperty?: string) => {
     const arg = bNode.expression.arguments[0];
     let name = arg.value;
@@ -65,6 +71,7 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
     );
   };
 
+  // $FlowIgnore[value-as-type]
   const updateNode = (node: ParsedNode, babylonNode: BabelNode, lastProperty?: string) => {
     node.start = babylonNode.loc.start;
     node.end = babylonNode.loc.end;
@@ -76,14 +83,15 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
     }
   };
 
-  const isFunctionCall = (node) =>
+  // $FlowIgnore[value-as-type]
+  const isFunctionCall = (node: BabelNode) =>
     node && node.type === 'ExpressionStatement' && node.expression && node.expression.type === 'CallExpression';
 
   const isFunctionDeclaration = (nodeType: string) =>
     nodeType === 'ArrowFunctionExpression' || nodeType === 'FunctionExpression';
 
   // Pull out the name of a CallExpression (describe/it) and the last property (each, skip etc)
-  const getNameForNode = (node) => {
+  const getNameForNode = (node: any) => {
     if (isFunctionCall(node) && node.expression.callee) {
       // Get root callee in case it's a chain of higher-order functions (e.g. .each(table)(name, fn))
       const rootCallee = deepGet(node.expression, 'callee');
@@ -112,7 +120,8 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
 
   // When given a node in the AST, does this represent
   // the start of an expect expression?
-  const isAnExpect = (node) => {
+  // $FlowIgnore[value-as-type]
+  const isAnExpect = (node: BabelNode) => {
     if (!isFunctionCall(node)) {
       return false;
     }
@@ -131,6 +140,7 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   const addNode = (
     type: ParsedNodeType,
     parent: ParsedNode,
+    // $FlowIgnore[value-as-type]
     babylonNode: BabelNode,
     lastProperty?: string
   ): ParsedNode => {
@@ -145,6 +155,7 @@ export const parse = (file: string, data: ?string, options: ?parser.ParserOption
   };
 
   // A recursive AST parser
+  // $FlowIgnore[value-as-type]
   const searchNodes = (babylonParent: BabelNode, parent: ParsedNode) => {
     // Look through the node's children
     let child: ?ParsedNode;

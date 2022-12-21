@@ -211,7 +211,7 @@ describe('Terse Messages', () => {
   it('handles shrinking a snapshot message', () => {
     const file = '/Users/orta/dev/projects/artsy/js/libs/jest-snapshots-svg/src/_tests/example.test.ts';
 
-    const terseForTest = (name) => parser.stateForTestAssertion(file, name);
+    const terseForTest = (name: string) => parser.stateForTestAssertion(file, name);
 
     let message = 'Expected value to equal: 2, Received: 1';
     let testName = 'numbers';

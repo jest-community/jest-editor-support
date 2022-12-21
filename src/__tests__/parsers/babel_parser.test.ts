@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -1011,6 +1012,21 @@ describe('parsers', () => {
         expect(parseResult.itBlocks.length).toEqual(1);
         const itBlock = parseResult.itBlocks[0];
         assertBlock2(itBlock, 2, 11, 4, 13, 'should parse');
+      });
+      it('https://github.com/jest-community/jest-editor-support/issues/96', () => {
+        const data = `
+        import { asMockedFunction, type AnyFunction } from '@whatever/jest-types';
+        test('a test', () => {
+          expect(true).toBe(true);
+        });
+      `;
+        const parseResult = parseFunction('whatever', data);
+        expect(parseResult.itBlocks.length).toEqual(1);
+
+        const name = 'a test';
+        const itBlock = parseResult.itBlocks[0];
+        assertBlock2(itBlock, 3, 9, 5, 11, name);
+        assertNameInfo(itBlock, name, 3, 15, 3, 20);
       });
     });
   });

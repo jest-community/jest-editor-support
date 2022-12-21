@@ -11,7 +11,7 @@ module.exports = {
   },
   settings: {
     'import/parsers': {
-      'babel-eslint': ['.js'],
+      '@babel/eslint-parser': ['.js'],
       '@typescript-eslint/parser': ['.ts'],
     },
     'import/resolver': {
@@ -19,12 +19,12 @@ module.exports = {
       'eslint-import-resolver-typescript': true,
     },
   },
-  parser: 'babel-eslint',
+  parser: '@babel/eslint-parser',
   parserOptions: {
     sourceType: 'module',
     babelOptions: {
-      // configuration for babel-eslint
-      configFile: 'babel.config.js',
+      // configuration for @babel/eslint-parser
+      configFile: './babel.config.js',
     },
     // configuration for @typescript-eslint
     project: 'tsconfig.json',
@@ -33,10 +33,11 @@ module.exports = {
     // linting setup for JS files.
     {
       files: '**/*.js',
-      plugins: ['babel', 'flowtype', 'prettier', 'import'],
+      parser: '@babel/eslint-parser',
+      plugins: ['@babel', 'flowtype', 'prettier', 'import'],
       extends: ['airbnb-base', 'plugin:flowtype/recommended', 'prettier', 'plugin:prettier/recommended'],
       rules: {
-        'prettier/prettier': ["error", { "endOfLine": "auto" }],
+        'prettier/prettier': ['error', {endOfLine: 'auto'}],
         'no-underscore-dangle': 'off',
         camelcase: 'off',
         'no-param-reassign': ['error', {props: false}],
@@ -53,7 +54,7 @@ module.exports = {
     // linting setup for TS files.
     {
       files: '**/*.ts',
-      plugins: ['babel', 'prettier', 'import', '@typescript-eslint'],
+      plugins: ['@babel', 'prettier', 'import', '@typescript-eslint'],
       extends: [
         'airbnb-typescript/base',
         'plugin:@typescript-eslint/eslint-recommended',
@@ -63,7 +64,7 @@ module.exports = {
         'plugin:prettier/recommended',
       ],
       rules: {
-        'prettier/prettier': ["error", { "endOfLine": "auto" }],
+        'prettier/prettier': ['error', {endOfLine: 'auto'}],
         'no-underscore-dangle': 'off',
         camelcase: 'off',
         'no-param-reassign': ['error', {props: false}],
