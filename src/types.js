@@ -21,6 +21,7 @@ export type RunArgs = {
 };
 
 export type Options = {
+  // $FlowIgnore[value-as-type]
   createProcess?: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess,
   noColor?: boolean,
   testNamePattern?: string,

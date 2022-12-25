@@ -154,7 +154,7 @@ export class ParseResult {
     this.itBlocks = [];
   }
 
-  addNode(node: ParsedNode, dedup: boolean = false) {
+  addNode(node: ParsedNode, dedup: boolean = false): void {
     if (node instanceof DescribeBlock) {
       this.describeBlocks.push(node);
     } else if (node instanceof ItBlock) {

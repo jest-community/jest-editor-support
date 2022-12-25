@@ -9,6 +9,11 @@ fixtures
 .eslintrc.js
 babel.config.js
 prettier.config.js
+tsconfig.json
 dangerfile.js
 yarn.lock
 *.tgz
+flow-typed/**
+.gitattributes
+.github/**
+.husky/**

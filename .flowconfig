@@ -1,4 +1,5 @@
 [ignore]
+<PROJECT_ROOT>/node_modules/resolve/.*
 
 [include]
 src
@@ -9,9 +10,9 @@ flow-typed
 
 
 [lints]
+untyped-type-import=warn
 
 [options]
-esproposal.optional_chaining=enable
 module.file_ext=.js
 module.file_ext=.ts
 

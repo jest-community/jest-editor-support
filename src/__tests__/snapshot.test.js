@@ -21,11 +21,13 @@ test('nodescribe.example', async () => {
 
   const expectations = Object.create(null);
   allAssertion.forEach((assertion) => {
+    // $FlowIgnore[prop-missing]
     expectations[`${assertion} 1`] = {
       assertion,
       checked: false,
       number: 1,
     };
+    // $FlowIgnore[prop-missing]
     expectations[`${assertion} 2`] = {
       assertion,
       checked: false,
@@ -55,6 +57,7 @@ test('describe.example', () => {
 
   allDescribe.forEach((describe) => {
     allAssertion.forEach((assertion) => {
+      // $FlowIgnore[prop-missing]
       expectations[`${describe.toUpperCase()} ${assertion} 1`] = {
         assertion,
         checked: false,
@@ -62,6 +65,7 @@ test('describe.example', () => {
         number: 1,
       };
 
+      // $FlowIgnore[prop-missing]
       expectations[`${describe.toUpperCase()} ${assertion} 2`] = {
         assertion,
         checked: false,
