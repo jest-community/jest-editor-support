@@ -10,21 +10,49 @@ The engine that allows editors to build on top of Jest.
 This is only useful if you are interested in building an editor integration for Jest.
 
 ## API
-```
+```ts
 parse(   
   filePath: string,   
   serializedData?: string,   
-  strictMode: boolean = false,     
-)
+  options?: JESParserOptions
+);
+
+JESParserOptions = 
+{
+    plugins?: JESParserPluginOptions;
+    strictMode?: boolean;
+};
+
+JESParserPluginOptions = 
+{
+  decorators?: 'legacy' | {
+    decoratorsBeforeExport?: boolean;
+    allowCallParenthesized?: boolean;
+  }
+}
 ```
+
 Parse is a static Jest parser which uses Babel 7 and supports js,jsx,mjs,ts,tsx files.   
 
 [Supported ECMAScript proposals](https://github.com/babel/babel/blob/928b9f8c9518284eac6d0598633f2ec373fc6d0c/packages/babel-parser/typings/babel-parser.d.ts#L97)
 
 - filePath = Path to the file you want to parse.
 - serializedData = Serialized data, will be used instead of the filePath if available (optional).
-- strictMode = If this option is activated the parser throws an exception if the filetype is not detected, defaults to false.
+- options: 
+  - strictMode = If this option is activated the parser throws an exception if the filetype is not detected, defaults to false.
+  - pluginOptions = allow override for selected [plugins](https://babeljs.io/docs/en/babel-parser#plugins) options. Currently only support `decorators`. 
 
+examples:
+```ts
+parse('test.spec.ts');
+parse('parameterDecorators.spec.ts', undefined, {plugin: {decorators: 'legacy'}})
+parse('parameterDecorators.spec.ts', undefined, 
+  {plugin: 
+    {decorators: 
+      {decoratorsBeforeExport: false}
+    }
+  })
+```
 
 ## Note
 
