@@ -14,7 +14,7 @@
 import * as path from 'path';
 import {NamedBlock, ParseResult} from '../..';
 import {parse} from '../../parsers/babel_parser';
-import {JESParseOptions, parseOptions} from '../../parsers/helper';
+import {JESParserOptions, parseOptions} from '../../parsers/helper';
 
 const fixtures = path.resolve('fixtures');
 
@@ -26,7 +26,7 @@ describe('parsers', () => {
     ${'whatever.ts'}
     ${'whatever.tsx'}
   `('can parse file like $fileName', ({fileName}) => {
-    const parseFunction = (file: string, data?: string, options?: JESParseOptions) =>
+    const parseFunction = (file: string, data?: string, options?: JESParserOptions) =>
       parse(file, data, parseOptions(fileName, options));
     const assertBlock = (block, start, end, name: string = null) => {
       expect(block.start).toEqual(expect.objectContaining(start));
@@ -934,6 +934,83 @@ describe('parsers', () => {
         expect(parseResult.expects.length).toEqual(0);
       });
     });
+    describe('pluginOptions', () => {
+      describe('decorators', () => {
+        it('legacy', () => {
+          const data = `
+          import { asMockedFunction, type AnyFunction } from '@whatever/jest-types';
+          test('a test', () => {
+            expect(true).toBe(true);
+          });
+          class SimpleTestController {
+            handlerMethod(@Body() xxx) {
+              return;
+            }
+          }
+        `;
+          const parseResult = parseFunction('whatever', data, {plugins: {decorators: 'legacy'}});
+          expect(parseResult.itBlocks.length).toEqual(1);
+
+          const name = 'a test';
+          const itBlock = parseResult.itBlocks[0];
+          assertBlock2(itBlock, 3, 11, 5, 13, name);
+          assertNameInfo(itBlock, name, 3, 17, 3, 22);
+        });
+        it('decoratorsBeforeExport', () => {
+          const beforeExport = `
+          test('a test', () => {
+            expect(true).toBe(true);
+          });
+          @dec
+          export class C {} 
+        `;
+          const afterExport = `
+          test('a test', () => {
+            expect(true).toBe(true);
+          });
+          export @dec class C {} 
+          `;
+          const beforePlugin = {decorators: {decoratorsBeforeExport: true}};
+          const afterPlugin = {decorators: {decoratorsBeforeExport: false}};
+
+          let parseResult = parseFunction('whatever', beforeExport, {plugins: beforePlugin});
+          expect(parseResult.itBlocks.length).toEqual(1);
+
+          parseResult = parseFunction('whatever', afterExport, {plugins: afterPlugin});
+          expect(parseResult.itBlocks.length).toEqual(1);
+
+          expect(() => parseFunction('whatever', beforeExport, {plugins: afterPlugin})).toThrow();
+          expect(() => parseFunction('whatever', afterExport, {plugins: beforePlugin})).toThrow();
+        });
+        it('allowCallParenthesized', () => {
+          const callParenthesized = `
+          test('a test', () => {
+            expect(true).toBe(true);
+          });
+          @(dec)() class C {};
+          `;
+          const callNotParenthesized = `
+          test('a test', () => {
+            expect(true).toBe(true);
+          });
+          @(dec()) class C {};
+          `;
+
+          const allowPlugin = {decorators: {allowCallParenthesized: true}};
+          const notAllowPlugin = {decorators: {allowCallParenthesized: false}};
+
+          let parseResult = parseFunction('whatever', callParenthesized, {plugins: allowPlugin});
+          expect(parseResult.itBlocks.length).toEqual(1);
+
+          parseResult = parseFunction('whatever', callNotParenthesized, {plugins: allowPlugin});
+          expect(parseResult.itBlocks.length).toEqual(1);
+          parseResult = parseFunction('whatever', callNotParenthesized, {plugins: notAllowPlugin});
+          expect(parseResult.itBlocks.length).toEqual(1);
+
+          expect(() => parseFunction('whatever', callParenthesized, {plugins: notAllowPlugin})).toThrow();
+        });
+      });
+    });
     describe('parse error use case', () => {
       it('https://github.com/jest-community/vscode-jest/issues/405', () => {
         const data = `
@@ -1041,7 +1118,7 @@ describe('parsers', () => {
           }
         }
       `;
-        const parseResult = parseFunction('whatever', data, {decorators: 'legacy'});
+        const parseResult = parseFunction('whatever', data, {plugins: {decorators: 'legacy'}});
         expect(parseResult.itBlocks.length).toEqual(1);
 
         const name = 'a test';

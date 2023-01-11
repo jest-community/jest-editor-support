@@ -13,6 +13,7 @@ import {buildSnapshotResolver, type SnapshotResolver, type SnapshotData, utils} 
 import type {ProjectConfig} from '../types/Config';
 
 import {getASTfor} from './parsers/babel_parser';
+import {JESParserOptions} from './parsers';
 
 type Node = any;
 
@@ -83,6 +84,11 @@ export interface SnapshotNode {
   parents: Node[];
 }
 
+export interface SnapshotParserOptions {
+  verbose?: boolean;
+  // $FlowIgnore[value-as-type]
+  parserOptions?: JESParserOptions;
+}
 export default class Snapshot {
   _parser: Function;
 
@@ -107,12 +113,12 @@ export default class Snapshot {
     );
   }
 
-  parse(filePath: string, verbose: boolean = false): SnapshotNode[] {
+  parse(filePath: string, options?: SnapshotParserOptions): SnapshotNode[] {
     let fileNode;
     try {
-      fileNode = this._parser(filePath);
+      fileNode = this._parser(filePath, undefined, options?.parserOptions);
     } catch (error) {
-      if (verbose) {
+      if (options?.verbose) {
         // eslint-disable-next-line no-console
         console.warn(error);
       }
@@ -183,17 +189,17 @@ export default class Snapshot {
     return Object.entries(data).length > 0 ? data : null;
   }
 
-  async getMetadataAsync(filePath: string, verbose: boolean = false): Promise<Array<SnapshotMetadata>> {
+  async getMetadataAsync(filePath: string, options?: SnapshotParserOptions): Promise<Array<SnapshotMetadata>> {
     await this._getSnapshotResolver();
-    return this.getMetadata(filePath, verbose);
+    return this.getMetadata(filePath, options);
   }
 
-  getMetadata(filePath: string, verbose: boolean = false): Array<SnapshotMetadata> {
+  getMetadata(filePath: string, options?: SnapshotParserOptions): Array<SnapshotMetadata> {
     if (!this.snapshotResolver) {
       throw new Error('snapshotResolver is not ready yet, consider migrating to "getMetadataAsync" instead');
     }
     const snapshotPath = this.snapshotResolver.resolveSnapshotPath(filePath);
-    const snapshotNodes = this.parse(filePath, verbose);
+    const snapshotNodes = this.parse(filePath, options);
     const snapshots = utils.getSnapshotData(snapshotPath, 'none').data;
 
     let lastParent = null;

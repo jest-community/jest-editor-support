@@ -1,0 +1,18 @@
+
+// parameter decorator
+function first(
+  target: any,
+  propertyKey: string,
+  parameterIndex: number,
+){};
+class Example {
+  method1(
+    @first
+    _a: string
+  ){}
+}
+
+fit('fit', () => {
+  expect(fake).toMatchSnapshot();
+  expect(fake).toMatchSnapshot();
+})

@@ -14,7 +14,7 @@ import {File as BabelFile, Node as BabelNode} from '@babel/types';
 import * as parser from '@babel/parser';
 import type {ParsedNodeType} from './parser_nodes';
 import {NamedBlock, ParsedRange, ParseResult, ParsedNode} from './parser_nodes';
-import {parseOptions} from './helper';
+import {parseOptions, JESParserOptions} from './helper';
 
 // $FlowIgnore[value-as-type]
 const _getASTfor = (file: string, data: ?string, options: ?parser.ParserOptions): [BabelFile, string] => {
@@ -24,8 +24,8 @@ const _getASTfor = (file: string, data: ?string, options: ?parser.ParserOptions)
 };
 
 // $FlowIgnore[value-as-type]
-export const getASTfor = (file: string, data: ?string): BabelFile => {
-  const [bFile] = _getASTfor(file, data, parseOptions(file));
+export const getASTfor = (file: string, data: ?string, options: ?JESParserOptions): BabelFile => {
+  const [bFile] = _getASTfor(file, data, parseOptions(file, options));
   return bFile;
 };
 

@@ -40,14 +40,14 @@ describe('parseOptions', () => {
   });
   describe('can specify decoractors options', () => {
     it('with legacy decoractors', () => {
-      expect(helper.parseOptions('abc.ts', {decorators: 'legacy'})).toEqual({
+      expect(helper.parseOptions('abc.ts', {plugins: {decorators: 'legacy'}})).toEqual({
         plugins: [...helper.tsPlugins, 'decorators-legacy'],
       });
     });
     it('with custom decoractors', () => {
-      const decorators = ['decorators', {allowCallParenthesized: true}];
-      expect(helper.parseOptions('abc.ts', {decorators})).toEqual({
-        plugins: [...helper.tsPlugins, decorators],
+      const decorators = {allowCallParenthesized: true};
+      expect(helper.parseOptions('abc.ts', {plugins: {decorators}})).toEqual({
+        plugins: [...helper.tsPlugins, ['decorators', decorators]],
       });
     });
   });

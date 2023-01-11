@@ -8,33 +8,6 @@
 
 import {DecoratorsPluginOptions, ParserOptions, ParserPluginWithOptions, type ParserPlugin} from '@babel/parser';
 
-// const commonPlugins: ParserPlugin[] = [
-//   'asyncGenerators',
-//   'bigInt',
-//   'classPrivateMethods',
-//   'classPrivateProperties',
-//   'classProperties',
-//   'doExpressions',
-//   'dynamicImport',
-//   'estree',
-//   'exportDefaultFrom',
-//   'exportNamespaceFrom', // deprecated
-//   'functionBind',
-//   'functionSent',
-//   'importMeta',
-//   'logicalAssignment',
-//   'nullishCoalescingOperator',
-//   'numericSeparator',
-//   'objectRestSpread',
-//   'optionalCatchBinding',
-//   'optionalChaining',
-//   'partialApplication',
-//   'throwExpressions',
-//   'topLevelAwait',
-//   ['decorators', {decoratorsBeforeExport: true}],
-//   ['pipelineOperator', {proposal: 'smart'}],
-// ];
-
 // taken from https://github.com/babel/babel/blob/main/packages/babel-parser/typings/babel-parser.d.ts
 // but comment out a few file-based and either-or plugins
 const commonPlugins: ParserPlugin[] = [
@@ -88,19 +61,22 @@ export const jsPlugins: ParserPlugin[] = [...commonPlugins, 'flow', 'jsx'];
 export const tsPlugins: ParserPlugin[] = [...commonPlugins, 'typescript'];
 export const tsxPlugins: ParserPlugin[] = [...commonPlugins, 'typescript', 'jsx'];
 
-export interface JESParseOptions {
-  decorators?: 'legacy' | ['decorators', DecoratorsPluginOptions];
+export interface JESParserPluginOptions {
+  decorators?: 'legacy' | DecoratorsPluginOptions;
+}
+export interface JESParserOptions {
+  plugins?: JESParserPluginOptions;
   strictMode?: boolean;
 }
-export const parseOptions = (filePath: string, options?: JESParseOptions): ParserOptions => {
+export const parseOptions = (filePath: string, options?: JESParserOptions): ParserOptions => {
   const optionalPlugins = (): ParserPlugin[] => {
-    if (!options?.decorators) {
+    if (!options?.plugins?.decorators) {
       return [DefaultDecoratorPlugin];
     }
-    if (options.decorators === 'legacy') {
+    if (options.plugins?.decorators === 'legacy') {
       return ['decorators-legacy'];
     }
-    return [options.decorators];
+    return [['decorators', options.plugins.decorators]];
   };
   if (filePath.match(/\.ts$/i)) {
     return {plugins: [...tsPlugins, ...optionalPlugins()]};
