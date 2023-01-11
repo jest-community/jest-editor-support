@@ -45,9 +45,9 @@ Parse is a static Jest parser which uses Babel 7 and supports js,jsx,mjs,ts,tsx 
 examples:
 ```ts
 parse('test.spec.ts');
-parse('parameterDecorators.spec.ts', undefined, {plugin: {decorators: 'legacy'}})
+parse('parameterDecorators.spec.ts', undefined, {plugins: {decorators: 'legacy'}})
 parse('parameterDecorators.spec.ts', undefined, 
-  {plugin: 
+  {plugins: 
     {decorators: 
       {decoratorsBeforeExport: false}
     }
