@@ -17,3 +17,5 @@ flow-typed/**
 .gitattributes
 .github/**
 .husky/**
+.eslintcache
+CHANGELOG.md
