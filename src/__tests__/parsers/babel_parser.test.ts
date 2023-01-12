@@ -14,7 +14,7 @@
 import * as path from 'path';
 import {NamedBlock, ParseResult} from '../..';
 import {parse} from '../../parsers/babel_parser';
-import {parseOptions} from '../../parsers/helper';
+import {JESParserOptions, parseOptions} from '../../parsers/helper';
 
 const fixtures = path.resolve('fixtures');
 
@@ -26,10 +26,11 @@ describe('parsers', () => {
     ${'whatever.ts'}
     ${'whatever.tsx'}
   `('can parse file like $fileName', ({fileName}) => {
-    const parseFunction = (file: string, data?: string) => parse(file, data, parseOptions(fileName));
+    const parseFunction = (file: string, data?: string, options?: JESParserOptions) =>
+      parse(file, data, parseOptions(fileName, options));
     const assertBlock = (block, start, end, name: string = null) => {
-      expect(block.start).toEqual(start);
-      expect(block.end).toEqual(end);
+      expect(block.start).toEqual(expect.objectContaining(start));
+      expect(block.end).toEqual(expect.objectContaining(end));
       if (name) {
         expect(block.name).toEqual(name);
       }
@@ -210,8 +211,8 @@ describe('parsers', () => {
         expect(data.expects.length).toEqual(8);
 
         const firstExpect = data.expects[0];
-        expect(firstExpect.start).toEqual({column: 5, line: 13});
-        expect(firstExpect.end).toEqual({column: 36, line: 13});
+        expect(firstExpect.start).toEqual(expect.objectContaining({column: 5, line: 13}));
+        expect(firstExpect.end).toEqual(expect.objectContaining({column: 36, line: 13}));
       });
 
       it('finds Expects in a danger flow test file ', () => {
@@ -219,8 +220,8 @@ describe('parsers', () => {
         expect(data.expects.length).toEqual(3);
 
         const thirdExpect = data.expects[2];
-        expect(thirdExpect.start).toEqual({column: 5, line: 33});
-        expect(thirdExpect.end).toEqual({column: 39, line: 33});
+        expect(thirdExpect.start).toEqual(expect.objectContaining({column: 5, line: 33}));
+        expect(thirdExpect.end).toEqual(expect.objectContaining({column: 39, line: 33}));
       });
 
       it('finds Expects in a metaphysics test file', () => {
@@ -373,7 +374,7 @@ describe('parsers', () => {
       startCol: number,
       endLine: number,
       endCol: number,
-      nameType = 'Literal',
+      nameType = 'StringLiteral',
       lastProperty: string = null
     ) => {
       expect(nBlock.name).toEqual(name);
@@ -464,7 +465,7 @@ describe('parsers', () => {
 
         const itBlock = parseResult.itBlocks[0];
         assertBlock2(itBlock, 2, 7, 4, 9, 'each test %p');
-        assertNameInfo(itBlock, 'each test %p', 2, 33, 2, 44, 'Literal', 'each');
+        assertNameInfo(itBlock, 'each test %p', 2, 33, 2, 44, 'StringLiteral', 'each');
       });
       it('should be able to detect it.skip.each', () => {
         const data = `
@@ -478,7 +479,7 @@ describe('parsers', () => {
 
         const itBlock = parseResult.itBlocks[0];
         assertBlock2(itBlock, 2, 7, 4, 9, 'each test %p');
-        assertNameInfo(itBlock, 'each test %p', 2, 38, 2, 49, 'Literal', 'each');
+        assertNameInfo(itBlock, 'each test %p', 2, 38, 2, 49, 'StringLiteral', 'each');
       });
 
       it('For the simplest it.each cases', () => {
@@ -933,6 +934,83 @@ describe('parsers', () => {
         expect(parseResult.expects.length).toEqual(0);
       });
     });
+    describe('pluginOptions', () => {
+      describe('decorators', () => {
+        it('legacy', () => {
+          const data = `
+          import { asMockedFunction, type AnyFunction } from '@whatever/jest-types';
+          test('a test', () => {
+            expect(true).toBe(true);
+          });
+          class SimpleTestController {
+            handlerMethod(@Body() xxx) {
+              return;
+            }
+          }
+        `;
+          const parseResult = parseFunction('whatever', data, {plugins: {decorators: 'legacy'}});
+          expect(parseResult.itBlocks.length).toEqual(1);
+
+          const name = 'a test';
+          const itBlock = parseResult.itBlocks[0];
+          assertBlock2(itBlock, 3, 11, 5, 13, name);
+          assertNameInfo(itBlock, name, 3, 17, 3, 22);
+        });
+        it('decoratorsBeforeExport', () => {
+          const beforeExport = `
+          test('a test', () => {
+            expect(true).toBe(true);
+          });
+          @dec
+          export class C {} 
+        `;
+          const afterExport = `
+          test('a test', () => {
+            expect(true).toBe(true);
+          });
+          export @dec class C {} 
+          `;
+          const beforePlugin = {decorators: {decoratorsBeforeExport: true}};
+          const afterPlugin = {decorators: {decoratorsBeforeExport: false}};
+
+          let parseResult = parseFunction('whatever', beforeExport, {plugins: beforePlugin});
+          expect(parseResult.itBlocks.length).toEqual(1);
+
+          parseResult = parseFunction('whatever', afterExport, {plugins: afterPlugin});
+          expect(parseResult.itBlocks.length).toEqual(1);
+
+          expect(() => parseFunction('whatever', beforeExport, {plugins: afterPlugin})).toThrow();
+          expect(() => parseFunction('whatever', afterExport, {plugins: beforePlugin})).toThrow();
+        });
+        it('allowCallParenthesized', () => {
+          const callParenthesized = `
+          test('a test', () => {
+            expect(true).toBe(true);
+          });
+          @(dec)() class C {};
+          `;
+          const callNotParenthesized = `
+          test('a test', () => {
+            expect(true).toBe(true);
+          });
+          @(dec()) class C {};
+          `;
+
+          const allowPlugin = {decorators: {allowCallParenthesized: true}};
+          const notAllowPlugin = {decorators: {allowCallParenthesized: false}};
+
+          let parseResult = parseFunction('whatever', callParenthesized, {plugins: allowPlugin});
+          expect(parseResult.itBlocks.length).toEqual(1);
+
+          parseResult = parseFunction('whatever', callNotParenthesized, {plugins: allowPlugin});
+          expect(parseResult.itBlocks.length).toEqual(1);
+          parseResult = parseFunction('whatever', callNotParenthesized, {plugins: notAllowPlugin});
+          expect(parseResult.itBlocks.length).toEqual(1);
+
+          expect(() => parseFunction('whatever', callParenthesized, {plugins: notAllowPlugin})).toThrow();
+        });
+      });
+    });
     describe('parse error use case', () => {
       it('https://github.com/jest-community/vscode-jest/issues/405', () => {
         const data = `
@@ -1021,6 +1099,26 @@ describe('parsers', () => {
         });
       `;
         const parseResult = parseFunction('whatever', data);
+        expect(parseResult.itBlocks.length).toEqual(1);
+
+        const name = 'a test';
+        const itBlock = parseResult.itBlocks[0];
+        assertBlock2(itBlock, 3, 9, 5, 11, name);
+        assertNameInfo(itBlock, name, 3, 15, 3, 20);
+      });
+      it('https://github.com/jest-community/jest-editor-support/issues/89', () => {
+        const data = `
+        import { asMockedFunction, type AnyFunction } from '@whatever/jest-types';
+        test('a test', () => {
+          expect(true).toBe(true);
+        });
+        class SimpleTestController {
+          handlerMethod(@Body() xxx) {
+            return;
+          }
+        }
+      `;
+        const parseResult = parseFunction('whatever', data, {plugins: {decorators: 'legacy'}});
         expect(parseResult.itBlocks.length).toEqual(1);
 
         const name = 'a test';

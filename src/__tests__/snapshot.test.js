@@ -95,10 +95,10 @@ test('nested.example', () => {
   expect(results[0].name).toBe('outer describe outer it inner describe inner it 1');
   expect(results[1].name).toBe('outer describe outer it inner describe inner it 2');
 
-  expect(results[0].node.loc.start).toEqual({column: 21, line: 5});
-  expect(results[0].node.loc.end).toEqual({column: 36, line: 5});
-  expect(results[1].node.loc.start).toEqual({column: 21, line: 6});
-  expect(results[1].node.loc.end).toEqual({column: 36, line: 6});
+  expect(results[0].node.loc.start).toEqual(expect.objectContaining({column: 21, line: 5}));
+  expect(results[0].node.loc.end).toEqual(expect.objectContaining({column: 36, line: 5}));
+  expect(results[1].node.loc.start).toEqual(expect.objectContaining({column: 21, line: 6}));
+  expect(results[1].node.loc.end).toEqual(expect.objectContaining({column: 36, line: 6}));
 });
 
 describe('when metadata parse error', () => {
@@ -116,7 +116,7 @@ describe('when metadata parse error', () => {
     // eslint-disable-next-line no-console
     expect(console.warn).not.toHaveBeenCalled();
 
-    results = snapshotHelper.getMetadata(filePath, true);
+    results = snapshotHelper.getMetadata(filePath, {verbose: true});
     expect(results).toEqual([]);
     // eslint-disable-next-line no-console
     expect(console.warn).toHaveBeenCalled();
@@ -130,10 +130,10 @@ describe('parse', () => {
     expect(snapshotNodes).toHaveLength(2);
     snapshotNodes.forEach((n) => expect(n.node.name).toEqual('toMatchSnapshot'));
     snapshotNodes.forEach((n) => expect(n.parents).toHaveLength(4));
-    expect(snapshotNodes[0].node.loc.start).toEqual({column: 21, line: 5});
-    expect(snapshotNodes[0].node.loc.end).toEqual({column: 36, line: 5});
-    expect(snapshotNodes[1].node.loc.start).toEqual({column: 21, line: 6});
-    expect(snapshotNodes[1].node.loc.end).toEqual({column: 36, line: 6});
+    expect(snapshotNodes[0].node.loc.start).toEqual(expect.objectContaining({column: 21, line: 5}));
+    expect(snapshotNodes[0].node.loc.end).toEqual(expect.objectContaining({column: 36, line: 5}));
+    expect(snapshotNodes[1].node.loc.start).toEqual(expect.objectContaining({column: 21, line: 6}));
+    expect(snapshotNodes[1].node.loc.end).toEqual(expect.objectContaining({column: 36, line: 6}));
   });
   it('can parse inline snapshots', () => {
     const filePath = path.join(snapshotFixturePath, 'inline-and-each.example');
@@ -151,6 +151,16 @@ describe('parse', () => {
     expect(inlineSnapshotNodes).toHaveLength(4);
     inlineThrowSnapshotNodes = snapshotNodes.filter((sn) => sn.node.name === 'toThrowErrorMatchingInlineSnapshot');
     expect(inlineThrowSnapshotNodes).toHaveLength(1);
+  });
+  it('can parse with additional parse options', () => {
+    const filePath = path.join(snapshotFixturePath, 'decorator-legacy.example');
+    const snapshot = new Snapshot();
+    let snapshotNodes = snapshot.parse(filePath);
+    expect(snapshotNodes).toHaveLength(0);
+
+    snapshotNodes = snapshot.parse(filePath, {parserOptions: {plugins: {decorators: 'legacy'}}});
+    expect(snapshotNodes).toHaveLength(2);
+    snapshotNodes.forEach((n) => expect(n.node.name).toEqual('toMatchSnapshot'));
   });
 });
 describe('getSnapshotContent', () => {

@@ -10,9 +10,10 @@ import {ChildProcess} from 'child_process';
 import {Config as JestConfig} from '@jest/types';
 import { CoverageMapData } from 'istanbul-lib-coverage';
 import ProjectWorkspace, {ProjectWorkspaceConfig, createProjectWorkspace,  LoginShell } from './build/project_workspace';
-export {createProjectWorkspace, ProjectWorkspaceConfig, ProjectWorkspace, LoginShell};
 import {SourceLocation} from '@babel/types';
 import { SnapshotData } from 'jest-snapshot/build/types';
+import parse, {JESParserPluginOptions, JESParserOptions} from './build/parsers/';
+export {parse, JESParserPluginOptions, JESParserOptions, createProjectWorkspace, ProjectWorkspaceConfig, ProjectWorkspace, LoginShell};
 export interface RunArgs {
   args: string[];
   replace?: boolean; // default is false
@@ -58,8 +59,6 @@ export interface IParseResults {
   root: ParsedNode;
   file: string;
 }
-
-export function parse(file: string, data?: string, strict?: boolean): IParseResults;
 
 export interface Location {
   column: number;
@@ -233,11 +232,16 @@ export interface SnapshotBlock{
   node: SnapshotNode;
   parents: SnapshotNode[];
 } 
+export interface SnapshotParserOptions {
+  verbose?: boolean;
+  // $FlowIgnore[value-as-type]
+  parserOptions?: JESParserOptions;
+}
 export class Snapshot {
   constructor(parser?: any, customMatchers?: string[]);
-  getMetadata(filepath: string, verbose?: boolean): SnapshotMetadata[];
-  getMetadataAsync(filePath: string, verbose?: boolean): Promise<Array<SnapshotMetadata>>; 
-  parse(filePath: string, verbose?: boolean): SnapshotBlock[];
+  getMetadata(filepath: string, options?: SnapshotParserOptions): SnapshotMetadata[];
+  getMetadataAsync(filePath: string, options?: SnapshotParserOptions): Promise<Array<SnapshotMetadata>>; 
+  parse(filePath: string, options?: SnapshotParserOptions): SnapshotBlock[];
   getSnapshotContent(filePath: string, name: string | RegExp): Promise<string | SnapshotData | undefined>; 
 }
 
