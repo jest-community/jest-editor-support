@@ -6,7 +6,7 @@
  *
  */
 
-import {DecoratorsPluginOptions, ParserOptions, ParserPluginWithOptions, type ParserPlugin} from '@babel/parser';
+import type {DecoratorsPluginOptions, ParserOptions, ParserPluginWithOptions, ParserPlugin} from '@babel/parser';
 
 // taken from https://github.com/babel/babel/blob/main/packages/babel-parser/typings/babel-parser.d.ts
 // but comment out a few file-based and either-or plugins

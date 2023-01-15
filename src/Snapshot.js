@@ -9,7 +9,8 @@
  */
 
 import traverse from '@babel/traverse';
-import {buildSnapshotResolver, type SnapshotResolver, type SnapshotData, utils} from 'jest-snapshot';
+import type {SnapshotResolver, SnapshotData} from 'jest-snapshot';
+import {buildSnapshotResolver, utils} from 'jest-snapshot';
 import type {ProjectConfig} from '../types/Config';
 
 import {getASTfor} from './parsers/babel_parser';

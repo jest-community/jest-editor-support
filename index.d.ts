@@ -11,13 +11,13 @@ import {Config as JestConfig} from '@jest/types';
 import { CoverageMapData } from 'istanbul-lib-coverage';
 import ProjectWorkspace, {ProjectWorkspaceConfig, createProjectWorkspace,  LoginShell } from './build/project_workspace';
 import {SourceLocation} from '@babel/types';
-import { SnapshotData } from 'jest-snapshot/build/types';
-import parse, {JESParserPluginOptions, JESParserOptions} from './build/parsers/';
-export {parse, JESParserPluginOptions, JESParserOptions, createProjectWorkspace, ProjectWorkspaceConfig, ProjectWorkspace, LoginShell};
+import {JESParserPluginOptions, JESParserOptions} from './build/parsers/helper';
+export {JESParserPluginOptions, JESParserOptions, createProjectWorkspace, ProjectWorkspaceConfig, ProjectWorkspace, LoginShell};
 export interface RunArgs {
   args: string[];
   replace?: boolean; // default is false
 }
+export type SnapshotData = Record<string, string>;
 export interface Options {
   createProcess?: (
     workspace: ProjectWorkspace,
@@ -49,9 +49,6 @@ export interface JestSettings {
 }
 
 export function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<JestSettings>;
-
-
-
 export interface IParseResults {
   describeBlocks: Array<DescribeBlock>;
   expects: Array<Expect>;
@@ -60,6 +57,7 @@ export interface IParseResults {
   file: string;
 }
 
+export function parse(file: string, data?: string, options?: JESParserOptions): IParseResults;
 export interface Location {
   column: number;
   line: number;

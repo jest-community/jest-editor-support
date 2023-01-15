@@ -12,7 +12,7 @@
  */
 
 import * as path from 'path';
-import {NamedBlock, ParseResult} from '../..';
+import type {NamedBlock, ParseResult} from '../..';
 import {parse} from '../../parsers/babel_parser';
 import {JESParserOptions, parseOptions} from '../../parsers/helper';
 
