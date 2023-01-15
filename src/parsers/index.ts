@@ -6,7 +6,7 @@
  *
  */
 
-import {ParseResult} from './parser_nodes';
+import type {ParseResult} from './parser_nodes';
 import {parse as babelParser} from './babel_parser';
 import {JESParserOptions, JESParserPluginOptions, parseOptions} from './helper';
 export {JESParserOptions, JESParserPluginOptions};
