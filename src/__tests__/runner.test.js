@@ -302,6 +302,31 @@ describe('Runner', () => {
       const lastIndex = args.lastIndexOf('--reporters');
       expect(args[lastIndex + 1]).toBe(expected[1]);
     });
+
+    it('calls createProcess with camel cased args by default', () => {
+      const expected = '--testLocationInResults';
+
+      const workspace: any = {};
+      const options = {};
+      const sut = new Runner(workspace, options);
+      sut.start(false);
+
+      const args = (createProcess: any).mock.calls[0][1];
+      expect(args[0]).toBe(expected);
+    });
+
+    it('calls createProcess with dashed args when provided', () => {
+      const expected = '--test-location-in-results';
+
+      const workspace: any = {useDashedArgs: true};
+      const options = {};
+      const sut = new Runner(workspace, options);
+      sut.start(false);
+
+      const args = (createProcess: any).mock.calls[0][1];
+      expect(args[0]).toBe(expected);
+    });
+
     describe('RunArgs', () => {
       it.each`
         runArgs                                   | containedArgs

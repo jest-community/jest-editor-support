@@ -88,6 +88,16 @@ export default class Runner extends EventEmitter {
     if (this.options.args) {
       args.push(...this.options.args.args);
     }
+    if (this.workspace.useDashedArgs) {
+      args.forEach((arg, index) => {
+        if (!arg || !arg.startsWith('--') || arg.length === 2) {
+          return;
+        }
+
+        args[index] = arg.replace(/(\B)([A-Z])/gm, '-$2').toLowerCase();
+      });
+    }
+
     return args;
   }
 
