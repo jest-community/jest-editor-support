@@ -327,6 +327,32 @@ describe('Runner', () => {
       expect(args[0]).toBe(expected);
     });
 
+    it('converts user passed in args', () => {
+      const expected = '--foo-bar-baz';
+
+      const workspace: any = {useDashedArgs: true};
+      const options = {args: {args: ['--fooBarBaz']}};
+      const sut = new Runner(workspace, options);
+      sut.start(false);
+
+      const args = (createProcess: any).mock.calls[0][1];
+      const index = args.indexOf(expected);
+      expect(index).not.toBe(-1);
+    });
+
+    it('does not alter already dashed args when provided', () => {
+      const expected = '--foo-bar-baz';
+
+      const workspace: any = {useDashedArgs: true};
+      const options = {args: {args: [expected]}};
+      const sut = new Runner(workspace, options);
+      sut.start(false);
+
+      const args = (createProcess: any).mock.calls[0][1];
+      const index = args.indexOf(expected);
+      expect(index).not.toBe(-1);
+    });
+
     describe('RunArgs', () => {
       it.each`
         runArgs                                   | containedArgs
