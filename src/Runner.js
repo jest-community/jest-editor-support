@@ -61,7 +61,7 @@ export default class Runner extends EventEmitter {
     // Handle the arg change on v18
     const belowEighteen = this.workspace.localJestMajorVersion < 18;
     const outputArg = belowEighteen ? '--jsonOutputFile' : '--outputFile';
-    const args = ['--testLocationInResults', '--json', '--useStderr', outputArg, this.outputPath];
+    let args = ['--testLocationInResults', '--json', '--useStderr', outputArg, this.outputPath];
     if (this.watchMode) {
       args.push(this.watchAll ? '--watchAll' : '--watch');
     }
@@ -88,6 +88,12 @@ export default class Runner extends EventEmitter {
     if (this.options.args) {
       args.push(...this.options.args.args);
     }
+    if (this.workspace.useDashedArgs) {
+      args = args.map((arg) =>
+        arg && arg.startsWith('--') && arg.length > 2 ? arg.replace(/(\B)([A-Z])/gm, '-$2').toLowerCase() : arg
+      );
+    }
+
     return args;
   }
 

@@ -26,6 +26,7 @@ export interface ProjectWorkspaceConfig {
   debug?: boolean;
   nodeEnv?: {[key: string]: string | undefined};
   shell?: string | LoginShell;
+  useDashedArgs?: boolean;
 }
 
 /**
@@ -121,6 +122,11 @@ export default class ProjectWorkspace {
    */
   shell?: string | LoginShell;
 
+  /**
+   * Wether dashed args should be used for the jest command line. Default is false.
+   */
+  useDashedArgs?: boolean;
+
   constructor(
     rootPath: string,
     jestCommandLine: string,
@@ -130,7 +136,8 @@ export default class ProjectWorkspace {
     collectCoverage?: boolean,
     debug?: boolean,
     nodeEnv?: {[key: string]: string | undefined},
-    shell?: string | LoginShell
+    shell?: string | LoginShell,
+    useDashedArgs?: boolean
   ) {
     this.rootPath = rootPath;
     this.jestCommandLine = jestCommandLine;
@@ -141,6 +148,7 @@ export default class ProjectWorkspace {
     this.debug = debug;
     this.nodeEnv = nodeEnv;
     this.shell = shell;
+    this.useDashedArgs = useDashedArgs;
   }
 }
 
@@ -160,6 +168,7 @@ export const createProjectWorkspace = (config: ProjectWorkspaceConfig): ProjectW
     config.collectCoverage,
     config.debug,
     config.nodeEnv,
-    config.shell
+    config.shell,
+    config.useDashedArgs
   );
 };
