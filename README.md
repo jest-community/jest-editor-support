@@ -1,6 +1,6 @@
 # jest-editor-support
 
-[![Build Status](https://travis-ci.com/jest-community/jest-editor-support.svg?branch=master)](https://travis-ci.com/jest-community/jest-editor-support) [![Coverage Status](https://coveralls.io/repos/github/jest-community/jest-editor-support/badge.svg?branch=master)](https://coveralls.io/github/jest-community/jest-editor-support?branch=master) [![npm version](https://badge.fury.io/js/jest-editor-support.svg)](https://badge.fury.io/js/jest-editor-support)
+[![Build Status](https://github.com/jest-community/jest-editor-support/actions/workflows/node-ci.yml/badge.svg)](https://github.com/jest-community/jest-editor-support/actions) [![Coverage Status](https://coveralls.io/repos/github/jest-community/jest-editor-support/badge.svg?branch=master)](https://coveralls.io/github/jest-community/jest-editor-support?branch=master) [![npm version](https://badge.fury.io/js/jest-editor-support.svg)](https://badge.fury.io/js/jest-editor-support)
 
 
 The engine that allows editors to build on top of Jest.
