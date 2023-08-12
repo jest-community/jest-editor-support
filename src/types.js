@@ -18,6 +18,7 @@ export type Location = {
 export type RunArgs = {
   args: Array<string>,
   replace?: boolean, // default is false
+  skipConversion?: boolean, // if true, args will not go through any conversion, such as dashed arg conversion.
 };
 
 export type Options = {

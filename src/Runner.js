@@ -53,9 +53,21 @@ export default class Runner extends EventEmitter {
     this._exited = false;
   }
 
+  __convertDashedArgs(args: string[]): string[] {
+    if (!this.workspace.useDashedArgs) {
+      return args;
+    }
+
+    return args.map((arg) =>
+      arg && arg.startsWith('--') && arg.length > 2 ? arg.replace(/(\B)([A-Z])/gm, '-$2').toLowerCase() : arg
+    );
+  }
+
   _getArgs(): string[] {
     if (this.options.args && this.options.args.replace) {
-      return this.options.args.args;
+      return this.options.args.skipConversion
+        ? this.options.args.args
+        : this.__convertDashedArgs(this.options.args.args);
     }
 
     // Handle the arg change on v18
@@ -88,11 +100,7 @@ export default class Runner extends EventEmitter {
     if (this.options.args) {
       args.push(...this.options.args.args);
     }
-    if (this.workspace.useDashedArgs) {
-      args = args.map((arg) =>
-        arg && arg.startsWith('--') && arg.length > 2 ? arg.replace(/(\B)([A-Z])/gm, '-$2').toLowerCase() : arg
-      );
-    }
+    args = this.__convertDashedArgs(args);
 
     return args;
   }
