@@ -16,6 +16,7 @@ export {JESParserPluginOptions, JESParserOptions, createProjectWorkspace, Projec
 export interface RunArgs {
   args: string[];
   replace?: boolean; // default is false
+  skipConversion?: boolean, // if true, args will not go through any conversion, such as dashed arg conversion.
 }
 export type SnapshotData = Record<string, string>;
 export interface Options {

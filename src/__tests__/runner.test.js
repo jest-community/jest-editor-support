@@ -327,11 +327,14 @@ describe('Runner', () => {
       expect(args[0]).toBe(expected);
     });
 
-    it('converts user passed in args', () => {
-      const expected = '--foo-bar-baz';
-
+    it.each`
+      argOption                                                       | expected
+      ${{args: ['--fooBarBaz']}}                                      | ${'--foo-bar-baz'}
+      ${{args: ['--fooBarBaz'], replace: true}}                       | ${'--foo-bar-baz'}
+      ${{args: ['--fooBarBaz'], replace: true, skipConversion: true}} | ${'--fooBarBaz'}
+    `('converts user passed in args', ({argOption, expected}) => {
       const workspace: any = {useDashedArgs: true};
-      const options = {args: {args: ['--fooBarBaz']}};
+      const options = {args: argOption};
       const sut = new Runner(workspace, options);
       sut.start(false);
 
