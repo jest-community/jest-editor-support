@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import type {Status} from '@jest/test-result';
 import {EventEmitter} from 'events';
 import {ChildProcess} from 'child_process';
 import {Config as JestConfig} from '@jest/types';
@@ -12,6 +13,7 @@ import { CoverageMapData } from 'istanbul-lib-coverage';
 import ProjectWorkspace, {ProjectWorkspaceConfig, createProjectWorkspace,  LoginShell } from './build/project_workspace';
 import {SourceLocation} from '@babel/types';
 import {JESParserPluginOptions, JESParserOptions} from './build/parsers/helper';
+import type {AggregatedResult} from '@jest/test-result';
 export {JESParserPluginOptions, JESParserOptions, createProjectWorkspace, ProjectWorkspaceConfig, ProjectWorkspace, LoginShell};
 export interface RunArgs {
   args: string[];
@@ -126,7 +128,7 @@ export class TestReconciler {
     file: string,
     name: string,
   ): TestFileAssertionStatus | null;
-  updateFileWithJestStatus(data: any): TestFileAssertionStatus[];
+  updateFileWithJestStatus(data: AggregatedResult): TestFileAssertionStatus[];
   removeTestFile(fileName: string): void;
 }
 
@@ -170,35 +172,11 @@ export interface TestAssertionStatus {
   line?: number;
 }
 
-export interface JestFileResults {
-  name: string;
-  summary: string;
-  message: string;
-  status: 'failed' | 'passed';
-  startTime: number;
-  endTime: number;
-  assertionResults: Array<JestAssertionResults>;
-}
-
 export interface JestAssertionResults {
-  name: string;
   title: string;
-  status: 'failed' | 'passed';
+  status: Status;
   failureMessages: string[];
   fullName: string;
-}
-
-export interface JestTotalResults {
-  success: boolean;
-  startTime: number;
-  numTotalTests: number;
-  numTotalTestSuites: number;
-  numRuntimeErrorTestSuites: number;
-  numPassedTests: number;
-  numFailedTests: number;
-  numPendingTests: number;
-  coverageMap?: CoverageMapData;
-  testResults: Array<JestFileResults>;
 }
 
 export interface JestTotalResultsMeta {
