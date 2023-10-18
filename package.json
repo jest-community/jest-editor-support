@@ -62,7 +62,7 @@
   "dependencies": {
     "@babel/parser": "^7.20.7",
     "@babel/runtime": "^7.20.7",
-    "@babel/traverse": "7.20.10",
+    "@babel/traverse": "7.23.2",
     "@babel/types": "^7.20.7",
     "core-js": "^3.17.3",
     "jest-snapshot": "^27.2.0"
