@@ -7,8 +7,6 @@
  * @flow
  */
 
-// import type {ConsoleBuffer} from './Console';
-
 export type RawFileCoverage = {|
   path: string,
   s: {[statementId: number]: number},
@@ -113,95 +111,11 @@ export type FormattedAssertionResult = {
   title: string,
 };
 
-export type AggregatedResultWithoutCoverage = {
-  numFailedTests: number,
-  numFailedTestSuites: number,
-  numPassedTests: number,
-  numPassedTestSuites: number,
-  numPendingTests: number,
-  numTodoTests: number,
-  numPendingTestSuites: number,
-  numRuntimeErrorTestSuites: number,
-  numTotalTests: number,
-  numTotalTestSuites: number,
-  openHandles: Array<Error>,
-  snapshot: SnapshotSummary,
-  startTime: number,
-  success: boolean,
-  testResults: Array<TestResult>,
-  wasInterrupted: boolean,
-};
-
-export type AggregatedResult = AggregatedResultWithoutCoverage & {
-  coverageMap?: ?CoverageMap,
-};
-
 export type Suite = {|
   title: string,
   suites: Array<Suite>,
   tests: Array<AssertionResult>,
 |};
-
-export type TestResult = {|
-  // console: ?ConsoleBuffer,
-  coverage?: RawCoverage,
-  displayName: ?string,
-  failureMessage: ?string,
-  leaks: boolean,
-  memoryUsage?: Bytes,
-  numFailingTests: number,
-  numPassingTests: number,
-  numPendingTests: number,
-  numTodoTests: number,
-  openHandles: Array<Error>,
-  perfStats: {|
-    end: Milliseconds,
-    start: Milliseconds,
-  |},
-  skipped: boolean,
-  snapshot: {|
-    added: number,
-    fileDeleted: boolean,
-    matched: number,
-    unchecked: number,
-    uncheckedKeys: Array<string>,
-    unmatched: number,
-    updated: number,
-  |},
-  sourceMaps: {[sourcePath: string]: string},
-  testExecError?: SerializableError,
-  testFilePath: string,
-  testResults: Array<AssertionResult>,
-|};
-
-export type FormattedTestResult = {
-  message: string,
-  name: string,
-  summary: string,
-  status: 'failed' | 'passed',
-  startTime: number,
-  endTime: number,
-  coverage: any,
-  assertionResults: Array<FormattedAssertionResult>,
-};
-
-export type FormattedTestResults = {
-  coverageMap?: ?CoverageMap,
-  numFailedTests: number,
-  numFailedTestSuites: number,
-  numPassedTests: number,
-  numPassedTestSuites: number,
-  numPendingTests: number,
-  numPendingTestSuites: number,
-  numRuntimeErrorTestSuites: number,
-  numTotalTests: number,
-  numTotalTestSuites: number,
-  snapshot: SnapshotSummary,
-  startTime: number,
-  success: boolean,
-  testResults: Array<FormattedTestResult>,
-  wasInterrupted: boolean,
-};
 
 export type CodeCoverageReporter = any;
 
