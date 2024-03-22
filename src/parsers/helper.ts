@@ -95,39 +95,45 @@ export const parseOptions = (filePath: string, options?: JESParserOptions): Pars
   throw new TypeError(`unable to find parser options for unrecognized file extension: ${filePath}`);
 };
 export const isFunctionExpression = (node: t.Node): node is t.ArrowFunctionExpression | t.FunctionExpression =>
-    t.isArrowFunctionExpression(node) || t.isFunctionExpression(node);
-
-export  const shallowAttr = <T = t.Node>(node: t.Node | undefined | null, ...attributes: string[]) =>
-    getNodeAttribute<T>(node, false, ...attributes);
-
-const deepAttr = <T = t.Node>(node: t.Node | undefined | null, ...attributes: string[]) =>
-    getNodeAttribute<T>(node, true, ...attributes);
+  t.isArrowFunctionExpression(node) || t.isFunctionExpression(node);
 
 const getNodeAttribute = <T = t.Node>(
-    node: t.Node | undefined | null,
-    isDeep: boolean,
-    ...attributes: string[]
-  ): T | undefined => {
-    if (!node) {
+  node: t.Node | undefined | null,
+  isDeep: boolean,
+  ...attributes: string[]
+): T | undefined => {
+  if (!node) {
+    return;
+  }
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+  /* eslint-disable @typescript-eslint/no-unsafe-return */
+  /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
+  const value: any = node;
+  return attributes.reduce((aNode: any, attr: string) => {
+    if (!aNode || !aNode[attr]) {
       return;
     }
-    const value: any = node;
-    return attributes.reduce((aNode: any, attr: string) => {
-      if (!aNode || !aNode[attr]) {
-        return;
+    if (isDeep) {
+      let n = aNode;
+      while (n[attr]) {
+        n = aNode[attr];
       }
-      if (isDeep) {
-        while (aNode[attr]) {
-          aNode = aNode[attr];
-        }
-        return aNode;
-      }
-      return aNode[attr];
-    }, value);
-  };
+      return n;
+    }
+    return aNode[attr];
+  }, value) as T | undefined;
+};
 
- // const isFunctionCall = (node: t.Node): node is t.ExpressionStatement => t.isExpressionStatement(node) && t.isCallExpression(node.expression);
- export const getCallExpression = (node: t.Node): t.CallExpression | undefined => {
+export const shallowAttr = <T = t.Node>(node: t.Node | undefined | null, ...attributes: string[]) =>
+  getNodeAttribute<T>(node, false, ...attributes);
+
+const deepAttr = <T = t.Node>(node: t.Node | undefined | null, ...attributes: string[]) =>
+  getNodeAttribute<T>(node, true, ...attributes);
+
+// const isFunctionCall = (node: t.Node): node is t.ExpressionStatement => t.isExpressionStatement(node) && t.isCallExpression(node.expression);
+export const getCallExpression = (node: t.Node): t.CallExpression | undefined => {
   if (t.isExpressionStatement(node)) {
     if (t.isCallExpression(node.expression)) {
       return node.expression;

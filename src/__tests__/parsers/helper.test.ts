@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -99,7 +103,7 @@ describe('shallowAttr', () => {
     // this should be the "a + b" part
     const functionBody = helper.shallowAttr(declaration, 'init', 'body');
     expect(t.isBinaryExpression(functionBody)).toBe(true);
-  }); 
+  });
 
   it('returns undefined for non-existent attributes', () => {
     const node: t.Identifier = t.identifier('x');
@@ -113,14 +117,14 @@ describe('shallowAttr', () => {
 describe('getNameForNode', () => {
   describe('non-each cases', () => {
     it.each`
-      case | code                                                    | expected
-      ${1} | ${`import abc from "test"`}                             | ${[]}
-      ${2} | ${`it('a test', () => {})`}                             | ${['it']}
-      ${3} | ${`it.only('a test', () => {})`}                        | ${['it', 'only']}
-      ${4} | ${'it.skip(`a ${stringTemplate} test`, () => {})'}      | ${['it', 'skip']}
-      ${5} | ${`describe('a describe', () => {})`}                   | ${['describe']}
-      ${6} | ${`describe.skip('a describe', () => {})`}              | ${['describe', 'skip']}
-      ${7} | ${'describe(`another ${describe} describe`, () => {})'} | ${['describe']}
+      case | code                                                            | expected
+      ${1} | ${`import abc from "test"`}                                     | ${[]}
+      ${2} | ${`it('a test', () => {})`}                                     | ${['it']}
+      ${3} | ${`it.only('a test', () => {})`}                                | ${['it', 'only']}
+      ${4} | ${'it.skip(`a ${stringTemplate} test`, () => {})'}              | ${['it', 'skip']}
+      ${5} | ${`describe('a describe', () => {})`}                           | ${['describe']}
+      ${6} | ${`describe.skip('a describe', () => {})`}                      | ${['describe', 'skip']}
+      ${7} | ${'describe(`another ${describe} describe`, () => {})'}         | ${['describe']}
       ${8} | ${'test.concurrent.only(`3 elements ${code} block`, () => {})'} | ${['test', 'only']}
     `('case $case', ({code, expected}) => {
       const node = parseCodeToAST(code);

@@ -1,3 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable no-param-reassign */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -48,7 +56,7 @@ describe('Runner', () => {
     jest
       .spyOn(fs, 'readFile')
       .mockImplementation(
-        (path: any, options: any, callback?: (err: NodeJS.ErrnoException | null, data: Buffer | string) => void) => {
+        (_path: any, options: any, callback?: (err: NodeJS.ErrnoException | null, data: Buffer | string) => void) => {
           // Determine if 'options' is a function, implying it is the callback, and there were no options passed.
           if (typeof options === 'function') {
             callback = options;
@@ -60,7 +68,7 @@ describe('Runner', () => {
             try {
               // If options include an encoding, the return type should be a string.
               const encoding = typeof options === 'string' ? options : options?.encoding;
-              const data = fs.readFileSync(path, options);
+              const data = fs.readFileSync(_path, {encoding});
 
               // Invoke the callback with no error and data.
               // If encoding is specified and is a known string encoding, 'data' will be a string.
@@ -122,10 +130,10 @@ describe('Runner', () => {
   describe('start', () => {
     beforeEach(() => {
       createProcessSpy.mockImplementationOnce(() => {
-        const process: any = new EventEmitter();
-        process.stdout = new EventEmitter();
-        process.stderr = new EventEmitter();
-        return process;
+        const _process: any = new EventEmitter();
+        _process.stdout = new EventEmitter();
+        _process.stderr = new EventEmitter();
+        return _process;
       });
     });
 
@@ -192,7 +200,7 @@ describe('Runner', () => {
 
       expect(createProcessSpy).toHaveBeenCalledTimes(1);
       const args = createProcessSpy.mock.calls[0][1];
-      const index = args.indexOf('--jsonOutputFile');
+      const index: number = args.indexOf('--jsonOutputFile');
       expect(index).not.toEqual(-1);
       expect(args[index + 1]).toEqual(sut.outputPath);
     });
@@ -203,7 +211,7 @@ describe('Runner', () => {
       sut.start(false);
 
       const args = createProcessSpy.mock.calls[0][1];
-      const index = args.indexOf('--outputFile');
+      const index: number = args.indexOf('--outputFile');
       expect(index).not.toEqual(-1);
       expect(args[index + 1]).toEqual(sut.outputPath);
     });
@@ -264,7 +272,7 @@ describe('Runner', () => {
       sut.start(false);
 
       const args = createProcessSpy.mock.calls[0][1];
-      const index = args.indexOf('--testNamePattern');
+      const index: number = args.indexOf('--testNamePattern');
       expect(index).not.toEqual(-1);
       expect(args[index + 1]).toEqual(expected);
     });
@@ -299,7 +307,7 @@ describe('Runner', () => {
       sut.start(false);
 
       const args = createProcessSpy.mock.calls[0][1];
-      const index = args.indexOf('--reporters');
+      const index: number = args.indexOf('--reporters');
       expect(index).not.toEqual(-1);
       expect(args[index + 1]).toEqual(expected[0]);
     });
@@ -313,9 +321,9 @@ describe('Runner', () => {
       sut.start(false);
 
       const args = createProcessSpy.mock.calls[0][1];
-      const index = args.indexOf('--reporters');
+      const index: number = args.indexOf('--reporters');
       expect(args[index + 1]).toEqual(expected[0]);
-      const lastIndex = args.lastIndexOf('--reporters');
+      const lastIndex: number = args.lastIndexOf('--reporters');
       expect(args[lastIndex + 1]).toEqual(expected[1]);
     });
 
@@ -590,11 +598,12 @@ describe('Runner', () => {
 
     describe('stderr.on("data")', () => {
       it('should identify the message type', () => {
-        (runner as any).findMessageType = jest.fn();
+        const mockFindMessageType = jest.fn();
+        (runner as any).findMessageType = mockFindMessageType;
         const expected = {};
         fakeProcess.stderr.emit('data', expected);
 
-        expect(runner.findMessageType).toBeCalledWith(expected);
+        expect(mockFindMessageType).toBeCalledWith(expected);
       });
 
       it('should add the type to the message type history when known', () => {

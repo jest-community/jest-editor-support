@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -10,7 +11,8 @@ import parse from '../../parsers';
 
 jest.mock('../../parsers/babel_parser');
 
-const babelParser = require('../../parsers/babel_parser');
+import * as babelParser from '../../parsers/babel_parser';
+
 // const mockBabelParser = jest.fn();
 // const babelParser = jest.createMockFromModule('../../parsers/babel_parser');
 // jest.mock('../../parsers/babel_parser', () => {

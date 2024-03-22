@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
@@ -12,7 +13,7 @@
  */
 
 import * as path from 'path';
-import {DescribeBlock, ItBlock, type NamedBlock, type ParseResult, type ParsedNode} from '../..';
+import {DescribeBlock, ItBlock, type NamedBlock, type ParseResult} from '../..';
 import {parse} from '../../parsers/babel_parser';
 import {JESParserOptions, parseOptions} from '../../parsers/helper';
 
@@ -29,7 +30,7 @@ describe('parsers', () => {
     const parseFunction = (file: string, data?: string, options?: JESParserOptions) =>
       parse(file, data, parseOptions(fileName, options));
     const assertBlock = (
-      block: NamedBlock|undefined,
+      block: NamedBlock | undefined,
       start: {column: number; line: number},
       end: {column: number; line: number},
       name: string | null = null
@@ -273,27 +274,27 @@ describe('parsers', () => {
     });
 
     describe('Nested Elements', () => {
-      let nested: DescribeBlock|undefined;
+      let nested: DescribeBlock | undefined;
       beforeEach(() => {
         const data = parseFunction(`${fixtures}/nested_elements.example`);
-        nested = data.root.children?.filter((e) => e instanceof DescribeBlock  && e.name === 'describe 1.0')[0];
+        nested = data.root.children?.filter((e) => e instanceof DescribeBlock && e.name === 'describe 1.0')[0];
       });
       it('can find nested describe or test blocks', () => {
         expect(nested?.children?.length).toBe(2);
-        const itBlock = nested?.children?.[0]; 
+        const itBlock = nested?.children?.[0];
         expect(itBlock instanceof ItBlock && itBlock.name === 'test 1.1').toBeTruthy();
-        const descBlock = nested?.children?.[1]; 
+        const descBlock = nested?.children?.[1];
         expect(descBlock instanceof DescribeBlock && descBlock.name === 'describe 1.2').toBeTruthy();
       });
       it('can find deep nested blocks', () => {
         const itBlock = nested?.children?.[0];
         expect(itBlock?.children?.length).toBe(2);
-        let names = itBlock?.children?.map((b) => (b as NamedBlock).name);
+        const names = itBlock?.children?.map((b) => (b as NamedBlock).name);
         expect(names).toEqual(['test 1.1.1', 'describe 1.1.2']);
 
         const descBlock = itBlock?.children?.[1];
         expect(descBlock?.children?.length).toBe(1);
-        const child = descBlock?.children?.[0] as NamedBlock; 
+        const child = descBlock?.children?.[0] as NamedBlock;
 
         expect(child.name).toBe('test 1.1.2.1');
         expect(child.children?.[0].type).toBe('expect');
@@ -382,14 +383,14 @@ describe('parsers', () => {
     });
 
     const assertNameInfo = (
-      nBlock: NamedBlock|undefined,
+      nBlock: NamedBlock | undefined,
       name: string,
       startLine: number,
       startCol: number,
       endLine: number,
       endCol: number,
       nameType = 'StringLiteral',
-      lastProperty?: string, 
+      lastProperty?: string
     ) => {
       expect(nBlock?.name).toEqual(name);
       expect(nBlock?.nameRange?.start.line).toEqual(startLine);

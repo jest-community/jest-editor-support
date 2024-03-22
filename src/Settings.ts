@@ -44,7 +44,7 @@ function parseSettings(text: string, debug = false): JestSettings {
   }
 
   const parts = jestConfig.version?.split('.');
-  if(!parts || parts.length === 0) {
+  if (!parts || parts.length === 0) {
     throw new Error(`Jest version is not a valid semver version: ${jestConfig.version}`);
   }
 
@@ -57,6 +57,7 @@ function parseSettings(text: string, debug = false): JestSettings {
   // prior to 21.0.0, jest only supported a single config
   return {
     jestVersionMajor,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
     configs: Array.isArray(jestConfig.configs) ? jestConfig.configs : [(jestConfig as any).config],
   };
 }

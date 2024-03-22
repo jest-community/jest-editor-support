@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -143,7 +147,7 @@ Expected value to be falsy, instead received
       expect(succeededTests).toEqual(46);
     });
     describe('when test updated', () => {
-      const targetTests = {
+      const targetTests: {[key: string]: string[]} = {
         failedThenRemoved: ['/X/packages/Y-core/src/eth/__tests__/types.test.ts', 'should fail'],
         missingThenFailed: ['/X/packages/Y-app-vault/native/__tests__/index.ios.js', 'testing jest with react-native'],
         missingThenFixed: ['/X/packages/Y-app-vault/native/__tests__/index.ios.js', 'renders correctly'],
@@ -154,15 +158,6 @@ Expected value to be falsy, instead received
       };
 
       function verifyTest(key: string, expectedStatus?: string) {
-        const targetTests: { [key: string]: string[] } = {
-          failedThenRemoved: ['/X/packages/Y-core/src/eth/__tests__/types.test.ts', 'should fail'],
-          missingThenFailed: ['/X/packages/Y-app-vault/native/__tests__/index.ios.js', 'testing jest with react-native'],
-          missingThenFixed: ['/X/packages/Y-app-vault/native/__tests__/index.ios.js', 'renders correctly'],
-          passed: [
-            '/X/packages/Y-keeper/src/redux/middlewares/__tests__/createGateMonitor.test.ts',
-            'can log/profile doable async actions',
-          ],
-        };
         const test = parser.stateForTestAssertion(targetTests[key][0], targetTests[key][1]);
         if (!test && !expectedStatus) {
           return;

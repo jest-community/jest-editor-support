@@ -1,5 +1,6 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-param-reassign */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -9,7 +10,6 @@
  */
 
 import {readFileSync} from 'fs';
-// import {File as t.File, Node as t.Node} from '@babel/types';
 import * as t from '@babel/types';
 import * as parser from '@babel/parser';
 import {ParsedNodeType} from './parser_nodes';
@@ -39,24 +39,26 @@ export const parse = (file: string, data?: string, options?: parser.ParserOption
       throw new Error(`Expected an ExpressionStatement with CallExpression but got: ${JSON.stringify(bNode)}`);
     }
     const arg = bNode.expression.arguments[0];
-    let name = (arg as any).value;
-
-    if (!name) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+    const value = (arg as any).value;
+    if (typeof value === 'string') {
+      nBlock.name = value;
+    } else {
       if (arg.start && arg.end) {
         switch (arg.type) {
           case 'TemplateLiteral':
-            name = _data.substring(arg.start + 1, arg.end - 1);
+            nBlock.name = _data.substring(arg.start + 1, arg.end - 1);
             break;
           default:
-            name = _data.substring(arg.start, arg.end);
+            nBlock.name = _data.substring(arg.start, arg.end);
             break;
         }
       } else {
         console.warn(`Unable to find name start/end position: ${JSON.stringify(arg)}`);
+        nBlock.name = '';
       }
     }
 
-    nBlock.name = name;
     nBlock.nameType = arg.type;
     nBlock.lastProperty = lastProperty;
     if (arg.loc) {
@@ -100,6 +102,7 @@ export const parse = (file: string, data?: string, options?: parser.ParserOption
       return false;
     }
     let name = '';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let element: any = expression.callee;
     while (!name && element) {
       name = element.name;
@@ -132,7 +135,7 @@ export const parse = (file: string, data?: string, options?: parser.ParserOption
       return;
     }
 
-    const body = shallowAttr(parentNode, 'body');
+    let body = shallowAttr(parentNode, 'body');
     if (!body || !Array.isArray(body)) {
       return;
     }
@@ -166,7 +169,7 @@ export const parse = (file: string, data?: string, options?: parser.ParserOption
         t.isAssignmentExpression(element.expression) &&
         isFunctionExpression(element.expression.right)
       ) {
-        const body = shallowAttr(element.expression, 'right', 'body');
+        body = shallowAttr(element.expression, 'right', 'body');
         searchNodes(body, parentParsedNode);
       } else if (t.isReturnStatement(element)) {
         const args = shallowAttr<t.Node[]>(element.argument, 'arguments');

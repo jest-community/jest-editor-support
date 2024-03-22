@@ -94,6 +94,23 @@ module.exports = {
             readonly: 'array',
           },
         ],
+        '@typescript-eslint/naming-convention': [
+          'error',
+          {
+            selector: 'variable',
+            format: ['camelCase', 'UPPER_CASE', 'PascalCase', 'snake_case'],
+            leadingUnderscore: 'allow', // Allows leading underscores for variables
+          },
+          {
+            selector: 'function',
+            format: ['camelCase'],
+            leadingUnderscore: 'allow', // Allows leading underscores for functions
+          },
+          {
+            selector: 'typeLike',
+            format: ['PascalCase'], // Enforces PascalCase for types and interfaces
+          },
+        ],
       },
     },
   ],

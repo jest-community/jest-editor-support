@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -14,9 +18,9 @@ import {buildSnapshotResolver, utils} from 'jest-snapshot';
 import type {Config} from '@jest/types';
 
 import {getASTfor} from './parsers/babel_parser';
-import type {JESParserOptions } from './parsers';
-import { shallowAttr } from './parsers/helper';
-import { SnapshotData } from 'jest-snapshot/build/types';
+import type {JESParserOptions} from './parsers';
+import {shallowAttr} from './parsers/helper';
+import {SnapshotData} from 'jest-snapshot/build/types';
 
 type ParserFunc = typeof getASTfor;
 
@@ -44,7 +48,7 @@ const decorators: Record<string, boolean> = {
   skip: true,
 };
 
-const validParents: Record<string, boolean>= {
+const validParents: Record<string, boolean> = {
   ...base,
   ...describeVariants,
   fit: true,
@@ -52,16 +56,21 @@ const validParents: Record<string, boolean>= {
   xtest: true,
 };
 
-const isValidMemberExpression = (node: t.Node): boolean =>  
-  t.isMemberExpression(node) && t.isIdentifier(node.object) && base[node.object.name] && t.isIdentifier(node.property) && decorators[node.property.name];
+const isValidMemberExpression = (node: t.Node): boolean =>
+  t.isMemberExpression(node) &&
+  t.isIdentifier(node.object) &&
+  base[node.object.name] &&
+  t.isIdentifier(node.property) &&
+  decorators[node.property.name];
 
-const isDescribe = (node: t.Node): boolean => 
+const isDescribe = (node: t.Node): boolean =>
   (t.isIdentifier(node) && describeVariants[node.name]) || (t.isMemberExpression(node) && isDescribe(node.object));
-  
 
 const isValidParent = (parent: t.Node): parent is t.CallExpression =>
-  t.isCallExpression(parent) && ((t.isIdentifier(parent.callee) && validParents[parent.callee.name]) || isValidMemberExpression(parent.callee));
+  t.isCallExpression(parent) &&
+  ((t.isIdentifier(parent.callee) && validParents[parent.callee.name]) || isValidMemberExpression(parent.callee));
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getArrayOfParents = (path: any) => {
   const result = [];
   let parent = path.parentPath;
@@ -72,19 +81,17 @@ const getArrayOfParents = (path: any) => {
   return result;
 };
 
-const buildName: (parents: t.Node[], position: number) => string = (
-  parents,
-  position
-) => {
-  const fullName = parents.map((parent) => {
-    // Ensure parent is a CallExpression and it has at least one argument
-    if (t.isCallExpression(parent) && parent.arguments.length > 0) {
-      return shallowAttr(parent.arguments[0], 'value');
-    }
-    console.warn(`Unexpected Snapshot parent type: ${JSON.stringify(parent)}`);
-    return ''; // Return an empty string for non-matching cases
-  }).join(' '); // Join all the strings with spaces
-
+const buildName: (parents: t.Node[], position: number) => string = (parents, position) => {
+  const fullName = parents
+    .map((parent) => {
+      // Ensure parent is a CallExpression and it has at least one argument
+      if (t.isCallExpression(parent) && parent.arguments.length > 0) {
+        return shallowAttr(parent.arguments[0], 'value');
+      }
+      console.warn(`Unexpected Snapshot parent type: ${JSON.stringify(parent)}`);
+      return ''; // Return an empty string for non-matching cases
+    })
+    .join(' '); // Join all the strings with spaces
 
   return utils.testNameToKey(fullName, position);
 };
@@ -113,7 +120,8 @@ export default class Snapshot {
     this._parser = parser || getASTfor;
     this._matchers = ['toMatchSnapshot', 'toThrowErrorMatchingSnapshot'].concat(customMatchers || []);
     this._projectConfig = projectConfig;
-    this._resolverPromise = buildSnapshotResolver(this._projectConfig || {} as any, () => Promise.resolve()).then(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._resolverPromise = buildSnapshotResolver(this._projectConfig || ({} as any), () => Promise.resolve()).then(
       (resolver) => {
         this.snapshotResolver = resolver;
         return resolver;
@@ -137,7 +145,7 @@ export default class Snapshot {
 
     traverse(fileNode, {
       enter: (path) => {
-        if(path.isIdentifier() && this._matchers.indexOf(path.node.name) >= 0) {
+        if (path.isIdentifier() && this._matchers.indexOf(path.node.name) >= 0) {
           found.push({
             node: path.node,
             parents: getArrayOfParents(path),
@@ -198,7 +206,7 @@ export default class Snapshot {
     const snapshotNodes = this.parse(filePath, options);
     const snapshots = utils.getSnapshotData(snapshotPath, 'none').data;
 
-    let lastParent: t.Node|null = null;
+    let lastParent: t.Node | null = null;
     let count = 1;
 
     return snapshotNodes.map((snapshotNode) => {

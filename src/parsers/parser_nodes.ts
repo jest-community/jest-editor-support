@@ -13,6 +13,7 @@ import type {Location} from '../types';
  */
 export class ParsedRange {
   start: Location;
+
   end: Location;
 
   constructor(startLine: number, startCol: number, endLine: number, endCol: number) {
@@ -30,9 +31,13 @@ export enum ParsedNodeType {
 
 export class ParsedNode {
   type: ParsedNodeType;
+
   start?: Location;
+
   end?: Location;
+
   file: string;
+
   children?: ParsedNode[];
 
   constructor(type: ParsedNodeType, file: string) {
@@ -45,12 +50,15 @@ export class ParsedNode {
 
     switch (type) {
       case ParsedNodeType.describe:
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         child = new DescribeBlock(this.file);
         break;
       case ParsedNodeType.it:
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         child = new ItBlock(this.file);
         break;
       case ParsedNodeType.expect:
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         child = new Expect(this.file);
         break;
       default:
@@ -90,7 +98,9 @@ export class Expect extends ParsedNode {
 
 export class NamedBlock extends ParsedNode {
   name?: string;
+
   nameRange?: ParsedRange;
+
   lastProperty?: string;
 
   /**
@@ -147,7 +157,10 @@ export class ParseResult {
     } else if (node instanceof ItBlock) {
       this.itBlocks.push(node);
     } else if (node instanceof Expect) {
-      if (dedup && this.expects.some((e) => e.start?.line === node.start?.line && e.start?.column === node.start?.column)) {
+      if (
+        dedup &&
+        this.expects.some((e) => e.start?.line === node.start?.line && e.start?.column === node.start?.column)
+      ) {
         // found dup, return
         return;
       }
