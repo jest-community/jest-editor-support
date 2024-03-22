@@ -1,4 +1,3 @@
+# all text files will be checked in with LF as eol
 * text=auto
 
-*.example text eol=lf
-*.js text eol=lf
