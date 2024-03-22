@@ -19,7 +19,6 @@ import {
   NamedBlock,
   ParseResult,
   ParsedNode,
-  ParsedNodeTypes,
   ParsedRange,
   ParsedNodeType,
 } from './parsers/parser_nodes';
@@ -33,7 +32,6 @@ export {
   NamedBlock,
   ParseResult,
   ParsedNode,
-  ParsedNodeTypes,
   ParsedRange,
   Process,
   ProjectWorkspace,

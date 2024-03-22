@@ -4,83 +4,100 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
-import {tmpdir} from 'os';
-import * as path from 'path';
-import {spawn} from 'child_process';
-import {readFileSync} from 'fs';
 import EventEmitter from 'events';
-import type {ChildProcess} from 'child_process';
 import Runner from '../Runner';
-import {createProcess} from '../Process';
 import {messageTypes} from '../types';
 import ProjectWorkspace from '../project_workspace';
+import os from 'os';
+import path from 'path';
+import cp from 'child_process';
+import fs from 'fs';
+import process from 'process';
+import * as Process from '../Process';
 
-// ('use strict');
-
-jest.mock('../Process');
-jest.mock('child_process', () => ({spawn: jest.fn()}));
-jest.mock('os', () => ({tmpdir: jest.fn()}));
-jest.mock('path', () => ({join: jest.fn()}));
-jest.mock('fs', () => {
-  // $FlowFixMe requireActual
-  // eslint-disable-next-line no-shadow
-  const {readFileSync} = jest.requireActual('fs');
-
-  // Replace `readFile` with `readFileSync` so we don't get multiple threads
-  return {
-    readFile: (_path, type, closure) => {
-      const data = readFileSync(_path);
-      closure(null, data);
-    },
-    readFileSync,
-  };
-});
-
-// const _path = require('path');
-const _path = jest.requireActual('path');
-const fixtures = _path.resolve(__dirname, '../../fixtures');
+const fixtures = path.resolve(__dirname, '../../fixtures');
 
 describe('Runner', () => {
-  const processKill = jest.fn();
-  let originalProcessKill;
+  let processKillSpy: jest.SpyInstance;
+  let tmpdirSpy: jest.SpyInstance;
+  let joinSpy: jest.SpyInstance;
+  let spawnSpy: jest.SpyInstance;
+  let createProcessSpy: jest.SpyInstance;
 
-  beforeAll(() => {
-    // $FlowIgnore[method-unbinding]
-    originalProcessKill = process.kill;
-    (process: any).kill = processKill;
+  beforeEach(() => {
+    jest.resetAllMocks();
+
+    createProcessSpy = jest.spyOn(Process, 'createProcess');
+    createProcessSpy.mockReturnValue({pid: 123} as any);
+
+    processKillSpy = jest.spyOn(process, 'kill');
+    processKillSpy.mockReturnValue(true);
+
+    tmpdirSpy = jest.spyOn(os, 'tmpdir');
+    tmpdirSpy.mockReturnValue('tmpdir');
+
+    joinSpy = jest.spyOn(path, 'join');
+    joinSpy.mockImplementation((...paths: string[]) => paths.join('/'));
+
+    spawnSpy = jest.spyOn(cp, 'spawn');
+    spawnSpy.mockReturnValue({pid: 123} as any);
+
+    // Replace `readFile` with `readFileSync` so we don't get multiple threads
+    jest
+      .spyOn(fs, 'readFile')
+      .mockImplementation(
+        (path: any, options: any, callback?: (err: NodeJS.ErrnoException | null, data: Buffer | string) => void) => {
+          // Determine if 'options' is a function, implying it is the callback, and there were no options passed.
+          if (typeof options === 'function') {
+            callback = options;
+            options = undefined; // Set options to undefined to reflect no options passed.
+          }
+
+          // Ensure callback exists before invoking it.
+          if (callback) {
+            try {
+              // If options include an encoding, the return type should be a string.
+              const encoding = typeof options === 'string' ? options : options?.encoding;
+              const data = fs.readFileSync(path, options);
+
+              // Invoke the callback with no error and data.
+              // If encoding is specified and is a known string encoding, 'data' will be a string.
+              callback(null, data);
+            } catch (error) {
+              // If readFileSync throws an error, pass it to the callback.
+              callback(error as NodeJS.ErrnoException, '');
+            }
+          }
+        }
+      );
   });
 
-  afterAll(() => {
-    (process: any).kill = originalProcessKill;
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
   describe('constructor', () => {
     it('does not set watchMode', () => {
       const workspace: any = {};
       const sut = new Runner(workspace);
 
-      expect(sut.watchMode).not.toBeDefined();
+      expect(sut.watchMode).toBeFalsy();
     });
 
     it('does not set watchAll', () => {
       const workspace: any = {};
       const sut = new Runner(workspace);
 
-      expect(sut.watchAll).not.toBeDefined();
+      expect(sut.watchAll).toBeFalsy();
     });
 
     it('sets the output filepath', () => {
-      // $FlowIgnore[prop-missing]
-      tmpdir.mockReturnValue('tmpdir');
-
       const suffix = ['runner-test', undefined];
 
       suffix.forEach((s) => {
         const workspace: any = {outputFileSuffix: s};
-        // $FlowIgnore[prop-missing]
-        path.join.mockImplementation((...paths: string[]) => paths.join('/'));
+        joinSpy.mockImplementation((...paths: string[]) => paths.join('/'));
         const sut = new Runner(workspace);
         expect(sut.outputPath).toEqual(`tmpdir/jest_runner_${s || ''}.json`);
       });
@@ -98,15 +115,13 @@ describe('Runner', () => {
       const options = {};
       const sut = new Runner(workspace, options);
 
-      expect(sut.options).toBe(options);
+      expect(sut.options).toEqual(options);
     });
   });
 
   describe('start', () => {
     beforeEach(() => {
-      jest.resetAllMocks();
-
-      (createProcess: any).mockImplementationOnce(() => {
+      createProcessSpy.mockImplementationOnce(() => {
         const process: any = new EventEmitter();
         process.stdout = new EventEmitter();
         process.stderr = new EventEmitter();
@@ -121,7 +136,7 @@ describe('Runner', () => {
       sut.start();
       sut.start();
 
-      expect(createProcess).toHaveBeenCalledTimes(1);
+      expect(createProcessSpy).toHaveBeenCalledTimes(1);
     });
 
     it('sets watchMode', () => {
@@ -131,7 +146,7 @@ describe('Runner', () => {
       const sut = new Runner(workspace);
       sut.start(expected);
 
-      expect(sut.watchMode).toBe(expected);
+      expect(sut.watchMode).toEqual(expected);
     });
 
     it('sets watchAll', () => {
@@ -142,8 +157,8 @@ describe('Runner', () => {
       const sut = new Runner(workspace);
       sut.start(watchMode, watchAll);
 
-      expect(sut.watchMode).toBe(watchMode);
-      expect(sut.watchAll).toBe(watchAll);
+      expect(sut.watchMode).toEqual(watchMode);
+      expect(sut.watchAll).toEqual(watchAll);
     });
 
     it('calls createProcess', () => {
@@ -151,7 +166,7 @@ describe('Runner', () => {
       const sut = new Runner(workspace);
       sut.start(false);
 
-      expect((createProcess: any).mock.calls[0][0]).toBe(workspace);
+      expect(createProcessSpy.mock.calls[0][0]).toEqual(workspace);
     });
 
     it('calls createProcess with the --json arg', () => {
@@ -159,7 +174,7 @@ describe('Runner', () => {
       const sut = new Runner(workspace);
       sut.start(false);
 
-      expect((createProcess: any).mock.calls[0][1]).toContain('--json');
+      expect(createProcessSpy.mock.calls[0][1]).toContain('--json');
     });
 
     it('calls createProcess with the --useStderr arg', () => {
@@ -167,7 +182,7 @@ describe('Runner', () => {
       const sut = new Runner(workspace);
       sut.start(false);
 
-      expect((createProcess: any).mock.calls[0][1]).toContain('--useStderr');
+      expect(createProcessSpy.mock.calls[0][1]).toContain('--useStderr');
     });
 
     it('calls createProcess with the --jsonOutputFile arg for Jest 17 and below', () => {
@@ -175,10 +190,11 @@ describe('Runner', () => {
       const sut = new Runner(workspace);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      expect(createProcessSpy).toHaveBeenCalledTimes(1);
+      const args = createProcessSpy.mock.calls[0][1];
       const index = args.indexOf('--jsonOutputFile');
-      expect(index).not.toBe(-1);
-      expect(args[index + 1]).toBe(sut.outputPath);
+      expect(index).not.toEqual(-1);
+      expect(args[index + 1]).toEqual(sut.outputPath);
     });
 
     it('calls createProcess with the --outputFile arg for Jest 18 and above', () => {
@@ -186,10 +202,10 @@ describe('Runner', () => {
       const sut = new Runner(workspace);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcessSpy.mock.calls[0][1];
       const index = args.indexOf('--outputFile');
-      expect(index).not.toBe(-1);
-      expect(args[index + 1]).toBe(sut.outputPath);
+      expect(index).not.toEqual(-1);
+      expect(args[index + 1]).toEqual(sut.outputPath);
     });
 
     it('calls createProcess with the --watch arg when provided', () => {
@@ -197,7 +213,7 @@ describe('Runner', () => {
       const sut = new Runner(workspace);
       sut.start(true);
 
-      expect((createProcess: any).mock.calls[0][1]).toContain('--watch');
+      expect(createProcessSpy.mock.calls[0][1]).toContain('--watch');
     });
 
     it('calls createProcess with the --coverage arg when provided', () => {
@@ -208,9 +224,9 @@ describe('Runner', () => {
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcessSpy.mock.calls[0][1];
       const index = args.indexOf(expected);
-      expect(index).not.toBe(-1);
+      expect(index).not.toEqual(-1);
     });
 
     it('calls createProcess with the ---no-coverage arg when provided and false', () => {
@@ -221,9 +237,9 @@ describe('Runner', () => {
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcessSpy.mock.calls[0][1];
       const index = args.indexOf(expected);
-      expect(index).not.toBe(-1);
+      expect(index).not.toEqual(-1);
     });
 
     it('calls createProcess without the --coverage arg when undefined', () => {
@@ -234,9 +250,9 @@ describe('Runner', () => {
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcessSpy.mock.calls[0][1];
       const index = args.indexOf(expected);
-      expect(index).toBe(-1);
+      expect(index).toEqual(-1);
     });
 
     it('calls createProcess with the --testNamePattern arg when provided', () => {
@@ -247,10 +263,10 @@ describe('Runner', () => {
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcessSpy.mock.calls[0][1];
       const index = args.indexOf('--testNamePattern');
-      expect(index).not.toBe(-1);
-      expect(args[index + 1]).toBe(expected);
+      expect(index).not.toEqual(-1);
+      expect(args[index + 1]).toEqual(expected);
     });
 
     it('calls createProcess with a test path pattern when provided', () => {
@@ -260,7 +276,7 @@ describe('Runner', () => {
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      expect((createProcess: any).mock.calls[0][1]).toContain(expected);
+      expect(createProcessSpy.mock.calls[0][1]).toContain(expected);
     });
 
     it('calls createProcess with the no color option when provided', () => {
@@ -271,7 +287,7 @@ describe('Runner', () => {
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      expect((createProcess: any).mock.calls[0][1]).toContain(expected);
+      expect(createProcessSpy.mock.calls[0][1]).toContain(expected);
     });
 
     it('calls createProcess with the --reporters arg when provided', () => {
@@ -282,10 +298,10 @@ describe('Runner', () => {
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcessSpy.mock.calls[0][1];
       const index = args.indexOf('--reporters');
-      expect(index).not.toBe(-1);
-      expect(args[index + 1]).toBe(expected[0]);
+      expect(index).not.toEqual(-1);
+      expect(args[index + 1]).toEqual(expected[0]);
     });
 
     it('calls createProcess with multiple --reporters arg when provided', () => {
@@ -296,11 +312,11 @@ describe('Runner', () => {
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcessSpy.mock.calls[0][1];
       const index = args.indexOf('--reporters');
-      expect(args[index + 1]).toBe(expected[0]);
+      expect(args[index + 1]).toEqual(expected[0]);
       const lastIndex = args.lastIndexOf('--reporters');
-      expect(args[lastIndex + 1]).toBe(expected[1]);
+      expect(args[lastIndex + 1]).toEqual(expected[1]);
     });
 
     it('calls createProcess with camel cased args by default', () => {
@@ -311,8 +327,8 @@ describe('Runner', () => {
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
-      expect(args[0]).toBe(expected);
+      const args = createProcessSpy.mock.calls[0][1];
+      expect(args[0]).toEqual(expected);
     });
 
     it('calls createProcess with dashed args when provided', () => {
@@ -323,8 +339,8 @@ describe('Runner', () => {
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
-      expect(args[0]).toBe(expected);
+      const args = createProcessSpy.mock.calls[0][1];
+      expect(args[0]).toEqual(expected);
     });
 
     it.each`
@@ -338,9 +354,9 @@ describe('Runner', () => {
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcessSpy.mock.calls[0][1];
       const index = args.indexOf(expected);
-      expect(index).not.toBe(-1);
+      expect(index).not.toEqual(-1);
     });
 
     it('does not alter already dashed args when provided', () => {
@@ -351,9 +367,9 @@ describe('Runner', () => {
       const sut = new Runner(workspace, options);
       sut.start(false);
 
-      const args = (createProcess: any).mock.calls[0][1];
+      const args = createProcessSpy.mock.calls[0][1];
       const index = args.indexOf(expected);
-      expect(index).not.toBe(-1);
+      expect(index).not.toEqual(-1);
     });
 
     describe('RunArgs', () => {
@@ -368,25 +384,26 @@ describe('Runner', () => {
         const sut = new Runner(workspace, options);
         sut.start(false);
 
-        expect(createProcess).toBeCalledWith(workspace, expect.arrayContaining(containedArgs));
+        expect(createProcessSpy).toBeCalledWith(workspace, expect.arrayContaining(containedArgs));
       });
     });
   });
 
   describe('closeProcess', () => {
-    let platformPV;
+    let savedPlatform: any;
+    const setPlatform = (value: string) => {
+      Object.defineProperty(process, 'platform', {
+        value, // Example: Mocking as if running on Windows
+        writable: true,
+      });
+    };
 
     beforeEach(() => {
-      jest.resetAllMocks();
-      platformPV = process.platform;
-
-      // Remove the "process.platform" property descriptor so it can be writable.
-      // $FlowIgnore[incompatible-type]
-      delete process.platform;
+      savedPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
     });
 
     afterEach(() => {
-      process.platform = platformPV;
+      Object.defineProperty(process, 'platform', savedPlatform);
     });
 
     it('does nothing if the runner has not started', () => {
@@ -394,38 +411,38 @@ describe('Runner', () => {
       const sut = new Runner(workspace);
       sut.closeProcess();
 
-      expect(spawn).not.toBeCalled();
+      expect(spawnSpy).not.toBeCalled();
     });
 
     it('spawns taskkill to close the process on Windows', () => {
       const workspace: any = {};
       const sut = new Runner(workspace);
-      process.platform = 'win32';
-      sut.debugprocess = ({pid: 123}: any);
+      setPlatform('win32');
+      sut.runProcess = {pid: 123} as any;
       sut.closeProcess();
 
-      expect(spawn).toBeCalledWith('taskkill', ['/pid', '123', '/T', '/F']);
+      expect(spawnSpy).toBeCalledWith('taskkill', ['/pid', '123', '/T', '/F']);
     });
 
     it('calls process.kill() with processGroup id to close the process on POSIX', () => {
       const workspace: any = {};
       const sut = new Runner(workspace);
-      process.platform = 'posix';
+      setPlatform('posix');
       const kill = jest.fn();
-      sut.debugprocess = ({kill, pid: 123}: any);
+      sut.runProcess = {kill, pid: 123} as any;
       sut.closeProcess();
 
       expect(kill).not.toBeCalled();
-      expect(processKill).toBeCalledWith(-123);
+      expect(processKillSpy).toBeCalledWith(-123);
     });
     it('if process.kill() failed, it will fallback to subprocess.kill', () => {
       const workspace: any = {};
       const sut = new Runner(workspace);
-      process.platform = 'posix';
+      setPlatform('posix');
       const kill = jest.fn();
-      sut.debugprocess = ({kill, pid: 123}: any);
+      sut.runProcess = {kill, pid: 123} as any;
 
-      processKill.mockImplementation(() => {
+      processKillSpy.mockImplementation(() => {
         throw new Error('for testing');
       });
 
@@ -434,31 +451,28 @@ describe('Runner', () => {
       expect(kill).toBeCalled();
     });
 
-    it('clears the debugprocess property', () => {
+    it('clears the runProcess property', () => {
       const workspace: any = {};
       const sut = new Runner(workspace);
-      sut.debugprocess = ({kill: () => {}}: any);
+      sut.runProcess = {kill: () => {}, pid: 123} as any;
       sut.closeProcess();
 
-      expect(sut.debugprocess).not.toBeDefined();
+      expect(sut.runProcess).not.toBeDefined();
     });
   });
 
   describe('events', () => {
     let runner: Runner;
-    let fakeProcess: ChildProcess;
+    let fakeProcess: any;
 
     beforeEach(() => {
-      jest.resetAllMocks();
-
-      fakeProcess = (new EventEmitter(): any);
+      fakeProcess = new EventEmitter() as any;
       fakeProcess.stdout = new EventEmitter();
-      // $FlowIgnore[incompatible-type]
       fakeProcess.stderr = new EventEmitter();
-      // $FlowIgnore[cannot-write]
       fakeProcess.kill = () => {};
+      fakeProcess.pid = 123;
 
-      (createProcess: any).mockImplementation(() => fakeProcess);
+      createProcessSpy.mockImplementation(() => fakeProcess);
 
       const workspace = new ProjectWorkspace('.', 'node_modules/.bin/jest', 'test', 18);
       runner = new Runner(workspace);
@@ -473,7 +487,7 @@ describe('Runner', () => {
 
       runner.outputPath = `${fixtures}/failing-jsons/failing_jest_json.json`;
 
-      const doTest = (out: stream$Readable) => {
+      const doTest = (out: any) => {
         data.mockClear();
 
         // Emitting data through stdout should trigger sending JSON
@@ -481,7 +495,7 @@ describe('Runner', () => {
         expect(data).toBeCalled();
 
         // And lets check what we emit
-        const dataAtPath = readFileSync(runner.outputPath);
+        const dataAtPath = fs.readFileSync(runner.outputPath);
         const storedJSON = JSON.parse(dataAtPath.toString());
         expect(data.mock.calls[0][0]).toEqual(storedJSON);
       };
@@ -521,10 +535,11 @@ describe('Runner', () => {
     });
 
     it('should start jest process after killing the old process', () => {
+      expect(createProcessSpy).toHaveBeenCalledTimes(1);
       runner.closeProcess();
       runner.start();
 
-      expect(createProcess).toHaveBeenCalledTimes(2);
+      expect(createProcessSpy).toHaveBeenCalledTimes(2);
     });
 
     describe('stdout.on("data")', () => {
@@ -532,10 +547,10 @@ describe('Runner', () => {
         const listener = jest.fn();
         runner.on('executableJSON', listener);
         runner.outputPath = `${fixtures}/failing-jsons/failing_jest_json.json`;
-        (runner: any).doResultsFollowNoTestsFoundMessage = jest.fn().mockReturnValueOnce(true);
+        (runner as any).doResultsFollowNoTestsFoundMessage = jest.fn().mockReturnValueOnce(true);
         fakeProcess.stdout.emit('data', 'Test results written to file');
 
-        expect(listener.mock.calls[0].length).toBe(2);
+        expect(listener.mock.calls[0].length).toEqual(2);
         expect(listener.mock.calls[0][1]).toEqual({noTestsFound: true});
       });
 
@@ -544,7 +559,7 @@ describe('Runner', () => {
         runner.prevMessageTypes.push(messageTypes.noTests);
         fakeProcess.stdout.emit('data', 'Test results written to file');
 
-        expect(runner.prevMessageTypes.length).toBe(0);
+        expect(runner.prevMessageTypes.length).toEqual(0);
       });
       it.each`
         msgType                     | eventType
@@ -559,7 +574,7 @@ describe('Runner', () => {
         const meta = {type: msgType};
 
         runner.outputPath = `${fixtures}/failing-jsons/failing_jest_json.json`;
-        (runner: any).findMessageType = jest.fn().mockReturnValueOnce(msgType);
+        (runner as any).findMessageType = jest.fn().mockReturnValueOnce(msgType);
 
         runner.on('executableStdErr', stderrListener);
         runner.on('executableOutput', stdoutListener);
@@ -575,23 +590,22 @@ describe('Runner', () => {
 
     describe('stderr.on("data")', () => {
       it('should identify the message type', () => {
-        (runner: any).findMessageType = jest.fn();
+        (runner as any).findMessageType = jest.fn();
         const expected = {};
         fakeProcess.stderr.emit('data', expected);
 
-        // $FlowIgnore[method-unbinding]
         expect(runner.findMessageType).toBeCalledWith(expected);
       });
 
       it('should add the type to the message type history when known', () => {
-        (runner: any).findMessageType = jest.fn().mockReturnValueOnce(messageTypes.noTests);
+        (runner as any).findMessageType = jest.fn().mockReturnValueOnce(messageTypes.noTests);
         fakeProcess.stderr.emit('data', Buffer.from(''));
 
         expect(runner.prevMessageTypes).toEqual([messageTypes.noTests]);
       });
 
       it('should clear the message type history when the type is unknown', () => {
-        (runner: any).findMessageType = jest.fn().mockReturnValueOnce(messageTypes.unknown);
+        (runner as any).findMessageType = jest.fn().mockReturnValueOnce(messageTypes.unknown);
         fakeProcess.stderr.emit('data', Buffer.from(''));
 
         expect(runner.prevMessageTypes).toEqual([]);
@@ -609,7 +623,7 @@ describe('Runner', () => {
         const meta = {type};
 
         runner.outputPath = `${fixtures}/failing-jsons/failing_jest_json.json`;
-        (runner: any).findMessageType = jest.fn().mockReturnValueOnce(type);
+        (runner as any).findMessageType = jest.fn().mockReturnValueOnce(type);
 
         runner.on('executableStdErr', listener);
         fakeProcess.stderr.emit('data', data, meta);
@@ -648,7 +662,7 @@ describe('Runner', () => {
     describe('findMessageType()', () => {
       it('should return "unknown" when the message is not matched', () => {
         const buf = Buffer.from('');
-        expect(runner.findMessageType(buf)).toBe(messageTypes.unknown);
+        expect(runner.findMessageType(buf)).toEqual(messageTypes.unknown);
       });
 
       it('should identify "No tests found related to files changed since last commit."', () => {
@@ -656,7 +670,7 @@ describe('Runner', () => {
           'No tests found related to files changed since last commit.\n' +
             'Press `a` to run all tests, or run Jest with `--watchAll`.'
         );
-        expect(runner.findMessageType(buf)).toBe(messageTypes.noTests);
+        expect(runner.findMessageType(buf)).toEqual(messageTypes.noTests);
       });
 
       it('should identify "No tests found related to files changed since git ref."', () => {
@@ -664,12 +678,12 @@ describe('Runner', () => {
           'No tests found related to files changed since "master".\n' +
             'Press `a` to run all tests, or run Jest with `--watchAll`.'
         );
-        expect(runner.findMessageType(buf)).toBe(messageTypes.noTests);
+        expect(runner.findMessageType(buf)).toEqual(messageTypes.noTests);
       });
 
       it('should identify the "Watch Usage" prompt', () => {
         const buf = Buffer.from('\n\nWatch Usage\n...');
-        expect(runner.findMessageType(buf)).toBe(messageTypes.watchUsage);
+        expect(runner.findMessageType(buf)).toEqual(messageTypes.watchUsage);
       });
       it('should prioritize message types accordingly.', () => {
         // testResults > noTests > watchUsage > unknown
@@ -679,30 +693,32 @@ describe('Runner', () => {
         const watchUsage = 'Press `a` to run all tests, or run Jest with `--watchAll`\n';
         const unknownMsg = 'whatever...\n';
 
-        expect(runner.findMessageType(Buffer.from(noTests + testResults))).toBe(messageTypes.testResults);
+        expect(runner.findMessageType(Buffer.from(noTests + testResults))).toEqual(messageTypes.testResults);
 
-        expect(runner.findMessageType(Buffer.from(noTests + watchUsage))).toBe(messageTypes.noTests);
+        expect(runner.findMessageType(Buffer.from(noTests + watchUsage))).toEqual(messageTypes.noTests);
 
-        expect(runner.findMessageType(Buffer.from(noTests + watchUsage + testResults))).toBe(messageTypes.testResults);
+        expect(runner.findMessageType(Buffer.from(noTests + watchUsage + testResults))).toEqual(
+          messageTypes.testResults
+        );
 
-        expect(runner.findMessageType(Buffer.from(unknownMsg + testResults))).toBe(messageTypes.testResults);
+        expect(runner.findMessageType(Buffer.from(unknownMsg + testResults))).toEqual(messageTypes.testResults);
       });
     });
 
     describe('doResultsFollowNoTestsFoundMessage()', () => {
       it('should return true when the last message on stderr was "No tests found..."', () => {
         runner.prevMessageTypes.push(messageTypes.noTests);
-        expect(runner.doResultsFollowNoTestsFoundMessage()).toBe(true);
+        expect(runner.doResultsFollowNoTestsFoundMessage()).toEqual(true);
       });
 
       it('should return true when the last two messages on stderr were "No tests found..." and "Watch Usage"', () => {
         runner.prevMessageTypes.push(messageTypes.noTests, messageTypes.watchUsage);
-        expect(runner.doResultsFollowNoTestsFoundMessage()).toBe(true);
+        expect(runner.doResultsFollowNoTestsFoundMessage()).toEqual(true);
       });
 
       it('should return false otherwise', () => {
         runner.prevMessageTypes.length = 0;
-        expect(runner.doResultsFollowNoTestsFoundMessage()).toBe(false);
+        expect(runner.doResultsFollowNoTestsFoundMessage()).toEqual(false);
       });
     });
     test('should always emit output', () => {});

@@ -23,7 +23,7 @@ describe('parse', () => {
   });
   it.each([['js'], ['.jsx'], ['.mjs']])('for file extension "%s" => parse with flow options', (ext) => {
     const file = `file.${ext}`;
-    parse(file, undefined, true);
+    parse(file, undefined, {strictMode: true});
     expect(babelParser.parse).toHaveBeenCalledWith(
       file,
       undefined,
@@ -32,7 +32,7 @@ describe('parse', () => {
   });
   it.each([['ts'], ['.tsx']])('for file extension "%s" => parse with typescript options', (ext) => {
     const file = `file.${ext}`;
-    parse(file, undefined, true);
+    parse(file, undefined, {strictMode: true});
     expect(babelParser.parse).toHaveBeenCalledWith(
       file,
       undefined,

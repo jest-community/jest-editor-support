@@ -5,13 +5,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import path from 'path';
 import type {TestFileAssertionStatus, TestAssertionStatus, TestReconciliationState, Location} from './types';
 
-import type {FormattedAssertionResult, FormattedTestResults} from '../types/TestResult';
+import type {FormattedTestResults} from '@jest/test-result';
+
+export type FormattedTestResult = FormattedTestResults['testResults'][number];
+export type FormattedAssertionResult = FormattedTestResult['assertionResults'][number];
 
 /**
  *  You have a Jest test runner watching for changes, and you have
@@ -65,7 +67,7 @@ export default class TestReconciler {
   mapAssertions(filename: string, assertions: Array<FormattedAssertionResult>): Array<TestAssertionStatus> {
     // convert jest location (column is 0-based and line is 1-based) to all 0-based location used internally in this package
     /* eslint-disable no-param-reassign */
-    const convertJestLocation = (jestLocation: ?Location) => {
+    const convertJestLocation = (jestLocation?: Location) => {
       if (jestLocation) {
         jestLocation.line -= 1;
       }
@@ -80,10 +82,10 @@ export default class TestReconciler {
     return assertions.map((assertion) => {
       // Failure messages seems to always be an array of one item
       const message = assertion.failureMessages && assertion.failureMessages[0];
-      let short = null;
-      let terse = null;
-      let line = null;
-      const location = convertJestLocation(assertion.location); // output from jest --testLocationInResults (https://jestjs.io/docs/en/cli#testlocationinresults)
+      let short = undefined;
+      let terse = undefined;
+      let line = undefined;
+      const location = convertJestLocation(assertion.location ?? undefined); // output from jest --testLocationInResults (https://jestjs.io/docs/en/cli#testlocationinresults)
       if (message) {
         // Just the first line, with little whitespace
         short = message.split('   at', 1)[0].trim();
@@ -125,10 +127,10 @@ export default class TestReconciler {
   }
 
   // Pull the line out from the stack trace
-  lineOfError(message: string, filePath: string): ?number {
+  lineOfError(message: string, filePath: string): number | undefined {
     const filename = path.basename(filePath);
     const restOfTrace = message.split(filename, 2)[1];
-    return restOfTrace ? parseInt(restOfTrace.split(':')[1], 10) : null;
+    return restOfTrace ? parseInt(restOfTrace.split(':')[1], 10) : undefined;
   }
 
   statusToReconcilationState(status: string): TestReconciliationState {

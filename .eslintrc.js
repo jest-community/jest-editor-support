@@ -34,8 +34,8 @@ module.exports = {
     {
       files: '**/*.js',
       parser: '@babel/eslint-parser',
-      plugins: ['@babel', 'flowtype', 'prettier', 'import'],
-      extends: ['airbnb-base', 'plugin:flowtype/recommended', 'prettier', 'plugin:prettier/recommended'],
+      plugins: ['@babel', 'prettier', 'import'],
+      extends: ['airbnb-base', 'prettier', 'plugin:prettier/recommended'],
       rules: {
         'prettier/prettier': ['error', {endOfLine: 'auto'}],
         'no-underscore-dangle': 'off',
@@ -49,6 +49,15 @@ module.exports = {
         'import/no-named-as-default': 'off',
         'max-classes-per-file': 'off',
         'prefer-object-spread': 'off',
+        '@typescript-eslint/restrict-template-expressions': [
+          2,
+          {
+            allowNumber: true,
+            allowBoolean: true,
+            allowAny: true,
+            allowNullish: true,
+          },
+        ],
       },
     },
     // linting setup for TS files.

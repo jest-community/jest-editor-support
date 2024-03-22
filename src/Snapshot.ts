@@ -5,60 +5,62 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @flow
  */
 
 import traverse from '@babel/traverse';
-import type {SnapshotResolver, SnapshotData} from 'jest-snapshot';
+import * as t from '@babel/types';
+import type {SnapshotResolver} from 'jest-snapshot';
 import {buildSnapshotResolver, utils} from 'jest-snapshot';
-import type {ProjectConfig} from '../types/Config';
+import type {Config} from '@jest/types';
 
 import {getASTfor} from './parsers/babel_parser';
-import {JESParserOptions} from './parsers';
+import type {JESParserOptions } from './parsers';
+import { shallowAttr } from './parsers/helper';
+import { SnapshotData } from 'jest-snapshot/build/types';
 
-type Node = any;
+type ParserFunc = typeof getASTfor;
 
-type SnapshotMetadata = {
-  exists: true | false,
-  name: string,
-  node: Node,
-  content?: string,
-};
+interface SnapshotMetadata {
+  exists: boolean;
+  name: string;
+  node: t.Node;
+  content?: string;
+}
 
-const describeVariants = Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+const describeVariants: Record<string, boolean> = {
   describe: true,
   fdescribe: true,
   xdescribe: true,
-});
-const base = Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+};
+
+const base: Record<string, boolean> = {
   describe: true,
   it: true,
   test: true,
-});
-const decorators = Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
+};
+
+const decorators: Record<string, boolean> = {
   only: true,
   skip: true,
-});
+};
 
-const validParents = Object.assign(
-  (Object.create(null): any),
-  base,
-  describeVariants,
-  Object.assign((Object.create(null): {[string]: boolean, __proto__: null}), {
-    fit: true,
-    xit: true,
-    xtest: true,
-  })
-);
+const validParents: Record<string, boolean>= {
+  ...base,
+  ...describeVariants,
+  fit: true,
+  xit: true,
+  xtest: true,
+};
 
-const isValidMemberExpression = (node: any) =>
-  node.object && base[node.object.name] && node.property && decorators[node.property.name];
+const isValidMemberExpression = (node: t.Node): boolean =>  
+  t.isMemberExpression(node) && t.isIdentifier(node.object) && base[node.object.name] && t.isIdentifier(node.property) && decorators[node.property.name];
 
-const isDescribe = (node: any) =>
-  describeVariants[node.name] || (isValidMemberExpression(node) && node.object.name === 'describe');
+const isDescribe = (node: t.Node): boolean => 
+  (t.isIdentifier(node) && describeVariants[node.name]) || (t.isMemberExpression(node) && isDescribe(node.object));
+  
 
-const isValidParent = (parent: any) =>
-  parent.callee && (validParents[parent.callee.name] || isValidMemberExpression(parent.callee));
+const isValidParent = (parent: t.Node): parent is t.CallExpression =>
+  t.isCallExpression(parent) && ((t.isIdentifier(parent.callee) && validParents[parent.callee.name]) || isValidMemberExpression(parent.callee));
 
 const getArrayOfParents = (path: any) => {
   const result = [];
@@ -70,46 +72,51 @@ const getArrayOfParents = (path: any) => {
   return result;
 };
 
-const buildName: (snapshotNode: Node, parents: Array<Node>, position: number) => string = (
-  snapshotNode,
+const buildName: (parents: t.Node[], position: number) => string = (
   parents,
   position
 ) => {
-  const fullName = parents.map((parent) => parent.arguments[0].value).join(' ');
+  const fullName = parents.map((parent) => {
+    // Ensure parent is a CallExpression and it has at least one argument
+    if (t.isCallExpression(parent) && parent.arguments.length > 0) {
+      return shallowAttr(parent.arguments[0], 'value');
+    }
+    console.warn(`Unexpected Snapshot parent type: ${JSON.stringify(parent)}`);
+    return ''; // Return an empty string for non-matching cases
+  }).join(' '); // Join all the strings with spaces
+
 
   return utils.testNameToKey(fullName, position);
 };
 
 export interface SnapshotNode {
-  node: Node;
-  parents: Node[];
+  node: t.Node;
+  parents: t.CallExpression[];
 }
 
 export interface SnapshotParserOptions {
   verbose?: boolean;
-  // $FlowIgnore[value-as-type]
   parserOptions?: JESParserOptions;
 }
 export default class Snapshot {
-  _parser: Function;
+  _parser: ParserFunc;
 
-  _matchers: Array<string>;
+  _matchers: string[];
 
-  _projectConfig: ?ProjectConfig;
+  _projectConfig?: Config.ProjectConfig;
 
-  // $FlowIgnore[value-as-type]
-  snapshotResolver: ?SnapshotResolver;
+  snapshotResolver?: SnapshotResolver;
 
-  // $FlowIgnore[value-as-type]
   _resolverPromise: Promise<SnapshotResolver>;
 
-  constructor(parser: any, customMatchers?: Array<string>, projectConfig?: ProjectConfig) {
+  constructor(parser?: ParserFunc, customMatchers?: string[], projectConfig?: Config.ProjectConfig) {
     this._parser = parser || getASTfor;
     this._matchers = ['toMatchSnapshot', 'toThrowErrorMatchingSnapshot'].concat(customMatchers || []);
     this._projectConfig = projectConfig;
-    this._resolverPromise = buildSnapshotResolver(this._projectConfig || {}, () => Promise.resolve()).then(
+    this._resolverPromise = buildSnapshotResolver(this._projectConfig || {} as any, () => Promise.resolve()).then(
       (resolver) => {
         this.snapshotResolver = resolver;
+        return resolver;
       }
     );
   }
@@ -126,24 +133,15 @@ export default class Snapshot {
       return [];
     }
 
-    const Visitors = {
-      Identifier(path: any, found: any, matchers: any) {
-        if (matchers.indexOf(path.node.name) >= 0) {
+    const found: SnapshotNode[] = [];
+
+    traverse(fileNode, {
+      enter: (path) => {
+        if(path.isIdentifier() && this._matchers.indexOf(path.node.name) >= 0) {
           found.push({
             node: path.node,
             parents: getArrayOfParents(path),
           });
-        }
-      },
-    };
-
-    const found = [];
-
-    traverse(fileNode, {
-      enter: (path) => {
-        const visitor = Visitors[path.node.type];
-        if (visitor != null) {
-          visitor(path, found, this._matchers);
         }
       },
     });
@@ -154,10 +152,9 @@ export default class Snapshot {
     }));
   }
 
-  // $FlowIgnore[value-as-type]
   async _getSnapshotResolver(): Promise<SnapshotResolver> {
     if (!this.snapshotResolver) {
-      await this._resolverPromise;
+      this.snapshotResolver = await this._resolverPromise;
     }
     return this.snapshotResolver;
   }
@@ -170,7 +167,6 @@ export default class Snapshot {
    * a SnapshotData object will be returned with all matched snapshots. If nothing matched, null will be returned.
    * @throws throws exception if the snapshot version mismatched or any other unexpected error.
    */
-  // $FlowIgnore[value-as-type]
   async getSnapshotContent(filePath: string, name: string | RegExp): Promise<string | SnapshotData | null> {
     const snapshotResolver = await this._getSnapshotResolver();
 
@@ -180,7 +176,6 @@ export default class Snapshot {
       return snapshots[name];
     }
     const regex = name;
-    // $FlowIgnore[value-as-type]
     const data: SnapshotData = {};
     Object.entries(snapshots).forEach(([key, value]) => {
       if (regex.test(key)) {
@@ -190,12 +185,12 @@ export default class Snapshot {
     return Object.entries(data).length > 0 ? data : null;
   }
 
-  async getMetadataAsync(filePath: string, options?: SnapshotParserOptions): Promise<Array<SnapshotMetadata>> {
+  async getMetadataAsync(filePath: string, options?: SnapshotParserOptions): Promise<SnapshotMetadata[]> {
     await this._getSnapshotResolver();
     return this.getMetadata(filePath, options);
   }
 
-  getMetadata(filePath: string, options?: SnapshotParserOptions): Array<SnapshotMetadata> {
+  getMetadata(filePath: string, options?: SnapshotParserOptions): SnapshotMetadata[] {
     if (!this.snapshotResolver) {
       throw new Error('snapshotResolver is not ready yet, consider migrating to "getMetadataAsync" instead');
     }
@@ -203,7 +198,7 @@ export default class Snapshot {
     const snapshotNodes = this.parse(filePath, options);
     const snapshots = utils.getSnapshotData(snapshotPath, 'none').data;
 
-    let lastParent = null;
+    let lastParent: t.Node|null = null;
     let count = 1;
 
     return snapshotNodes.map((snapshotNode) => {
@@ -215,21 +210,20 @@ export default class Snapshot {
         count = 1;
       }
 
-      const result = {
+      const result: SnapshotMetadata = {
         content: undefined,
-        count,
         exists: false,
         name: '',
         node: snapshotNode.node,
       };
-      count += 1;
 
       if (!innerAssertion || isDescribe(innerAssertion.callee)) {
         // An expectation inside describe never gets executed.
         return result;
       }
 
-      result.name = buildName(snapshotNode, parents, result.count);
+      result.name = buildName(parents, count);
+      count += 1;
 
       if (snapshots[result.name]) {
         result.exists = true;

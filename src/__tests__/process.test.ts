@@ -40,7 +40,7 @@ describe('createProcess', () => {
 
   it('spawns the command from workspace.jestCommandLine', () => {
     const workspace: any = {jestCommandLine: 'jest'};
-    const args = [];
+    const args: any[] = [];
     createProcess(workspace, args);
 
     expect(mockSpawn.mock.calls[0][0]).toBe('jest');
@@ -49,7 +49,7 @@ describe('createProcess', () => {
 
   it('spawns a command with spaces from workspace.jestCommandLine', () => {
     const workspace: any = {jestCommandLine: 'npm test --'};
-    const args = [];
+    const args: any[] = [];
     createProcess(workspace, args);
 
     expect(mockSpawn.mock.calls[0][0]).toBe('npm test --');
@@ -78,7 +78,7 @@ describe('createProcess', () => {
     const expected = process.env;
 
     const workspace: any = {jestCommandLine: ''};
-    const args = [];
+    const args: any[] = [];
     createProcess(workspace, args);
 
     expect(mockSpawn.mock.calls[0][2].env).toEqual(expected);
@@ -112,7 +112,7 @@ describe('createProcess', () => {
       jestCommandLine: '',
       rootPath: 'root directory',
     };
-    const args = [];
+    const args: any[] = [];
     createProcess(workspace, args);
 
     expect(mockSpawn.mock.calls[0][2].cwd).toBe(workspace.rootPath);
@@ -121,7 +121,7 @@ describe('createProcess', () => {
   it('should set the "shell" property', () => {
     const expected = true;
     const workspace: any = {jestCommandLine: ''};
-    const args = [];
+    const args: any[] = [];
     createProcess(workspace, args);
 
     expect(mockSpawn.mock.calls[0][2].shell).toBe(expected);
@@ -129,7 +129,7 @@ describe('createProcess', () => {
 
   it('should set "detached" to true for non-windows system', () => {
     const workspace: any = {jestCommandLine: ''};
-    const args = [];
+    const args: any[] = [];
 
     const savedProcess = process;
     const processMock = {...process};
@@ -147,7 +147,7 @@ describe('createProcess', () => {
   });
   it('in debug mode, it will log spawn message', () => {
     const workspace: any = {rootPath: 'abc', debug: true};
-    const args = [];
+    const args: any[] = [];
 
     createProcess(workspace, args);
     expect(spawn).toBeCalled();
@@ -158,7 +158,7 @@ describe('createProcess', () => {
     const workspace: any = {jestCommandLine, shell: {path: '/bin/bash', args: ['-l']}};
     const mockWrite = jest.fn();
     const savedProcess = process;
-    let processMock;
+    let processMock: any;
     beforeEach(() => {
       processMock = {...savedProcess};
       global.process = processMock;
@@ -177,7 +177,7 @@ describe('createProcess', () => {
       ${'darwin'} | ${true}
       ${'win32'}  | ${false}
     `('can spawn login shell for $platform => $spawnLoginShell', ({platform, spawnLoginShell}) => {
-      const args = [];
+      const args: any[] = [];
       processMock.platform = platform;
 
       createProcess(workspace, args);
@@ -198,7 +198,7 @@ describe('createProcess', () => {
     });
     it('in debug mode, it will log spawn message', () => {
       workspace.debug = true;
-      const args = [];
+      const args: any[] = [];
       processMock.platform = 'linux';
 
       createProcess(workspace, args);

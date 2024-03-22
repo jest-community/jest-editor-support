@@ -8,16 +8,16 @@
  * @flow
  */
 
-import {DescribeBlock, Expect, ItBlock, ParseResult, ParsedNode} from '../../parsers/parser_nodes';
+import {DescribeBlock, Expect, ItBlock, ParseResult, ParsedNode, ParsedNodeType} from '../../parsers/parser_nodes';
 
 describe('ParsedNode', () => {
   it('can filter children', () => {
-    const root = new ParsedNode('describe', 'a/b/c');
-    const c1 = root.addChild('describe');
-    const c2 = root.addChild('it');
-    const c1_1 = c1.addChild('it');
-    const c1_2 = c1.addChild('describe');
-    const c1_2_1 = c1_2.addChild('it');
+    const root = new ParsedNode(ParsedNodeType.describe, 'a/b/c');
+    const c1 = root.addChild(ParsedNodeType.describe);
+    const c2 = root.addChild(ParsedNodeType.it);
+    const c1_1 = c1.addChild(ParsedNodeType.it);
+    const c1_2 = c1.addChild(ParsedNodeType.describe);
+    const c1_2_1 = c1_2.addChild(ParsedNodeType.it);
 
     let filtered = root.filter((n) => n.type === 'it');
     expect(filtered.length).toEqual(3);
@@ -51,10 +51,9 @@ describe('ParsedNode', () => {
     expect(descBlock.name).toEqual('a describe');
   });
   it('throws an error when adding an unknown child', async () => {
-    const root = new ParsedNode('describe', 'a/b/c');
+    const root = new ParsedNode(ParsedNodeType.describe, 'a/b/c');
     expect(() => {
-      // $FlowIgnore[prop-missing]
-      root.addChild('unknown');
+      root.addChild('unknown' as ParsedNodeType);
     }).toThrow(TypeError);
   });
 });
@@ -64,7 +63,7 @@ describe('ParseResult', () => {
     const d1 = new DescribeBlock('a/b/c', 'd1');
     const i1 = new ItBlock('a/b/c', 'i1');
     const i2 = new ItBlock('a/b/c', 'i2');
-    const e1 = i1.addChild('expect');
+    const e1 = i1.addChild(ParsedNodeType.expect);
 
     const result = new ParseResult('a/b/c');
     result.addNode(d1);
@@ -105,7 +104,7 @@ describe('ParseResult', () => {
   it('throws an error on unknown node type', async () => {
     const result = new ParseResult('a/b/c');
     expect(() => {
-      const node = new ParsedNode('root', '');
+      const node = new ParsedNode(ParsedNodeType.root, '');
       result.addNode(node);
     }).toThrow(TypeError);
   });

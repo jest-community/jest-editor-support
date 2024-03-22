@@ -6,7 +6,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import EventEmitter from 'events';
@@ -20,7 +19,7 @@ function prepareProcess() {
 
   return {
     createProcess: jest.fn(() => mockProcess),
-    mockProcessResult: (stdout: ?string, stderr: ?string) => {
+    mockProcessResult: (stdout?: string, stderr?: string) => {
       if (stdout) {
         mockProcess.stdout.emit('data', Buffer.from(stdout));
       }
@@ -162,7 +161,7 @@ describe('getSettings', () => {
       expected_version: number = 23,
       expected_regex: string = 'some-regex'
     ): Promise<void> => {
-      expect.assertions(2);
+      expect.hasAssertions();
       const {createProcess, mockProcessResult} = prepareProcess();
       const settingsPromise = getSettings(workspace, {
         createProcess,
@@ -185,6 +184,15 @@ describe('getSettings', () => {
       ${json}
       `;
       run_test(with_noise);
+    });
+    it('throw error if jest version is not valid', async () => {
+      expect.hasAssertions();
+      const invalid_version = `{ 
+        "configs": [{
+          "testRegex": "some-regex"
+        }]
+      }`;
+      await expect(run_test(invalid_version)).rejects.toThrow('Jest version is not a valid semver version');
     });
   });
 });

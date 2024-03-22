@@ -9,28 +9,30 @@
 
 import type {ChildProcess} from 'child_process';
 import type ProjectWorkspace from './project_workspace';
+import type {AssertionResult} from '@jest/test-result';
 
-export type Location = {
-  column: number,
-  line: number,
-};
+export type Location = NonNullable<AssertionResult['location']>;
+
+// export type Location = {
+//   column: number;
+//   line: number;
+// };
 
 export type RunArgs = {
-  args: Array<string>,
-  replace?: boolean, // default is false
-  skipConversion?: boolean, // if true, args will not go through any conversion, such as dashed arg conversion.
+  args: string[];
+  replace?: boolean; // default is false
+  skipConversion?: boolean; // if true, args will not go through any conversion, such as dashed arg conversion.
 };
 
 export type Options = {
-  // $FlowIgnore[value-as-type]
-  createProcess?: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess,
-  noColor?: boolean,
-  testNamePattern?: string,
-  testFileNamePattern?: string,
-  reporters?: string[],
+  createProcess?: (workspace: ProjectWorkspace, args: string[]) => ChildProcess;
+  noColor?: boolean;
+  testNamePattern?: string;
+  testFileNamePattern?: string;
+  reporters?: string[];
 
   /** either to append or replace the Runner process arguments */
-  args?: RunArgs,
+  args?: RunArgs;
 };
 
 /**
@@ -49,15 +51,15 @@ export type TestReconciliationState =
  *
  */
 export type TestAssertionStatus = {
-  title: string,
-  fullName: string,
-  ancestorTitles: string[],
-  status: TestReconciliationState,
-  message: string,
-  shortMessage: ?string,
-  terseMessage: ?string,
-  location: ?Location,
-  line: ?number,
+  title: string;
+  fullName: string;
+  ancestorTitles: string[];
+  status: TestReconciliationState;
+  message: string;
+  shortMessage?: string;
+  terseMessage?: string;
+  location?: Location;
+  line?: number;
 };
 
 /**
@@ -66,14 +68,14 @@ export type TestAssertionStatus = {
  *
  */
 export type TestFileAssertionStatus = {
-  file: string,
-  message: string,
-  status: TestReconciliationState,
-  assertions: TestAssertionStatus[] | null,
+  file: string;
+  message: string;
+  status: TestReconciliationState;
+  assertions: TestAssertionStatus[] | null;
 };
 
 export type JestTotalResultsMeta = {
-  noTestsFound: boolean,
+  noTestsFound: boolean;
 };
 
 // eslint-disable-next-line import/prefer-default-export
