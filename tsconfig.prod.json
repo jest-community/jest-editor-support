@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "sourceMap": false, // Disable source maps for production
-    "declaration": false, // Enable declaration files generation
+    "declaration": false, // Disable declaration files generation
     "outDir": "./build", // Output directory for compiled JS files
     "removeComments": true // Optional: Remove comments in the production build
   },
