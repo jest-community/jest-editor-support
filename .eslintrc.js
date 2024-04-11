@@ -1,116 +1,58 @@
 module.exports = {
+  root: true,
   env: {
     es6: true,
     node: true,
     browser: true,
-    jest: true,
   },
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
   },
-  settings: {
-    'import/parsers': {
-      '@babel/eslint-parser': ['.js'],
-      '@typescript-eslint/parser': ['.ts'],
-    },
-    'import/resolver': {
-      node: true,
-      'eslint-import-resolver-typescript': true,
-    },
-  },
-  parser: '@babel/eslint-parser',
-  parserOptions: {
-    sourceType: 'module',
-    babelOptions: {
-      // configuration for @babel/eslint-parser
-      configFile: './babel.config.js',
-    },
-    // configuration for @typescript-eslint
-    project: 'tsconfig.json',
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint', 'prettier'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended',
+    'prettier',
+    'plugin:prettier/recommended',
+  ],
+  rules: {
+    'prettier/prettier': 'error',
+    // too many tests to fix, disable for now
+    '@typescript-eslint/ban-types': 'off',
+    // customize argument ignore pattern
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', {argsIgnorePattern: '^_'}],
   },
   overrides: [
-    // linting setup for JS files.
     {
-      files: '**/*.js',
-      parser: '@babel/eslint-parser',
-      plugins: ['@babel', 'prettier', 'import'],
-      extends: ['airbnb-base', 'prettier', 'plugin:prettier/recommended'],
+      files: ['**/__tests__/**/*.ts', '**/*.test.ts', '**/*.spec.ts'],
+      env: {
+        jest: true,
+        'jest/globals': true,
+      },
+      plugins: ['jest'],
+      extends: ['plugin:jest/recommended'],
       rules: {
-        'prettier/prettier': ['error', {endOfLine: 'auto'}],
-        'no-underscore-dangle': 'off',
-        camelcase: 'off',
-        'no-param-reassign': ['error', {props: false}],
-        'import/extensions': [0, 'never', {ts: 'never'}],
-        'import/named': 'off',
-        'import/namespace': 'off',
-        'import/default': 'off',
-        'import/no-named-as-default-member': 'off',
-        'import/no-named-as-default': 'off',
-        'max-classes-per-file': 'off',
-        'prefer-object-spread': 'off',
-        '@typescript-eslint/restrict-template-expressions': [
-          2,
-          {
-            allowNumber: true,
-            allowBoolean: true,
-            allowAny: true,
-            allowNullish: true,
-          },
-        ],
+        // Test-specific rules
+        'no-empty-function': 'off',
+        'no-unused-expressions': 'off',
+        // jest specific
+        'jest/no-conditional-expect': 'off',
+        // Any other rule adjustments for test files
+        '@typescript-eslint/no-empty-function': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
       },
     },
-    // linting setup for TS files.
     {
-      files: '**/*.ts',
-      plugins: ['@babel', 'prettier', 'import', '@typescript-eslint'],
-      extends: [
-        'airbnb-typescript/base',
-        'plugin:@typescript-eslint/eslint-recommended',
-        'plugin:@typescript-eslint/recommended',
-        'plugin:@typescript-eslint/recommended-requiring-type-checking',
-        'prettier',
-        'plugin:prettier/recommended',
-      ],
+      files: ['src/**/*.ts'],
       rules: {
-        'prettier/prettier': ['error', {endOfLine: 'auto'}],
-        'no-underscore-dangle': 'off',
-        camelcase: 'off',
-        'no-param-reassign': ['error', {props: false}],
-        'import/extensions': [0, 'never', {ts: 'never'}],
-        'import/named': 'off',
-        'import/namespace': 'off',
-        'import/default': 'off',
-        'import/no-named-as-default-member': 'off',
-        'import/no-named-as-default': 'off',
-        'max-classes-per-file': 'off',
-        // TS specific
-        '@typescript-eslint/explicit-function-return-type': 'off',
-        '@typescript-eslint/prefer-regexp-exec': 'off',
-        '@typescript-eslint/array-type': [
-          'error',
-          {
-            default: 'array',
-            readonly: 'array',
-          },
-        ],
-        '@typescript-eslint/naming-convention': [
-          'error',
-          {
-            selector: 'variable',
-            format: ['camelCase', 'UPPER_CASE', 'PascalCase', 'snake_case'],
-            leadingUnderscore: 'allow', // Allows leading underscores for variables
-          },
-          {
-            selector: 'function',
-            format: ['camelCase'],
-            leadingUnderscore: 'allow', // Allows leading underscores for functions
-          },
-          {
-            selector: 'typeLike',
-            format: ['PascalCase'], // Enforces PascalCase for types and interfaces
-          },
-        ],
+        // Source file specific rules
       },
     },
   ],

@@ -1,9 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "runTest"] }] */
 
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
@@ -120,7 +115,7 @@ describe('getSettings', () => {
     const settingsPromise = getSettings(workspace, {
       createProcess,
     });
-    mockProcessResult(JSON.stringify(json), 'The expected error occured.');
+    mockProcessResult(JSON.stringify(json), 'The expected error occurred.');
 
     try {
       await settingsPromise;
@@ -138,12 +133,18 @@ describe('getSettings', () => {
     const rootPath = 'root_path';
     const workspace = new ProjectWorkspace(rootPath, jestCommandLine, pathToConfig, localJestMajorVersion);
 
-    const {createProcess} = prepareProcess();
-    await getSettings(workspace, {
+    const {createProcess, mockProcessResult} = prepareProcess();
+    const settingsPromise = getSettings(workspace, {
       createProcess,
     });
+    mockProcessResult();
+    try {
+      await settingsPromise;
+    } catch (err) {
+      expect(err).toBeTruthy();
+    }
 
-    expect(createProcess).toBeCalledWith(
+    expect(createProcess).toHaveBeenCalledWith(
       {
         localJestMajorVersion,
         pathToConfig,

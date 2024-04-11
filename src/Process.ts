@@ -19,7 +19,6 @@ const isLoginShell = (arg: any): arg is LoginShell => arg && typeof arg.path ===
  * @param {string[]} args
  * @returns {ChildProcess}
  */
-// eslint-disable-next-line import/prefer-default-export
 export const createProcess = (workspace: ProjectWorkspace, args: string[]): ChildProcess => {
   const runtimeExecutable = [workspace.jestCommandLine, ...args];
 

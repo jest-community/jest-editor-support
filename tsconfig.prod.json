@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": false, // Disable source maps for production
+    "declaration": false, // Enable declaration files generation
+    "outDir": "./build", // Output directory for compiled JS files
+    "removeComments": true // Optional: Remove comments in the production build
+  },
+  "exclude": [
+    "**/__tests__/**", // Exclude all test files
+    "**/*.d.ts" // Exclude all .d.ts files from the compilation process
+  ],
+  "include": [
+    "src/**/*.ts" // Include all TypeScript source files except .d.ts files
+  ]
+}

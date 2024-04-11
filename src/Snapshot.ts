@@ -11,7 +11,7 @@
  *
  */
 
-import traverse from '@babel/traverse';
+import traverse, {NodePath} from '@babel/traverse';
 import * as t from '@babel/types';
 import type {SnapshotResolver} from 'jest-snapshot';
 import {buildSnapshotResolver, utils} from 'jest-snapshot';
@@ -24,10 +24,16 @@ import {SnapshotData} from 'jest-snapshot/build/types';
 
 type ParserFunc = typeof getASTfor;
 
-interface SnapshotMetadata {
+export type SnapshotNode = t.Identifier;
+export interface SnapshotBlock {
+  node: SnapshotNode;
+  parents: t.Node[];
+}
+
+export interface SnapshotMetadata {
   exists: boolean;
   name: string;
-  node: t.Node;
+  node: SnapshotNode;
   content?: string;
 }
 
@@ -70,10 +76,9 @@ const isValidParent = (parent: t.Node): parent is t.CallExpression =>
   t.isCallExpression(parent) &&
   ((t.isIdentifier(parent.callee) && validParents[parent.callee.name]) || isValidMemberExpression(parent.callee));
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getArrayOfParents = (path: any) => {
-  const result = [];
-  let parent = path.parentPath;
+const getArrayOfParents = (path: NodePath<t.Identifier>): t.Node[] => {
+  const result: t.Node[] = [];
+  let parent: NodePath<t.Node> | null = path.parentPath; // Update the type of 'parent' to allow for null values
   while (parent) {
     result.unshift(parent.node);
     parent = parent.parentPath;
@@ -95,11 +100,6 @@ const buildName: (parents: t.Node[], position: number) => string = (parents, pos
 
   return utils.testNameToKey(fullName, position);
 };
-
-export interface SnapshotNode {
-  node: t.Node;
-  parents: t.CallExpression[];
-}
 
 export interface SnapshotParserOptions {
   verbose?: boolean;
@@ -129,7 +129,7 @@ export default class Snapshot {
     );
   }
 
-  parse(filePath: string, options?: SnapshotParserOptions): SnapshotNode[] {
+  parse(filePath: string, options?: SnapshotParserOptions): SnapshotBlock[] {
     let fileNode;
     try {
       fileNode = this._parser(filePath, undefined, options?.parserOptions);
@@ -141,7 +141,7 @@ export default class Snapshot {
       return [];
     }
 
-    const found: SnapshotNode[] = [];
+    const found: SnapshotBlock[] = [];
 
     traverse(fileNode, {
       enter: (path) => {
@@ -203,14 +203,14 @@ export default class Snapshot {
       throw new Error('snapshotResolver is not ready yet, consider migrating to "getMetadataAsync" instead');
     }
     const snapshotPath = this.snapshotResolver.resolveSnapshotPath(filePath);
-    const snapshotNodes = this.parse(filePath, options);
+    const snapshotBlocks = this.parse(filePath, options);
     const snapshots = utils.getSnapshotData(snapshotPath, 'none').data;
 
     let lastParent: t.Node | null = null;
     let count = 1;
 
-    return snapshotNodes.map((snapshotNode) => {
-      const {parents} = snapshotNode;
+    return snapshotBlocks.map((snapshotBlock) => {
+      const {parents} = snapshotBlock;
       const innerAssertion = parents[parents.length - 1];
 
       if (lastParent !== innerAssertion) {
@@ -222,11 +222,10 @@ export default class Snapshot {
         content: undefined,
         exists: false,
         name: '',
-        node: snapshotNode.node,
+        node: snapshotBlock.node,
       };
 
-      if (!innerAssertion || isDescribe(innerAssertion.callee)) {
-        // An expectation inside describe never gets executed.
+      if (!innerAssertion || (t.isCallExpression(innerAssertion) && isDescribe(innerAssertion.callee))) {
         return result;
       }
 

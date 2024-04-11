@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "verifyTest"] }] */
+
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -12,8 +10,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import TestReconciler from '../test_reconciler';
-import type {TestFileAssertionStatus, TestAssertionStatus} from '../types';
+import TestReconciler, {TestFileAssertionStatus, TestAssertionStatus} from '../test_reconciler';
 
 const fixtures = path.resolve(__dirname, '../../fixtures');
 

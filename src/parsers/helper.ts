@@ -115,14 +115,14 @@ const getNodeAttribute = <T = t.Node>(
     if (!aNode || !aNode[attr]) {
       return;
     }
+    let n = aNode;
     if (isDeep) {
-      let n = aNode;
       while (n[attr]) {
-        n = aNode[attr];
+        n = n[attr];
       }
       return n;
     }
-    return aNode[attr];
+    return n[attr];
   }, value) as T | undefined;
 };
 

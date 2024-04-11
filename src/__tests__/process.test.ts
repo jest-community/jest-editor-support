@@ -35,7 +35,7 @@ describe('createProcess', () => {
     const args: string[] = [];
     createProcess(workspace, args);
 
-    expect(mockSpawn).toBeCalled();
+    expect(mockSpawn).toHaveBeenCalled();
   });
 
   it('spawns the command from workspace.jestCommandLine', () => {
@@ -150,7 +150,7 @@ describe('createProcess', () => {
     const args: any[] = [];
 
     createProcess(workspace, args);
-    expect(spawn).toBeCalled();
+    expect(spawn).toHaveBeenCalled();
     expect(mockConsoleLog).toHaveBeenCalled();
   });
   describe('login shell', () => {
@@ -182,18 +182,18 @@ describe('createProcess', () => {
 
       createProcess(workspace, args);
 
-      expect(spawn).toBeCalled();
+      expect(spawn).toHaveBeenCalled();
       if (spawnLoginShell) {
         expect(mockSpawn.mock.calls[0][0]).toEqual(expect.stringContaining(workspace.shell.path));
         expect(mockSpawn.mock.calls[0][2].shell).not.toBe(true);
-        expect(mockWrite).toBeCalledWith(expect.stringContaining(jestCommandLine));
-        expect(mockWrite).toBeCalledWith(expect.stringContaining('exit $?'));
+        expect(mockWrite).toHaveBeenCalledWith(expect.stringContaining(jestCommandLine));
+        expect(mockWrite).toHaveBeenCalledWith(expect.stringContaining('exit $?'));
 
         expect(mockConsoleLog).not.toHaveBeenCalled();
       } else {
         expect(mockSpawn.mock.calls[0][0]).toEqual(expect.stringContaining(jestCommandLine));
         expect(mockSpawn.mock.calls[0][2].shell).toBe(true);
-        expect(mockWrite).not.toBeCalled();
+        expect(mockWrite).not.toHaveBeenCalled();
       }
     });
     it('in debug mode, it will log spawn message', () => {
@@ -202,10 +202,10 @@ describe('createProcess', () => {
       processMock.platform = 'linux';
 
       createProcess(workspace, args);
-      expect(spawn).toBeCalled();
+      expect(spawn).toHaveBeenCalled();
       expect(mockSpawn.mock.calls[0][2].shell).not.toBe(true);
-      expect(mockWrite).toBeCalledWith(expect.stringContaining(jestCommandLine));
-      expect(mockWrite).toBeCalledWith(expect.stringContaining('exit'));
+      expect(mockWrite).toHaveBeenCalledWith(expect.stringContaining(jestCommandLine));
+      expect(mockWrite).toHaveBeenCalledWith(expect.stringContaining('exit'));
       expect(mockConsoleLog).toHaveBeenCalled();
     });
   });

@@ -138,6 +138,7 @@ describe('Snapshot', () => {
       it('when the resolver is not yet ready', () => {
         // simulate when buildSnapshotResolver did not resolve yet
         buildSnapshotResolverSpy.mockImplementation((() => {
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
           return new Promise(() => {});
         }) as any);
         const snapshot = new Snapshot();
@@ -201,7 +202,7 @@ describe('Snapshot', () => {
       ${'2 describe with each test.each b 1'}            | ${'2.b'}
       ${'tests with each case %d test 1-D array each 1'} | ${undefined}
       ${'tests with each case 3 test 1-D array each 1'}  | ${'3 1-D'}
-    `('', async ({testName, expected}) => {
+    `('$testName', async ({testName, expected}) => {
       expect.hasAssertions();
       const filePath = path.join(snapshotFixturePath, 'inline-and-each.example');
       const snapshot = new Snapshot(undefined, ['toMatchInlineSnapshot', 'toThrowErrorMatchingInlineSnapshot']);

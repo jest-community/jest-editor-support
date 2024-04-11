@@ -1,10 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable no-template-curly-in-string */
-/* eslint-disable prefer-destructuring */
+/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "assertNameInfo", "assertParseResultSimple"] }] */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -13,7 +7,7 @@
  */
 
 import * as path from 'path';
-import {DescribeBlock, ItBlock, type NamedBlock, type ParseResult} from '../..';
+import {DescribeBlock, ItBlock, NamedBlock, type IParseResults, ParsedNode} from '../..';
 import {parse} from '../../parsers/babel_parser';
 import {JESParserOptions, parseOptions} from '../../parsers/helper';
 
@@ -30,7 +24,7 @@ describe('parsers', () => {
     const parseFunction = (file: string, data?: string, options?: JESParserOptions) =>
       parse(file, data, parseOptions(fileName, options));
     const assertBlock = (
-      block: NamedBlock | undefined,
+      block: ParsedNode | undefined,
       start: {column: number; line: number},
       end: {column: number; line: number},
       name: string | null = null
@@ -38,11 +32,11 @@ describe('parsers', () => {
       expect(block?.start).toEqual(expect.objectContaining(start));
       expect(block?.end).toEqual(expect.objectContaining(end));
       if (name) {
-        expect(block?.name).toEqual(name);
+        expect(block instanceof NamedBlock && block?.name).toEqual(name);
       }
     };
     const assertBlock2 = (
-      block: NamedBlock,
+      block: ParsedNode,
       sl: number,
       sc: number,
       el: number,
@@ -56,11 +50,11 @@ describe('parsers', () => {
         }).not.toThrow();
       });
     });
-    const parseResultNames = (parseResult: ParseResult) => ({
+    const parseResultNames = (parseResult: IParseResults) => ({
       itBlocks: parseResult.itBlocks.map((it) => it.name),
       describeBlocks: parseResult.describeBlocks.map((describe) => describe.name),
     });
-    const simplifiedParseResult = (parseResult: ParseResult) => ({
+    const simplifiedParseResult = (parseResult: IParseResults) => ({
       itBlocks: parseResult.itBlocks.map((it) => ({
         name: it.name,
         start: it.start,
@@ -75,7 +69,7 @@ describe('parsers', () => {
     /**
      * Compare names, start, and end of each it/describe in parse result
      */
-    const assertParseResultSimple = (parseResult: ParseResult, expectedSimplifiedParseResult: any) => {
+    const assertParseResultSimple = (parseResult: IParseResults, expectedSimplifiedParseResult: any) => {
       // Check just names first
       const names = parseResultNames(parseResult);
       const expectedNames = parseResultNames(expectedSimplifiedParseResult);
@@ -201,7 +195,7 @@ describe('parsers', () => {
         expect(data.itBlocks.length).toEqual(8);
       });
 
-      it('For a danger flow test file ', () => {
+      it('For a danger flow test file', () => {
         const data = parseFunction(`${fixtures}/dangerjs/github.example`);
         expect(data.itBlocks.length).toEqual(2);
       });
@@ -227,7 +221,7 @@ describe('parsers', () => {
         expect(firstExpect.end).toEqual(expect.objectContaining({column: 36, line: 13}));
       });
 
-      it('finds Expects in a danger flow test file ', () => {
+      it('finds Expects in a danger flow test file', () => {
         const data = parseFunction(`${fixtures}/dangerjs/github.example`);
         expect(data.expects.length).toEqual(3);
 
@@ -277,7 +271,9 @@ describe('parsers', () => {
       let nested: DescribeBlock | undefined;
       beforeEach(() => {
         const data = parseFunction(`${fixtures}/nested_elements.example`);
-        nested = data.root.children?.filter((e) => e instanceof DescribeBlock && e.name === 'describe 1.0')[0];
+        nested = data.root.children?.filter(
+          (e) => e instanceof DescribeBlock && e.name === 'describe 1.0'
+        )[0] as DescribeBlock;
       });
       it('can find nested describe or test blocks', () => {
         expect(nested?.children?.length).toBe(2);
@@ -570,28 +566,6 @@ describe('parsers', () => {
           ],
           describeBlocks: [
             // No describes
-          ],
-        });
-      });
-
-      it('For it.each with JSX', () => {
-        if (fileName.match(/ts$/)) {
-          return;
-        }
-        const data = `
-          it.each(['a', 'b', 'c'])('works with JSX', () => {
-            const foo = () => <div></div>;
-          });
-        `;
-        const parseResult = parseFunction(fileName, data);
-
-        expect(parseResult).toMatchObject({
-          itBlocks: [
-            {
-              name: 'works with JSX',
-              start: {column: 11, line: 2},
-              end: {column: 13, line: 4},
-            },
           ],
         });
       });

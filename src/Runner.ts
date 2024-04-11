@@ -10,10 +10,18 @@ import {readFile} from 'fs';
 import {tmpdir} from 'os';
 import * as path from 'path';
 import EventEmitter from 'events';
-import {messageTypes} from './types';
+import {MessageTypes} from './types';
 import type {Options, MessageType} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
+
+export type RunnerEvent =
+  | 'processClose'
+  | 'processExit'
+  | 'executableJSON'
+  | 'executableStdErr'
+  | 'executableOutput'
+  | 'terminalError';
 
 // This class represents the running process, and
 // passes out events when it understands what data is being
@@ -160,7 +168,7 @@ export default class Runner extends EventEmitter {
   _parseOutput(data: Buffer, isStdErr: boolean): MessageType {
     const msgType = this.findMessageType(data);
     switch (msgType) {
-      case messageTypes.testResults:
+      case MessageTypes.testResults:
         this.emit('executableStdErr', data, {
           type: msgType,
         });
@@ -177,8 +185,8 @@ export default class Runner extends EventEmitter {
         });
         this.prevMessageTypes.length = 0;
         break;
-      case messageTypes.watchUsage:
-      case messageTypes.noTests:
+      case MessageTypes.watchUsage:
+      case MessageTypes.noTests:
         this.prevMessageTypes.push(msgType);
         this.emit('executableStdErr', data, {
           type: msgType,
@@ -247,23 +255,23 @@ export default class Runner extends EventEmitter {
     const testResultsRegex = /Test results written to/;
 
     const checks = [
-      {regex: testResultsRegex, messageType: messageTypes.testResults},
-      {regex: noTestRegex, messageType: messageTypes.noTests},
-      {regex: watchUsageRegex, messageType: messageTypes.watchUsage},
+      {regex: testResultsRegex, messageType: MessageTypes.testResults},
+      {regex: noTestRegex, messageType: MessageTypes.noTests},
+      {regex: watchUsageRegex, messageType: MessageTypes.watchUsage},
     ];
 
     const str = buf.toString('utf8');
     const match = checks.find(({regex}) => regex.test(str));
-    return match ? match.messageType : messageTypes.unknown;
+    return match ? match.messageType : MessageTypes.unknown;
   }
 
   doResultsFollowNoTestsFoundMessage(): boolean {
     if (this.prevMessageTypes.length === 1) {
-      return this.prevMessageTypes[0] === messageTypes.noTests;
+      return this.prevMessageTypes[0] === MessageTypes.noTests;
     }
 
     if (this.prevMessageTypes.length === 2) {
-      return this.prevMessageTypes[0] === messageTypes.noTests && this.prevMessageTypes[1] === messageTypes.watchUsage;
+      return this.prevMessageTypes[0] === MessageTypes.noTests && this.prevMessageTypes[1] === MessageTypes.watchUsage;
     }
 
     return false;

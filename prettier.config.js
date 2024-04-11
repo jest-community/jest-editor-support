@@ -5,4 +5,12 @@ module.exports = {
   singleQuote: true,
   printWidth: 120,
   bracketSpacing: false,
+  overrides: [
+    {
+      files: '*.ts',
+      options: {
+        parser: 'typescript',
+      },
+    },
+  ],
 };

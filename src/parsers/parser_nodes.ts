@@ -6,15 +6,15 @@
  *
  */
 
-import type {Location} from '../types';
+import type {CodeLocation} from '../types';
 
 /**
  * range and location here are 1-based position.
  */
 export class ParsedRange {
-  start: Location;
+  start: CodeLocation;
 
-  end: Location;
+  end: CodeLocation;
 
   constructor(startLine: number, startCol: number, endLine: number, endCol: number) {
     this.start = {column: startCol, line: startLine};
@@ -32,9 +32,9 @@ export enum ParsedNodeType {
 export class ParsedNode {
   type: ParsedNodeType;
 
-  start?: Location;
+  start?: CodeLocation;
 
-  end?: Location;
+  end?: CodeLocation;
 
   file: string;
 
@@ -97,7 +97,7 @@ export class Expect extends ParsedNode {
 }
 
 export class NamedBlock extends ParsedNode {
-  name?: string;
+  name: string;
 
   nameRange?: ParsedRange;
 
@@ -112,9 +112,7 @@ export class NamedBlock extends ParsedNode {
 
   constructor(type: ParsedNodeType, file: string, name?: string) {
     super(type, file);
-    if (name) {
-      this.name = name;
-    }
+    this.name = name ?? '';
   }
 }
 
@@ -131,7 +129,18 @@ export class DescribeBlock extends NamedBlock {
 
 // export type NodeClass = Node | Expect | ItBlock | DescribeBlock;
 
-export class ParseResult {
+export interface IParseResults {
+  describeBlocks: DescribeBlock[];
+
+  expects: Expect[];
+
+  itBlocks: ItBlock[];
+
+  root: ParsedNode;
+
+  file: string;
+}
+export class ParseResult implements IParseResults {
   describeBlocks: DescribeBlock[];
 
   expects: Expect[];

@@ -8,37 +8,59 @@
 
 import * as Process from './Process';
 
+import {CodeLocation} from './types';
 import ProjectWorkspace from './project_workspace';
-import Runner from './Runner';
+import Runner, {RunnerEvent} from './Runner';
 import getSettings from './Settings';
-import Snapshot from './Snapshot';
+import Snapshot, {SnapshotMetadata, SnapshotNode, SnapshotParserOptions} from './Snapshot';
 import {
   Expect,
   ItBlock,
   DescribeBlock,
   NamedBlock,
-  ParseResult,
+  IParseResults,
   ParsedNode,
   ParsedRange,
   ParsedNodeType,
 } from './parsers/parser_nodes';
 import parse from './parsers';
-import TestReconciler from './test_reconciler';
+import TestReconciler, {
+  TestAssertionStatus,
+  TestReconciliationState,
+  TestFileAssertionStatus,
+  JestTotalResults,
+  JestAssertionResults,
+  JestFileResults,
+} from './test_reconciler';
+import {MessageType, MessageTypes} from './types';
 
 export {
+  CodeLocation,
   DescribeBlock,
   Expect,
   ItBlock,
   NamedBlock,
-  ParseResult,
+  IParseResults,
   ParsedNode,
   ParsedRange,
   Process,
   ProjectWorkspace,
   Runner,
+  RunnerEvent,
   getSettings,
-  Snapshot,
+  JestTotalResults,
+  JestFileResults,
+  JestAssertionResults,
   TestReconciler,
+  TestReconciliationState,
+  TestFileAssertionStatus,
+  TestAssertionStatus,
   parse,
   ParsedNodeType,
+  MessageType,
+  MessageTypes,
+  Snapshot,
+  SnapshotMetadata,
+  SnapshotNode,
+  SnapshotParserOptions,
 };
