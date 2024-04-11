@@ -5,6 +5,7 @@ module.exports = {
   singleQuote: true,
   printWidth: 120,
   bracketSpacing: false,
+  endOfLine: 'lf',
   overrides: [
     {
       files: '*.ts',
