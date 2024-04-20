@@ -10,6 +10,7 @@ fixtures
 babel.config.js
 prettier.config.js
 tsconfig.json
+tsconfig.*.json
 dangerfile.js
 yarn.lock
 *.tgz

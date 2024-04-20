@@ -1,12 +1,11 @@
-/* eslint-disable camelcase */
-/* eslint-disable no-use-before-define */
+/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "runTest"] }] */
+
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import EventEmitter from 'events';
@@ -20,7 +19,7 @@ function prepareProcess() {
 
   return {
     createProcess: jest.fn(() => mockProcess),
-    mockProcessResult: (stdout: ?string, stderr: ?string) => {
+    mockProcessResult: (stdout?: string, stderr?: string) => {
       if (stdout) {
         mockProcess.stdout.emit('data', Buffer.from(stdout));
       }
@@ -116,7 +115,7 @@ describe('getSettings', () => {
     const settingsPromise = getSettings(workspace, {
       createProcess,
     });
-    mockProcessResult(JSON.stringify(json), 'The expected error occured.');
+    mockProcessResult(JSON.stringify(json), 'The expected error occurred.');
 
     try {
       await settingsPromise;
@@ -125,19 +124,27 @@ describe('getSettings', () => {
     }
   });
 
-  it('passes command and args to createProcess', () => {
+  it('passes command and args to createProcess', async () => {
+    expect.hasAssertions();
+
     const localJestMajorVersion = 1000;
     const pathToConfig = 'test';
     const jestCommandLine = 'path_to_jest';
     const rootPath = 'root_path';
     const workspace = new ProjectWorkspace(rootPath, jestCommandLine, pathToConfig, localJestMajorVersion);
 
-    const {createProcess} = prepareProcess();
-    getSettings(workspace, {
+    const {createProcess, mockProcessResult} = prepareProcess();
+    const settingsPromise = getSettings(workspace, {
       createProcess,
     });
+    mockProcessResult();
+    try {
+      await settingsPromise;
+    } catch (err) {
+      expect(err).toBeTruthy();
+    }
 
-    expect(createProcess).toBeCalledWith(
+    expect(createProcess).toHaveBeenCalledWith(
       {
         localJestMajorVersion,
         pathToConfig,
@@ -157,12 +164,8 @@ describe('getSettings', () => {
         "testRegex": "some-regex"
       }]
     }`;
-    const run_test = async (
-      text: string,
-      expected_version: number = 23,
-      expected_regex: string = 'some-regex'
-    ): Promise<void> => {
-      expect.assertions(2);
+    const runTest = async (text: string, expected_version = 23, expected_regex = 'some-regex'): Promise<void> => {
+      expect.hasAssertions();
       const {createProcess, mockProcessResult} = prepareProcess();
       const settingsPromise = getSettings(workspace, {
         createProcess,
@@ -174,17 +177,26 @@ describe('getSettings', () => {
       expect(settings.configs[0].testRegex).toBe(expected_regex);
     };
 
-    it('can parse correct config', () => {
-      run_test(json);
+    it('can parse correct config', async () => {
+      await runTest(json);
     });
 
-    it('can parse config even with noise', () => {
-      const with_noise = `
+    it('can parse config even with noise', async () => {
+      const withNoise = `
       > something
       > more noise
       ${json}
       `;
-      run_test(with_noise);
+      await runTest(withNoise);
+    });
+    it('throw error if jest version is not valid', async () => {
+      expect.hasAssertions();
+      const invalidVersion = `{ 
+        "configs": [{
+          "testRegex": "some-regex"
+        }]
+      }`;
+      await expect(runTest(invalidVersion)).rejects.toThrow('Jest version is not a valid semver version');
     });
   });
 });

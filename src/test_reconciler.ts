@@ -5,13 +5,44 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import path from 'path';
-import type {TestFileAssertionStatus, TestAssertionStatus, TestReconciliationState, Location} from './types';
+import type {CodeLocation} from './types';
 
-import type {FormattedAssertionResult, FormattedTestResults} from '../types/TestResult';
+import type {FormattedTestResults} from '@jest/test-result';
+import {CoverageMapData} from 'istanbul-lib-coverage';
+
+// TODO replace this with direct jest types when they are available in future jest version
+export type JestFileResults = FormattedTestResults['testResults'][number];
+export type JestAssertionResults = JestFileResults['assertionResults'][number];
+export type JestTotalResults = Omit<FormattedTestResults, 'coverageMap'> & {
+  coverageMap?: CoverageMapData;
+};
+
+/**
+ *  Did the thing pass, fail or was it not run?
+ */
+export type TestReconciliationState =
+  | 'Unknown' // The file has not changed, so the watcher didn't hit it
+  | 'KnownFail' // Definitely failed
+  | 'KnownSuccess' // Definitely passed
+  | 'KnownSkip' // Definitely skipped (it.skip)
+  | 'KnownTodo'; // Definitely pending (it.todo);
+
+export type TestAssertionStatus = Omit<JestAssertionResults, 'status'> & {
+  status: TestReconciliationState;
+  message: string;
+  shortMessage?: string;
+  terseMessage?: string;
+  location?: CodeLocation;
+  line?: number;
+};
+export type TestFileAssertionStatus = Omit<JestFileResults, 'status' | 'assertionResults' | 'name'> & {
+  file: string;
+  status: TestReconciliationState;
+  assertions: TestAssertionStatus[] | null;
+};
 
 /**
  *  You have a Jest test runner watching for changes, and you have
@@ -31,17 +62,17 @@ export default class TestReconciler {
   // instance properties. This is 1) to prevent race condition 2) the data is already
   // stored in the this.fileStatuses, no dup is better 3) client will most likely need to process
   // all the results anyway.
-  updateFileWithJestStatus(results: FormattedTestResults): TestFileAssertionStatus[] {
+  updateFileWithJestStatus(results: JestTotalResults): TestFileAssertionStatus[] {
     // Loop through all files inside the report from Jest
     const statusList: TestFileAssertionStatus[] = [];
     results.testResults.forEach((file) => {
       // Did the file pass/fail?
-      const status = this.statusToReconcilationState(file.status);
+      const status = this.statusToReconciliationState(file.status);
       // Create our own simpler representation
       const fileStatus: TestFileAssertionStatus = {
-        assertions: this.mapAssertions(file.name, file.assertionResults),
+        ...file,
         file: file.name,
-        message: file.message,
+        assertions: this.mapAssertions(file.name, file.assertionResults),
         status,
       };
       this.fileStatuses[file.name] = fileStatus;
@@ -62,10 +93,10 @@ export default class TestReconciler {
   // we don't get this as structured data, but what we get
   // is useful enough to make it for ourselves
 
-  mapAssertions(filename: string, assertions: Array<FormattedAssertionResult>): Array<TestAssertionStatus> {
+  mapAssertions(filename: string, assertions: JestAssertionResults[]): TestAssertionStatus[] {
     // convert jest location (column is 0-based and line is 1-based) to all 0-based location used internally in this package
     /* eslint-disable no-param-reassign */
-    const convertJestLocation = (jestLocation: ?Location) => {
+    const convertJestLocation = (jestLocation?: CodeLocation) => {
       if (jestLocation) {
         jestLocation.line -= 1;
       }
@@ -80,10 +111,10 @@ export default class TestReconciler {
     return assertions.map((assertion) => {
       // Failure messages seems to always be an array of one item
       const message = assertion.failureMessages && assertion.failureMessages[0];
-      let short = null;
-      let terse = null;
-      let line = null;
-      const location = convertJestLocation(assertion.location); // output from jest --testLocationInResults (https://jestjs.io/docs/en/cli#testlocationinresults)
+      let short = undefined;
+      let terse = undefined;
+      let line = undefined;
+      const location = convertJestLocation(assertion.location ?? undefined); // output from jest --testLocationInResults (https://jestjs.io/docs/en/cli#testlocationinresults)
       if (message) {
         // Just the first line, with little whitespace
         short = message.split('   at', 1)[0].trim();
@@ -92,15 +123,13 @@ export default class TestReconciler {
         line = this.lineOfError(message, filename);
       }
       return {
+        ...assertion,
         line,
         message: message || '',
         shortMessage: short,
-        status: this.statusToReconcilationState(assertion.status),
+        status: this.statusToReconciliationState(assertion.status),
         terseMessage: terse,
-        title: assertion.title,
         location,
-        fullName: assertion.fullName,
-        ancestorTitles: assertion.ancestorTitles,
       };
     });
   }
@@ -125,13 +154,13 @@ export default class TestReconciler {
   }
 
   // Pull the line out from the stack trace
-  lineOfError(message: string, filePath: string): ?number {
+  lineOfError(message: string, filePath: string): number | undefined {
     const filename = path.basename(filePath);
     const restOfTrace = message.split(filename, 2)[1];
-    return restOfTrace ? parseInt(restOfTrace.split(':')[1], 10) : null;
+    return restOfTrace ? parseInt(restOfTrace.split(':')[1], 10) : undefined;
   }
 
-  statusToReconcilationState(status: string): TestReconciliationState {
+  statusToReconciliationState(status: string): TestReconciliationState {
     switch (status) {
       case 'passed':
         return 'KnownSuccess';

@@ -100,12 +100,12 @@ describe('setup', () => {
 
     instance.pathToJest = 'new value';
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(global.console.warn).toBeCalledTimes(1);
+    expect(global.console.warn).toHaveBeenCalledTimes(1);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {pathToJest} = instance;
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(global.console.warn).toBeCalledTimes(2);
+    expect(global.console.warn).toHaveBeenCalledTimes(2);
   });
   it('allow passing nodeEnv', () => {
     const config = {

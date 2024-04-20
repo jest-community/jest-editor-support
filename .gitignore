@@ -3,3 +3,4 @@ build/
 coverage/
 *.tgz
 .eslintcache
+index.d.ts

@@ -4,37 +4,30 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
  */
 
 import type {Options} from './types';
 import type ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
-
-type Glob = string;
-
-// This class represents the configuration of Jest's process.
-// The interface below can be used to show what we use, as currently the whole
-// settings object will be in memory.
-// As soon as the code will be converted to TypeScript, this will be removed
-// in favor of `@jest/types`, which exports the full config interface.
-
-type ProjectConfiguration = {
-  testRegex: string | Array<string>,
-  testMatch: Array<Glob>,
-};
+import type {Config} from '@jest/types';
 
 type JestSettings = {
-  jestVersionMajor: number,
-  configs: ProjectConfiguration[],
+  jestVersionMajor: number;
+  configs: Config.ProjectConfig[];
 };
 
-function parseSettings(text: string, debug: ?boolean = false): JestSettings {
+interface JestConfigOutput {
+  globalConfig: Config.GlobalConfig;
+  configs: Config.ProjectConfig[] | Config.ProjectConfig;
+  version: string;
+}
+
+function parseSettings(text: string, debug = false): JestSettings {
   const jsonPattern = /^[\s]*\{/gm;
-  let settings = null;
+  let jestConfig: JestConfigOutput;
 
   try {
-    settings = JSON.parse(text);
+    jestConfig = JSON.parse(text) as JestConfigOutput;
   } catch (err) {
     // skip the non-json content, if any
     const idx = text.search(jsonPattern);
@@ -46,40 +39,46 @@ function parseSettings(text: string, debug: ?boolean = false): JestSettings {
       return parseSettings(text.substring(idx));
     }
     // eslint-disable-next-line no-console
-    console.warn(`failed to parse config: \n${text}\nerror: ${err}`);
+    console.warn(`failed to parse config: \n${text}\nerror:`, err);
     throw err;
   }
 
-  const jestVersionMajor = parseInt(settings.version.split('.').shift(), 10);
+  const parts = jestConfig.version?.split('.');
+  if (!parts || parts.length === 0) {
+    throw new Error(`Jest version is not a valid semver version: ${jestConfig.version}`);
+  }
+
+  const jestVersionMajor = parseInt(parts[0], 10);
   if (debug) {
     // eslint-disable-next-line no-console
     console.log(`found config jestVersionMajor=${jestVersionMajor}`);
   }
 
+  // prior to 21.0.0, jest only supported a single config
   return {
     jestVersionMajor,
-    configs: Array.isArray(settings.configs) ? settings.configs : [settings.config],
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+    configs: Array.isArray(jestConfig.configs) ? jestConfig.configs : [(jestConfig as any).config],
   };
 }
 
-// $FlowIgnore[value-as-type]
 export default function getSettings(workspace: ProjectWorkspace, options?: Options): Promise<JestSettings> {
   return new Promise((resolve, reject) => {
-    const _createProcess = (options && options.createProcess) || createProcess;
-    const getConfigProcess = _createProcess(workspace, ['--showConfig']);
+    const cp = (options && options.createProcess) || createProcess;
+    const childProcess = cp(workspace, ['--showConfig']);
 
     let configString = '';
-    getConfigProcess.stdout.on('data', (data: Buffer) => {
+    childProcess.stdout?.on('data', (data: Buffer) => {
       configString += data.toString();
     });
 
     let rejected = false;
-    getConfigProcess.stderr.on('data', (data: Buffer) => {
+    childProcess.stderr?.on('data', (data: Buffer) => {
       rejected = true;
       reject(data.toString());
     });
 
-    getConfigProcess.on('close', () => {
+    childProcess.on('close', () => {
       if (!rejected) {
         try {
           resolve(parseSettings(configString, workspace.debug));

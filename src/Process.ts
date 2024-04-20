@@ -10,7 +10,7 @@ import {ChildProcess, spawn} from 'child_process';
 import type ProjectWorkspace from './project_workspace';
 import type {LoginShell} from './project_workspace';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
 const isLoginShell = (arg: any): arg is LoginShell => arg && typeof arg.path === 'string' && Array.isArray(arg.args);
 
 /**
@@ -19,7 +19,6 @@ const isLoginShell = (arg: any): arg is LoginShell => arg && typeof arg.path ===
  * @param {string[]} args
  * @returns {ChildProcess}
  */
-// eslint-disable-next-line import/prefer-default-export
 export const createProcess = (workspace: ProjectWorkspace, args: string[]): ChildProcess => {
   const runtimeExecutable = [workspace.jestCommandLine, ...args];
 

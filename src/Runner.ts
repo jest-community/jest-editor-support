@@ -3,8 +3,6 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @flow
  */
 
 import {ChildProcess, spawn} from 'child_process';
@@ -12,28 +10,34 @@ import {readFile} from 'fs';
 import {tmpdir} from 'os';
 import * as path from 'path';
 import EventEmitter from 'events';
-import {messageTypes} from './types';
+import {MessageTypes} from './types';
 import type {Options, MessageType} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
+
+export type RunnerEvent =
+  | 'processClose'
+  | 'processExit'
+  | 'executableJSON'
+  | 'executableStdErr'
+  | 'executableOutput'
+  | 'terminalError';
 
 // This class represents the running process, and
 // passes out events when it understands what data is being
 // pass sent out of the process
 export default class Runner extends EventEmitter {
-  debugprocess: ?ChildProcess;
+  runProcess?: ChildProcess;
 
   outputPath: string;
 
-  // $FlowIgnore[value-as-type]
   workspace: ProjectWorkspace;
 
-  // $FlowIgnore[value-as-type]
-  _createProcess: (workspace: ProjectWorkspace, args: Array<string>) => ChildProcess;
+  _createProcess: (workspace: ProjectWorkspace, args: string[]) => ChildProcess;
 
-  watchMode: boolean;
+  watchMode = false;
 
-  watchAll: boolean;
+  watchAll = false;
 
   options: Options;
 
@@ -41,7 +45,6 @@ export default class Runner extends EventEmitter {
 
   _exited: boolean;
 
-  // $FlowIgnore[value-as-type]
   constructor(workspace: ProjectWorkspace, options?: Options) {
     super();
 
@@ -105,8 +108,8 @@ export default class Runner extends EventEmitter {
     return args;
   }
 
-  start(watchMode: boolean = true, watchAll: boolean = false) {
-    if (this.debugprocess) {
+  start(watchMode = true, watchAll = false) {
+    if (this.runProcess) {
       return;
     }
 
@@ -114,18 +117,18 @@ export default class Runner extends EventEmitter {
     this.watchAll = watchAll;
 
     const args = this._getArgs();
-    const debugprocess = this._createProcess(this.workspace, args);
-    this.debugprocess = debugprocess;
-    debugprocess.stdout.on('data', (data: Buffer) => {
+    const childProcess = this._createProcess(this.workspace, args);
+    this.runProcess = childProcess;
+    childProcess.stdout?.on('data', (data: Buffer) => {
       this._parseOutput(data, false);
     });
 
-    debugprocess.stderr.on('data', (data: Buffer) => {
+    childProcess.stderr?.on('data', (data: Buffer) => {
       // jest 23 could send test results message to stderr
       // see https://github.com/facebook/jest/pull/4858
       this._parseOutput(data, true);
     });
-    debugprocess.on('exit', (code: number | null, signal: string | null) => {
+    childProcess.on('exit', (code: number | null, signal: string | null) => {
       this._exited = true;
 
       // this is mainly for backward compatibility, should be deprecated soon
@@ -135,12 +138,12 @@ export default class Runner extends EventEmitter {
       this.prevMessageTypes.length = 0;
     });
 
-    debugprocess.on('error', (error: Error) => {
+    childProcess.on('error', (error: Error) => {
       this.emit('terminalError', `Process failed: ${error.message}`);
       this.prevMessageTypes.length = 0;
     });
 
-    debugprocess.on('close', (code: number | null, signal: string | null) => {
+    childProcess.on('close', (code: number | null, signal: string | null) => {
       // this is mainly for backward compatibility, should be deprecated soon
       this.emit('debuggerProcessExit');
 
@@ -165,7 +168,7 @@ export default class Runner extends EventEmitter {
   _parseOutput(data: Buffer, isStdErr: boolean): MessageType {
     const msgType = this.findMessageType(data);
     switch (msgType) {
-      case messageTypes.testResults:
+      case MessageTypes.testResults:
         this.emit('executableStdErr', data, {
           type: msgType,
         });
@@ -182,8 +185,8 @@ export default class Runner extends EventEmitter {
         });
         this.prevMessageTypes.length = 0;
         break;
-      case messageTypes.watchUsage:
-      case messageTypes.noTests:
+      case MessageTypes.watchUsage:
+      case MessageTypes.noTests:
         this.prevMessageTypes.push(msgType);
         this.emit('executableStdErr', data, {
           type: msgType,
@@ -216,33 +219,33 @@ export default class Runner extends EventEmitter {
   }
 
   closeProcess() {
-    if (!this.debugprocess || this._exited) {
+    if (!this.runProcess?.pid || this._exited) {
       // eslint-disable-next-line no-console
       console.log(`process has not started or already exited`);
       return;
     }
     if (process.platform === 'win32') {
       // Windows doesn't exit the process when it should.
-      spawn('taskkill', ['/pid', `${this.debugprocess.pid}`, '/T', '/F']);
+      spawn('taskkill', ['/pid', `${this.runProcess.pid}`, '/T', '/F']);
     } else {
       try {
         // kill all process with the same PGID, i.e.
         // as a detached process, it is the same as the PID of the leader process.
-        process.kill(-this.debugprocess.pid);
+        process.kill(-this.runProcess.pid);
       } catch (e) {
         // if anything goes wrong, fallback to the old benavior
         // knowing this could leave orphan process...
         // eslint-disable-next-line no-console
         console.warn(
           `failed to kill process group, this could leave some orphan process whose ppid=${
-            this.debugprocess?.pid || 'process-non-exist'
+            this.runProcess?.pid || 'process-non-exist'
           }. error=`,
           e
         );
-        this.debugprocess?.kill();
+        this.runProcess?.kill();
       }
     }
-    this.debugprocess = undefined;
+    this.runProcess = undefined;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -252,23 +255,23 @@ export default class Runner extends EventEmitter {
     const testResultsRegex = /Test results written to/;
 
     const checks = [
-      {regex: testResultsRegex, messageType: messageTypes.testResults},
-      {regex: noTestRegex, messageType: messageTypes.noTests},
-      {regex: watchUsageRegex, messageType: messageTypes.watchUsage},
+      {regex: testResultsRegex, messageType: MessageTypes.testResults},
+      {regex: noTestRegex, messageType: MessageTypes.noTests},
+      {regex: watchUsageRegex, messageType: MessageTypes.watchUsage},
     ];
 
     const str = buf.toString('utf8');
     const match = checks.find(({regex}) => regex.test(str));
-    return match ? match.messageType : messageTypes.unknown;
+    return match ? match.messageType : MessageTypes.unknown;
   }
 
   doResultsFollowNoTestsFoundMessage(): boolean {
     if (this.prevMessageTypes.length === 1) {
-      return this.prevMessageTypes[0] === messageTypes.noTests;
+      return this.prevMessageTypes[0] === MessageTypes.noTests;
     }
 
     if (this.prevMessageTypes.length === 2) {
-      return this.prevMessageTypes[0] === messageTypes.noTests && this.prevMessageTypes[1] === messageTypes.watchUsage;
+      return this.prevMessageTypes[0] === MessageTypes.noTests && this.prevMessageTypes[1] === MessageTypes.watchUsage;
     }
 
     return false;
