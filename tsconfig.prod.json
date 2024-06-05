@@ -4,7 +4,8 @@
     "sourceMap": false, // Disable source maps for production
     "declaration": false, // Disable declaration files generation
     "outDir": "./build", // Output directory for compiled JS files
-    "removeComments": true // Optional: Remove comments in the production build
+    "removeComments": true, // Optional: Remove comments in the production build
+    "stripInternal": true,
   },
   "exclude": [
     "**/__tests__/**", // Exclude all test files
