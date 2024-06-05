@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.prod.json",
+  "compilerOptions": {
+    "removeComments": false, // Optional: Remove comments in the production build
+  },
+}

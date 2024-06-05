@@ -15,35 +15,47 @@ import type {Options, MessageType} from './types';
 import ProjectWorkspace from './project_workspace';
 import {createProcess} from './Process';
 
-export type RunnerEvent =
-  | 'processClose'
-  | 'processExit'
-  | 'executableJSON'
-  | 'executableStdErr'
-  | 'executableOutput'
-  | 'terminalError';
+export type RunnerEventMap = {
+  processClose: [code: number | null, signal: string | null];
+  processExit: [code: number | null, signal: string | null];
+  executableJSON: [data: object, {noTestsFound: boolean}];
+  executableStdErr: [data: Buffer, {type: MessageType}];
+  executableOutput: [data: string];
+  terminalError: [error: string];
+  debuggerProcessExit: [];
+};
+
+export type AllRunnerEvent = keyof RunnerEventMap;
+export type RunnerEvent = Exclude<AllRunnerEvent, 'debuggerProcessExit'>;
 
 // This class represents the running process, and
 // passes out events when it understands what data is being
 // pass sent out of the process
-export default class Runner extends EventEmitter {
+export default class Runner extends EventEmitter<RunnerEventMap> {
+  /** @internal */
   runProcess?: ChildProcess;
 
+  /** @internal */
   outputPath: string;
 
+  /** @internal */
   workspace: ProjectWorkspace;
 
-  _createProcess: (workspace: ProjectWorkspace, args: string[]) => ChildProcess;
+  /** @internal */
+  private _createProcess: (workspace: ProjectWorkspace, args: string[]) => ChildProcess;
 
   watchMode = false;
 
   watchAll = false;
 
+  /** @internal */
   options: Options;
 
+  /** @internal */
   prevMessageTypes: MessageType[];
 
-  _exited: boolean;
+  /** @internal */
+  private _exited: boolean;
 
   constructor(workspace: ProjectWorkspace, options?: Options) {
     super();
@@ -56,7 +68,8 @@ export default class Runner extends EventEmitter {
     this._exited = false;
   }
 
-  __convertDashedArgs(args: string[]): string[] {
+  /** @internal */
+  private __convertDashedArgs(args: string[]): string[] {
     if (!this.workspace.useDashedArgs) {
       return args;
     }
@@ -66,7 +79,8 @@ export default class Runner extends EventEmitter {
     );
   }
 
-  _getArgs(): string[] {
+  /** @internal */
+  private _getArgs(): string[] {
     if (this.options.args && this.options.args.replace) {
       return this.options.args.skipConversion
         ? this.options.args.args
@@ -153,6 +167,7 @@ export default class Runner extends EventEmitter {
   }
 
   /**
+   * @internal
    * parse the stdin/out stream buffer for recognized messages.
    *
    * note: if these messages coming in in separate chucks, we might not be able to
@@ -165,7 +180,7 @@ export default class Runner extends EventEmitter {
    * @returns {MessageType}
    * @memberof Runner
    */
-  _parseOutput(data: Buffer, isStdErr: boolean): MessageType {
+  private _parseOutput(data: Buffer, isStdErr: boolean): MessageType {
     const msgType = this.findMessageType(data);
     switch (msgType) {
       case MessageTypes.testResults:
@@ -248,7 +263,7 @@ export default class Runner extends EventEmitter {
     this.runProcess = undefined;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  /** @internal */
   findMessageType(buf: Buffer): MessageType {
     const noTestRegex = /No tests found related to files changed since ((last commit)|("[a-z0-9]+"))./;
     const watchUsageRegex = /^\s*Watch Usage\b/;
@@ -265,6 +280,7 @@ export default class Runner extends EventEmitter {
     return match ? match.messageType : MessageTypes.unknown;
   }
 
+  /** @internal */
   doResultsFollowNoTestsFoundMessage(): boolean {
     if (this.prevMessageTypes.length === 1) {
       return this.prevMessageTypes[0] === MessageTypes.noTests;

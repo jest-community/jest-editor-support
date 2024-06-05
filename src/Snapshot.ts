@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
@@ -13,17 +9,15 @@
 
 import traverse, {NodePath} from '@babel/traverse';
 import * as t from '@babel/types';
-import type {SnapshotResolver} from 'jest-snapshot';
-import {buildSnapshotResolver, utils} from 'jest-snapshot';
+import {SnapshotResolver, buildSnapshotResolver} from 'jest-snapshot';
+import * as utils from '@jest/snapshot-utils';
 import type {Config} from '@jest/types';
 
 import {getASTfor} from './parsers/babel_parser';
 import type {JESParserOptions} from './parsers';
 import {shallowAttr} from './parsers/helper';
-import {SnapshotData} from 'jest-snapshot/build/types';
 
 type ParserFunc = typeof getASTfor;
-
 export type SnapshotNode = t.Identifier;
 export interface SnapshotBlock {
   node: SnapshotNode;
@@ -106,15 +100,20 @@ export interface SnapshotParserOptions {
   parserOptions?: JESParserOptions;
 }
 export default class Snapshot {
-  _parser: ParserFunc;
+  /** @internal */
+  private _parser: ParserFunc;
 
-  _matchers: string[];
+  /** @internal */
+  private _matchers: string[];
 
-  _projectConfig?: Config.ProjectConfig;
+  /** @internal */
+  private _projectConfig?: Config.ProjectConfig;
 
-  snapshotResolver?: SnapshotResolver;
+  /** @internal */
+  private snapshotResolver?: SnapshotResolver;
 
-  _resolverPromise: Promise<SnapshotResolver>;
+  /** @internal */
+  private _resolverPromise: Promise<SnapshotResolver>;
 
   constructor(parser?: ParserFunc, customMatchers?: string[], projectConfig?: Config.ProjectConfig) {
     this._parser = parser || getASTfor;
@@ -160,7 +159,8 @@ export default class Snapshot {
     }));
   }
 
-  async _getSnapshotResolver(): Promise<SnapshotResolver> {
+  /** @internal */
+  private async _getSnapshotResolver(): Promise<SnapshotResolver> {
     if (!this.snapshotResolver) {
       this.snapshotResolver = await this._resolverPromise;
     }
@@ -175,7 +175,7 @@ export default class Snapshot {
    * a SnapshotData object will be returned with all matched snapshots. If nothing matched, null will be returned.
    * @throws throws exception if the snapshot version mismatched or any other unexpected error.
    */
-  async getSnapshotContent(filePath: string, name: string | RegExp): Promise<string | SnapshotData | null> {
+  async getSnapshotContent(filePath: string, name: string | RegExp): Promise<string | utils.SnapshotData | null> {
     const snapshotResolver = await this._getSnapshotResolver();
 
     const snapshotPath = snapshotResolver.resolveSnapshotPath(filePath);
@@ -184,7 +184,7 @@ export default class Snapshot {
       return snapshots[name];
     }
     const regex = name;
-    const data: SnapshotData = {};
+    const data: utils.SnapshotData = {};
     Object.entries(snapshots).forEach(([key, value]) => {
       if (regex.test(key)) {
         data[key] = value;

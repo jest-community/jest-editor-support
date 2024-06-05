@@ -12,20 +12,26 @@
 
 import path from 'path';
 import Snapshot from '../Snapshot';
-import jestSnapshot from 'jest-snapshot';
+import * as jestSnapshot from 'jest-snapshot';
+
+jest.mock('jest-snapshot', () => {
+  const original = jest.requireActual('jest-snapshot');
+  return {
+    ...original,
+    buildSnapshotResolver: jest.fn(),
+  };
+});
 
 const snapshotFixturePath = path.resolve(__dirname, 'fixtures/snapshots');
 
 describe('Snapshot', () => {
-  let buildSnapshotResolverSpy: jest.SpyInstance;
   let snapshotHelper: Snapshot;
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
+    (jestSnapshot.buildSnapshotResolver as jest.Mocked<any>).mockImplementation(
+      jest.requireActual('jest-snapshot').buildSnapshotResolver
+    );
     snapshotHelper = new Snapshot();
-    buildSnapshotResolverSpy = jest.spyOn(jestSnapshot, 'buildSnapshotResolver');
-  });
-  afterEach(() => {
-    jest.restoreAllMocks();
   });
 
   describe('getMetadata', () => {
@@ -134,7 +140,7 @@ describe('Snapshot', () => {
       });
       it('when the resolver is not yet ready', () => {
         // simulate when buildSnapshotResolver did not resolve yet
-        buildSnapshotResolverSpy.mockImplementation((() => {
+        (jestSnapshot.buildSnapshotResolver as jest.Mocked<any>).mockImplementation((() => {
           // eslint-disable-next-line @typescript-eslint/no-empty-function
           return new Promise(() => {});
         }) as any);
@@ -239,7 +245,7 @@ describe('Snapshot', () => {
       const snapshot = new Snapshot(undefined, undefined, customConfig);
       const filePath = path.join(snapshotFixturePath, 'inline-and-each.example');
       await snapshot.getSnapshotContent(filePath, /not existing test/);
-      expect(buildSnapshotResolverSpy).toHaveBeenCalledWith(customConfig, expect.any(Function));
+      expect(jestSnapshot.buildSnapshotResolver).toHaveBeenCalledWith(customConfig, expect.any(Function));
     });
   });
 });

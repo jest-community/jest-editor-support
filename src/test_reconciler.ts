@@ -52,7 +52,8 @@ export type TestFileAssertionStatus = Omit<JestFileResults, 'status' | 'assertio
  *  at a file level, generating useful error messages and providing a nice API.
  */
 export default class TestReconciler {
-  fileStatuses: {[key: string]: TestFileAssertionStatus};
+  /** @internal */
+  private fileStatuses: {[key: string]: TestFileAssertionStatus};
 
   constructor() {
     this.fileStatuses = {};
@@ -93,7 +94,8 @@ export default class TestReconciler {
   // we don't get this as structured data, but what we get
   // is useful enough to make it for ourselves
 
-  mapAssertions(filename: string, assertions: JestAssertionResults[]): TestAssertionStatus[] {
+  /** @internal */
+  private mapAssertions(filename: string, assertions: JestAssertionResults[]): TestAssertionStatus[] {
     // convert jest location (column is 0-based and line is 1-based) to all 0-based location used internally in this package
     /* eslint-disable no-param-reassign */
     const convertJestLocation = (jestLocation?: CodeLocation) => {
@@ -135,7 +137,8 @@ export default class TestReconciler {
   }
 
   // Do everything we can to try make a one-liner from the error report
-  sanitizeShortErrorMessage(string: string): string {
+  /** @internal */
+  private sanitizeShortErrorMessage(string: string): string {
     if (string.includes('does not match stored snapshot')) {
       return 'Snapshot has changed';
     }
@@ -154,13 +157,15 @@ export default class TestReconciler {
   }
 
   // Pull the line out from the stack trace
-  lineOfError(message: string, filePath: string): number | undefined {
+  /** @internal */
+  private lineOfError(message: string, filePath: string): number | undefined {
     const filename = path.basename(filePath);
     const restOfTrace = message.split(filename, 2)[1];
     return restOfTrace ? parseInt(restOfTrace.split(':')[1], 10) : undefined;
   }
 
-  statusToReconciliationState(status: string): TestReconciliationState {
+  /** @internal */
+  private statusToReconciliationState(status: string): TestReconciliationState {
     switch (status) {
       case 'passed':
         return 'KnownSuccess';
